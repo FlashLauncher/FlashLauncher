@@ -1,162 +1,21 @@
 package Utils.json;
 
-import Utils.Core;
-
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.HashMap;
 
 public class Json extends InputStream {
-    /*private final String d;
-    private int o = 0;
-
-    private Json(String data) {
-        d = data;
-    }
-
-    public char nextChar() throws Exception {
-        if (o > d.length())
-            throw new Exception("end");
-        return d.charAt(o++);
-    }
-
-    private final JsonElement p() throws Exception {
-        while (true) {
-            final char ic = nextChar();
-            switch (ic) {
-                case ' ': case '\t': case '\r': case '\n': break;
-                case '"':
-                    StringBuilder str = new StringBuilder();
-                    while (true) {
-                        char ch = nextChar();
-                        switch (ch) {
-                            case '"':
-                                return new JsonElement(str.toString());
-                            default:
-                                str.append(ch);
-                                break;
-                        }
-                    }
-                case '{':
-                    final JsonDict map = new JsonDict();
-                    StringBuilder kb = new StringBuilder();
-                    while (true) {
-                        char ch = nextChar();
-                        switch (ch) {
-                            case ' ': case '\t': case '\r': case '\n': break;
-                            case ':':
-                                if (kb == null)
-                                    throw new Exception("Unexpected char :");
-                                if (kb.length() == 0)
-                                    throw new Exception("Key length is 0");
-                                map.put(kb.toString(), p());
-                                kb = null;
-                                break;
-                            case ',':
-                                if (kb != null)
-                                    throw new Exception("Unexpected char ,");
-                                kb = new StringBuilder();
-                                break;
-                            case '}':
-                                return map;
-                            default:
-                                if (kb == null)
-                                    throw new Exception("Unexpected char " + ch + " at " + o);
-                                kb.append(ch);
-                                break;
-                        }
-                    }
-                case '[':
-                    boolean add = true;
-                    final JsonList l = new JsonList();
-                    while (true) {
-                        char ch = nextChar();
-                        switch (ch) {
-                            case ' ':
-                            case '\t':
-                            case '\r':
-                            case '\n':
-                                break;
-                            case ']':
-                                return l;
-                            case ',':
-                                if (add)
-                                    throw new Exception("Unexpected char ,");
-                                add = true;
-                                break;
-                            default:
-                                if (!add)
-                                    throw new Exception("Unexpected char " + ch);
-                                add = false;
-                                o--;
-                                l.add(p());
-                                break;
-                        }
-                    }
-                case 'n':
-                    if (nextChar() == 'u' && nextChar() == 'l' && nextChar() == 'l')
-                        return new JsonElement(null);
-                    throw new Exception("Unexpected char");
-                case 'f':
-                    if (nextChar() == 'a' && nextChar() == 'l' && nextChar() == 's' && nextChar() == 'e')
-                        return new JsonElement(false);
-                    throw new Exception("Unexpected char");
-                case 't':
-                    if (nextChar() == 'r' && nextChar() == 'u' && nextChar() == 'e')
-                        return new JsonElement(true);
-                    throw new Exception("Unexpected char");
-                case '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9':
-                    final StringBuilder b = new StringBuilder();
-                    b.append(ic);
-                    while (true) {
-                        char ch = nextChar();
-                        switch (ch) {
-                            case '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9':
-                                b.append(ch);
-                                break;
-                            case ',': case '}': case ']':
-                                o--;
-                                return new JsonElement(Integer.parseInt(b.toString()));
-                            case '.':
-                                if (b.indexOf(".") != -1)
-                                    throw new Exception("Unexpected char " + ch);
-                                b.append('.');
-                                break;
-                            case 'f': return new JsonElement(Float.parseFloat(b.toString()));
-                            case '\r': case '\n': return new JsonElement(b.indexOf(".") == -1 ? Integer.parseInt(b.toString()) : Double.parseDouble(b.toString()));
-                            case 'b':
-                                if (b.length() == 1)
-                                    switch (ic) {
-                                        case '0': new JsonElement(false);
-                                        case '1': return new JsonElement(true);
-                                    }
-                            default: throw new Exception("Unexpected char " + ch);
-                        }
-                    }
-                default: throw new Exception("Unexpected char to detect type " + d.charAt(o - 1));
-            }
-        }
-    }
-
-    public static JsonElement parse(String str) throws Exception {
-        return new Json(str).p();
-    }*/
     private final InputStream is;
     private int p = -1;
 
-    private Json(final InputStream inputStream) {
-        is = inputStream;
-    }
+    private Json(final InputStream inputStream) { is = inputStream; }
 
     public static JsonElement parse(final String str) throws Exception {
         final Json e = new Json(new ByteArrayInputStream(str.getBytes(StandardCharsets.UTF_8)));
         try {
             return e.p();
         } catch (final Throwable ex) {
-            //System.out.println(e.index);
             throw ex;
         }
     }
@@ -166,12 +25,9 @@ public class Json extends InputStream {
         try {
             return e.p();
         } catch (final Throwable ex) {
-            //System.out.println(e.index);
             throw ex;
         }
     }
-
-    //private int index = 0;
 
     @Override
     public final int read() throws IOException {
@@ -180,7 +36,6 @@ public class Json extends InputStream {
             p = -1;
             return p2;
         }
-        //index++;
         final int p2 = is.read();
         if (p2 == -1) throw new IOException("-1");
         return p2;
@@ -191,7 +46,7 @@ public class Json extends InputStream {
         while (true)
             switch (cha = (char) read()) {
                 case '\t': case ' ': case '\r': case '\n': break;
-                case '{': // Dictionary
+                case '{':
                     final JsonDict d = new JsonDict();
                     char ch;
                     while (true)
