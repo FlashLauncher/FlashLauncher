@@ -154,38 +154,11 @@ public class SButton extends JButton implements IButton {
     }
 
     @Override
-    protected void paintComponent(Graphics graphics) {
-        /*Graphics2D g = (Graphics2D) graphics.create();
-        g.setRenderingHints(SSwing.RH);
-
-        g.setColor((Color) bg.get());
-        final int br = borderRadius.run(), io = imageOffset.run(), itd = imageTextDist.run(), s = getHeight() - io * 2;
-        if (br > 0)
-            g.setClip(new RoundRectangle2D.Double(0, 0, getWidth(), getHeight(), br, br));
-        g.fillRect(0, 0, getWidth(), getHeight());
-
-        g.setColor((Color) fg.get());
-
-        final Font font = (Font) this.font.get();
-        g.setFont(font);
-        final FontRenderContext frc = new FontRenderContext(null, true, true);
-        final String text;
-        {
-            final Object o = this.text;
-            text = o == null ? null : o.toString();
-        }
-
-        if (text != null && text.length() > 0) {
-            final FontMetrics metrics = getFontMetrics(font);
-            // g.drawString(text, 0, (getHeight() - metrics.getHeight()) / 2 + metrics.getAscent());
-            g.setColor((Color) UI.GREEN);
-            g.drawString(text, 0, (getHeight() - metrics.getHeight()) / 2 + metrics.getLeading() + metrics.getAscent());
-        }*/
-
-        Graphics2D g = (Graphics2D) graphics.create();
+    protected void paintComponent(final Graphics graphics) {
+        final Graphics2D g = (Graphics2D) graphics.create();
         g.setRenderingHints(SSwing.RH);
         g.setFont((Font) font.get());
-        FontMetrics metrics = g.getFontMetrics((Font) font.get());
+        final FontMetrics metrics = g.getFontMetrics();
 
 
 
@@ -232,33 +205,7 @@ public class SButton extends JButton implements IButton {
             }
         }
         if (t)
-            //g.drawString(text, x, y + metrics.getAscent());
             g.drawString(text, x, y + metrics.getLeading() + metrics.getAscent());
-
-        /*final HAlign ha = this.ha;
-        final Image img;
-        {
-            final IImage i = image;
-            img = i == null ? null : (Image) i.getImage();
-        }
-        final int io = imageOffset.run(), s = getHeight() - io * 2;
-        final boolean t = text.length() > 0;
-
-        int x;
-        if (ha == HAlign.LEFT) {
-            x = io;
-            if (img != null) {
-                g.drawImage(img, x, (getHeight() - s) / 2, s, s, this);
-                x += s + io;
-            }
-        } else {
-            x = t ? (getWidth() - metrics.stringWidth(text)) / 2 : getWidth() / 2;
-            if (img != null) {
-                g.drawImage(img, x - s / 2 - (t ? 4 : 0), (getHeight() - s) / 2, s, s, this);
-                x += t ? s / 2 + io : s / 2;
-            }
-        }
-        if (t) g.drawString(text, x, (getHeight() - metrics.getHeight()) / 2 + metrics.getAscent());*/
 
         g.dispose();
     }
