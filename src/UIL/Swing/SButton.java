@@ -243,7 +243,7 @@ public class SButton extends JButton implements IButton {
     private static class SButtonMouseEvent implements IButtonActionEvent {
         private final MouseEvent e;
 
-        private SButtonMouseEvent(MouseEvent event) { e = event; }
+        private SButtonMouseEvent(final MouseEvent event) { e = event; }
 
         @Override public boolean isMouse() { return true; }
         @Override public int clickCount() { return e.getClickCount(); }
