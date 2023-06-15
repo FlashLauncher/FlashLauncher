@@ -83,15 +83,6 @@ public class Core {
         return r;
     }
 
-    /*public static byte[] readFully(final InputStream inputStream, final boolean close) throws IOException {
-        final ByteArrayOutputStream r = new ByteArrayOutputStream();
-        final byte[] buff = new byte[BUFFER_SIZE];
-        for (int len = inputStream.read(buff, 0, buff.length); len > -1; len = inputStream.read(buff, 0, buff.length))
-            r.write(buff, 0, len);
-        if (close) inputStream.close();
-        return r.toByteArray();
-    }*/
-
     public static byte[] readFully(final InputStream inputStream) throws IOException { return readFully(inputStream, true); }
 
     public static final String RES = "res://";
@@ -299,26 +290,18 @@ public class Core {
             kilobytes = Lang.get("size.kilobytes"),
             megabytes = Lang.get("size.megabytes"),
             gigabytes = Lang.get("size.gigabytes"),
-            terabytes = Lang.get("size.terabytes")
-            ;
+            terabytes = Lang.get("size.terabytes");
 
     public static String strSize1024(final long size) {
-        System.out.println(Long.compareUnsigned(size, 1024));
-        System.out.println(Long.compareUnsigned(size, 1048576));
-        System.out.println(Long.compareUnsigned(size, 1073741824L));
-        System.out.println(Long.compareUnsigned(size, 1099511627776L));
-        if (Long.compareUnsigned(size, 1024) > 0) {
-            if (Long.compareUnsigned(size, 1048576) > 0) {
-                if (Long.compareUnsigned(size, 1073741824L) > 0)
-                    return Long.compareUnsigned(size, 1099511627776L) > 0 ?
-                            Long.toUnsignedString(Long.divideUnsigned(size, 1099511627776L)) + " " + terabytes :
-                            Long.toUnsignedString(Long.divideUnsigned(size, 1073741824L)) + " " + gigabytes;
-                else
-                    return Long.toUnsignedString(size / 1048576) + " " + megabytes;
-            }
-            return Long.toUnsignedString(size / 1024) + " " + kilobytes;
-        }
-        return Long.toUnsignedString(size) + " " + bytes;
+        return Long.compareUnsigned(size, 1024) > 0 ?
+                    Long.compareUnsigned(size, 1048576) > 0 ?
+                            Long.compareUnsigned(size, 1073741824L) > 0 ?
+                                    Long.compareUnsigned(size, 1099511627776L) > 0 ?
+                                            Long.toUnsignedString(Long.divideUnsigned(size, 1099511627776L)) + " " + terabytes :
+                                            Long.toUnsignedString(Long.divideUnsigned(size, 1073741824L)) + " " + gigabytes :
+                                    Long.toUnsignedString(size / 1048576) + " " + megabytes :
+                            Long.toUnsignedString(size / 1024) + " " + kilobytes :
+                    Long.toUnsignedString(size) + " " + bytes;
     }
 
     public static final String
