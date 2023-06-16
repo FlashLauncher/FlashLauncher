@@ -60,9 +60,6 @@ public class Theme {
                 final float height = ini.getAsFloat("font-height");
                 final float fh = UI.UI.getFontHeight(font, Math.round(height));
                 t.font = UI.font(font, UI.FontStyle.PLAIN, (int) Math.ceil(height / fh * height));
-                System.out.println(UI.UI.getFontHeight(font, 15));
-                System.out.println(UI.UI.getFontHeight(font, ((Font) t.font.get()).getSize()));
-                System.out.println(((Font) t.font.get()).getSize());
             } else
                 t.font = UI.font(font, UI.FontStyle.PLAIN, ini.getAsInt("font-size"));
         }
