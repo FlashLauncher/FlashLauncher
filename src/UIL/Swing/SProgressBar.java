@@ -2,8 +2,8 @@ package UIL.Swing;
 
 import UIL.base.IColor;
 import UIL.base.IProgressBar;
-import Utils.IntRunnable;
 import UIL.Theme;
+import Utils.RRunnable;
 
 import javax.swing.*;
 import java.awt.*;
@@ -12,7 +12,7 @@ import java.awt.geom.RoundRectangle2D;
 public class SProgressBar extends JComponent implements IProgressBar {
     private long maxProgress = 100, progress = 0;
 
-    private IntRunnable borderRadius = Theme.PB_BORDER_RADIUS;
+    private RRunnable<Integer> borderRadius = Theme.PB_BORDER_RADIUS;
     private IColor bg = Theme.BACKGROUND, fg = Theme.FOREGROUND;
 
     @Override public int width() { return getWidth(); }
@@ -45,7 +45,7 @@ public class SProgressBar extends JComponent implements IProgressBar {
     }
 
     @Override
-    public SProgressBar borderRadius(IntRunnable borderRadius) {
+    public SProgressBar borderRadius(final RRunnable<Integer> borderRadius) {
         this.borderRadius = borderRadius;
         repaint();
         return this;

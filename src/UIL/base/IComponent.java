@@ -1,6 +1,6 @@
 package UIL.base;
 
-import Utils.IntRunnable;
+import Utils.RRunnable;
 
 public interface IComponent {
     boolean visible();
@@ -16,7 +16,7 @@ public interface IComponent {
     IComponent visible(final boolean visible);
     IComponent focus();
 
-    default IComponent borderRadius(final IntRunnable borderRadius) { return this; }
+    default IComponent borderRadius(final RRunnable<Integer> borderRadius) { return this; }
     default IComponent borderRadius(final int borderRadius) { return this; }
     default IComponent background(final IColor bg) { return this; }
     default IComponent foreground(final IColor fg) { return this; }

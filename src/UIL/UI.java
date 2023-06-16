@@ -2,7 +2,7 @@ package UIL;
 
 import UIL.base.*;
 import Utils.Core;
-import Utils.IntRunnable;
+import Utils.RRunnable;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -128,5 +128,5 @@ public abstract class UI {
         BLUE = color(0, 0, 255);
     }
 
-    public static final IntRunnable ZERO = () -> 0;
+    public static final RRunnable<Integer> ZERO = () -> 0;
 }

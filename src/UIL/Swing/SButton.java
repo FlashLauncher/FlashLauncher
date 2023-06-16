@@ -5,7 +5,7 @@ import UIL.base.IButton;
 import UIL.base.IColor;
 import UIL.base.IFont;
 import UIL.base.IImage;
-import Utils.IntRunnable;
+import Utils.RRunnable;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -22,7 +22,7 @@ public class SButton extends JButton implements IButton {
     private HAlign ha = HAlign.CENTER;
     private Object text = null;
 
-    private IntRunnable borderRadius = Theme.BORDER_RADIUS, imageTextDist = () -> 0, imageOffset = () -> 0;
+    private RRunnable<Integer> borderRadius = Theme.BORDER_RADIUS, imageTextDist = () -> 0, imageOffset = () -> 0;
 
     public SButton() {
         setOpaque(false);
@@ -95,7 +95,7 @@ public class SButton extends JButton implements IButton {
     }
 
     @Override
-    public SButton borderRadius(IntRunnable borderRadius) {
+    public SButton borderRadius(final RRunnable<Integer> borderRadius) {
         this.borderRadius = borderRadius;
         repaint();
         return this;

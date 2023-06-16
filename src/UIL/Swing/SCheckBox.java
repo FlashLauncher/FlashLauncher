@@ -1,11 +1,11 @@
 package UIL.Swing;
 
 import UIL.HAlign;
-import Utils.IntRunnable;
 import UIL.Theme;
 import UIL.base.ICheckBox;
 import UIL.base.IColor;
 import UIL.base.IFont;
+import Utils.RRunnable;
 
 import javax.swing.*;
 import java.awt.*;
@@ -13,7 +13,7 @@ import java.awt.*;
 public class SCheckBox extends JComponent implements ICheckBox {
     private IFont f = Theme.FONT;
     private IColor bg = Theme.BACKGROUND, fg = Theme.FOREGROUND;
-    private IntRunnable br = Theme.BORDER_RADIUS;
+    private RRunnable<Integer> br = Theme.BORDER_RADIUS;
     private Object t;
     private boolean c;
 
@@ -28,7 +28,7 @@ public class SCheckBox extends JComponent implements ICheckBox {
         final Graphics2D g = (Graphics2D) graphics.create();
         g.setRenderingHints(SSwing.RH);
 
-        final IntRunnable borderRadius = br;
+        final RRunnable<Integer> borderRadius = br;
         final int br = borderRadius == null ? 0 : borderRadius.run();
         g.setColor((Color) bg.get());
         if (br > 0)
@@ -64,7 +64,7 @@ public class SCheckBox extends JComponent implements ICheckBox {
     @Override public SCheckBox pos(final int x, final int y) { setLocation(x, y); return this; }
     @Override public SCheckBox visible(final boolean visible) { setVisible(visible); return this; }
     @Override public SCheckBox focus() { requestFocus(); return this; }
-    @Override public SCheckBox borderRadius(final IntRunnable borderRadius) { br = borderRadius; repaint(); return this; }
+    @Override public SCheckBox borderRadius(final RRunnable<Integer> borderRadius) { br = borderRadius; repaint(); return this; }
     @Override public SCheckBox borderRadius(final int borderRadius) { br = () -> borderRadius; repaint(); return this; }
     @Override public SCheckBox background(final IColor bg) { this.bg = bg; repaint(); return this; }
     @Override public SCheckBox foreground(final IColor fg) { this.fg = fg; repaint(); return this; }

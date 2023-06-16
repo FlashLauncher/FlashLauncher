@@ -2,7 +2,7 @@ package UIL.base;
 
 import UIL.HAlign;
 import UIL.ImgAlign;
-import Utils.IntRunnable;
+import Utils.RRunnable;
 
 public interface IButton extends IText {
     IButton image(IImage image);
@@ -23,7 +23,7 @@ public interface IButton extends IText {
     @Override IButton pos(int x, int y);
     @Override IButton visible(boolean visible);
     @Override IButton focus();
-    @Override default IButton borderRadius(IntRunnable borderRadius) { return this; }
+    @Override default IButton borderRadius(final RRunnable<Integer> borderRadius) { return this; }
     @Override default IButton borderRadius(int borderRadius) { return this; }
     @Override default IButton background(IColor bg) { return this; }
     @Override default IButton foreground(IColor fg) { return this; }

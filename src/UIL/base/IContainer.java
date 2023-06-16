@@ -1,6 +1,6 @@
 package UIL.base;
 
-import Utils.IntRunnable;
+import Utils.RRunnable;
 
 public interface IContainer extends IComponent {
     IContainer add(IComponent component);
@@ -13,7 +13,7 @@ public interface IContainer extends IComponent {
     @Override IContainer pos(int x, int y);
     @Override IContainer visible(boolean visible);
     @Override IContainer focus();
-    @Override default IContainer borderRadius(IntRunnable borderRadius) { return this; }
+    @Override default IContainer borderRadius(final RRunnable<Integer> borderRadius) { return this; }
     @Override default IContainer borderRadius(int borderRadius) { return this; }
     @Override default IContainer background(IColor bg) { return this; }
     @Override default IContainer foreground(IColor fg) { return this; }

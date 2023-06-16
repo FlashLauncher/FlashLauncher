@@ -4,7 +4,7 @@ import UIL.*;
 import UIL.base.IColor;
 import UIL.base.IComponent;
 import UIL.base.IContainer;
-import Utils.IntRunnable;
+import Utils.RRunnable;
 
 import javax.swing.*;
 import java.awt.*;
@@ -13,7 +13,7 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
 public class SPanel extends JPanel implements IContainer {
-    private IntRunnable borderRadius = Theme.BORDER_RADIUS;
+    private RRunnable<Integer> borderRadius = Theme.BORDER_RADIUS;
     private IColor bg = Theme.BACKGROUND;
 
     public SPanel() { setOpaque(false); setLayout(null); }
@@ -73,7 +73,7 @@ public class SPanel extends JPanel implements IContainer {
     @Override public int borderRadius() { return borderRadius.run(); }
 
     @Override
-    public SPanel borderRadius(final IntRunnable borderRadius) {
+    public SPanel borderRadius(final RRunnable<Integer> borderRadius) {
         this.borderRadius = borderRadius;
         repaint();
         return this;

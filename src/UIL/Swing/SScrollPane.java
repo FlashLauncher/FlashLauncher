@@ -1,11 +1,11 @@
 package UIL.Swing;
 
-import Utils.IntRunnable;
 import UIL.Theme;
 import UIL.base.IColor;
 import UIL.base.IComponent;
 import UIL.base.IContainer;
 import UIL.base.IScrollPane;
+import Utils.RRunnable;
 
 import javax.swing.*;
 import java.awt.*;
@@ -14,7 +14,7 @@ import java.awt.image.BufferedImage;
 
 public class SScrollPane extends JPanel implements IScrollPane {
     IContainer content = null;
-    private IntRunnable borderRadius = Theme.BORDER_RADIUS;
+    private RRunnable<Integer> borderRadius = Theme.BORDER_RADIUS;
     private IColor bg = Theme.BACKGROUND, fg = Theme.FOREGROUND;
 
     private int sx = 0, sy = 0;
@@ -156,7 +156,7 @@ public class SScrollPane extends JPanel implements IScrollPane {
     }
 
     @Override
-    public SScrollPane borderRadius(IntRunnable borderRadius) {
+    public SScrollPane borderRadius(final RRunnable<Integer> borderRadius) {
         this.borderRadius = borderRadius;
         repaint();
         return this;

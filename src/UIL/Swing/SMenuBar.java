@@ -5,8 +5,7 @@ import UIL.base.IColor;
 import UIL.base.IComponent;
 import UIL.base.IImage;
 import UIL.base.IMenuBar;
-import Utils.BoolRunnable;
-import Utils.IntRunnable;
+import Utils.RRunnable;
 
 import javax.swing.*;
 import java.awt.*;
@@ -18,10 +17,10 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class SMenuBar extends JPanel implements IMenuBar {
     private IColor bg = Theme.BACKGROUND, fg = Theme.FOREGROUND;
-    private IntRunnable borderRadius = Theme.BORDER_RADIUS;
+    private RRunnable<Integer> borderRadius = Theme.BORDER_RADIUS;
 
     private final ReentrantLock chlo = new ReentrantLock();
-    private final ArrayList<BoolRunnable> chl = new ArrayList<>();
+    private final ArrayList<RRunnable<Boolean>> chl = new ArrayList<>();
 
     private final ReentrantLock l = new ReentrantLock();
     private final ArrayList<SButton> top = new ArrayList<>();
@@ -166,11 +165,11 @@ public class SMenuBar extends JPanel implements IMenuBar {
         return this;
     }
 
-    private void onChange(Runnable action) {
+    private void onChange(final Runnable action) {
         fh = 32;
         timer.start();
         chlo.lock();
-        chl.removeIf(BoolRunnable::run);
+        chl.removeIf(RRunnable::run);
         chlo.unlock();
         action.run();
         System.gc();
@@ -179,13 +178,13 @@ public class SMenuBar extends JPanel implements IMenuBar {
     @Override
     public SMenuBar changed() {
         chlo.lock();
-        chl.removeIf(BoolRunnable::run);
+        chl.removeIf(RRunnable::run);
         chlo.unlock();
         return this;
     }
 
     @Override
-    public SMenuBar onChange(final BoolRunnable runnable) {
+    public SMenuBar onChange(final RRunnable<Boolean> runnable) {
         chlo.lock();
         chl.add(runnable);
         chlo.unlock();
@@ -193,7 +192,7 @@ public class SMenuBar extends JPanel implements IMenuBar {
     }
 
     @Override
-    public SMenuBar offChange(final BoolRunnable runnable) {
+    public SMenuBar offChange(final RRunnable<Boolean> runnable) {
         chlo.lock();
         chl.remove(runnable);
         chlo.unlock();
@@ -258,7 +257,7 @@ public class SMenuBar extends JPanel implements IMenuBar {
     }
 
     @Override
-    public SMenuBar borderRadius(IntRunnable borderRadius) {
+    public SMenuBar borderRadius(final RRunnable<Integer> borderRadius) {
         this.borderRadius = borderRadius;
         repaint();
         return this;

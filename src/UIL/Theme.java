@@ -4,7 +4,7 @@ import UIL.base.IColor;
 import UIL.base.IFont;
 import Utils.Core;
 import Utils.IniGroup;
-import Utils.IntRunnable;
+import Utils.RRunnable;
 
 import java.awt.*;
 
@@ -32,10 +32,10 @@ public class Theme {
             TEXT_SELECTION = () -> current.textSelection.get();
 
     public static final IFont FONT = () -> current.font.get();
-    public static final IntRunnable BORDER_RADIUS = () -> current.borderRadius;
+    public static final RRunnable<Integer> BORDER_RADIUS = () -> current.borderRadius;
 
     // ProgressBar
-    public static final IntRunnable PB_BORDER_RADIUS = () -> current.pbBorderRadius > -1 ? current.pbBorderRadius : current.borderRadius;
+    public static final RRunnable<Integer> PB_BORDER_RADIUS = () -> current.pbBorderRadius > -1 ? current.pbBorderRadius : current.borderRadius;
 
     // FSChooser
     public static final IColor FSC_FOREGROUND = () -> current.fscForeground == null ? current.foreground.get() : current.fscForeground.get();

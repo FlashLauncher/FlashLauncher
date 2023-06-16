@@ -1,6 +1,6 @@
 package UIL.base;
 
-import Utils.IntRunnable;
+import Utils.RRunnable;
 
 public interface IProgressBar extends IComponent {
     long maxProgress();
@@ -13,7 +13,7 @@ public interface IProgressBar extends IComponent {
     @Override IProgressBar pos(int x, int y);
     @Override IProgressBar visible(boolean visible);
     @Override IProgressBar focus();
-    @Override default IProgressBar borderRadius(final IntRunnable borderRadius) { return this; }
+    @Override default IProgressBar borderRadius(final RRunnable<Integer> borderRadius) { return this; }
     @Override default IProgressBar borderRadius(final int borderRadius) { return this; }
     @Override default IProgressBar background(IColor bg) { return this; }
     @Override default IProgressBar foreground(IColor fg) { return this; }

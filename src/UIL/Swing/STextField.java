@@ -4,7 +4,7 @@ import UIL.*;
 import UIL.base.IColor;
 import UIL.base.IFont;
 import UIL.base.ITextField;
-import Utils.IntRunnable;
+import Utils.RRunnable;
 
 import javax.swing.*;
 import javax.swing.event.AncestorEvent;
@@ -20,7 +20,7 @@ public class STextField extends JComponent implements ITextField {
 
     private IColor bg = Theme.BACKGROUND, fg = Theme.FOREGROUND;
     private IFont font = Theme.FONT;
-    private IntRunnable borderRadius = Theme.BORDER_RADIUS;
+    private RRunnable<Integer> borderRadius = Theme.BORDER_RADIUS;
     private String text;
 
     private boolean focused = false, dragging = false;
@@ -400,7 +400,7 @@ public class STextField extends JComponent implements ITextField {
     }
 
     @Override
-    public STextField borderRadius(IntRunnable borderRadius) {
+    public STextField borderRadius(RRunnable<Integer> borderRadius) {
         this.borderRadius = borderRadius;
         repaint();
         return this;

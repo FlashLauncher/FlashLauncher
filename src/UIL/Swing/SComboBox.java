@@ -2,7 +2,7 @@ package UIL.Swing;
 
 import UIL.*;
 import UIL.base.*;
-import Utils.IntRunnable;
+import Utils.RRunnable;
 
 import javax.swing.*;
 import java.awt.*;
@@ -29,7 +29,7 @@ public class SComboBox extends JComponent implements IComboBox {
     };
     private final ArrayList<ListListener> actions = new ArrayList<>();
 
-    private IntRunnable borderRadius = Theme.BORDER_RADIUS, imageTextDist = () -> 0;
+    private RRunnable<Integer> borderRadius = Theme.BORDER_RADIUS, imageTextDist = () -> 0;
     private IColor bg = Theme.BACKGROUND, fg = Theme.FOREGROUND;
     private IFont font = Theme.FONT;
     private HAlign ha = HAlign.LEFT;
@@ -225,7 +225,7 @@ public class SComboBox extends JComponent implements IComboBox {
     @Override public SComboBox focus() { requestFocus(); return this; }
 
     @Override
-    public SComboBox borderRadius(IntRunnable borderRadius) {
+    public SComboBox borderRadius(final RRunnable<Integer> borderRadius) {
         this.borderRadius = borderRadius;
         repaint();
         return this;

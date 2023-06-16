@@ -1,6 +1,6 @@
 package UIL.base;
 
-import Utils.BoolRunnable;
+import Utils.RRunnable;
 
 public interface IMenuBar extends IContainer {
     IMenuBar add(IImage icon, String id, Object text, Runnable action);
@@ -25,7 +25,7 @@ public interface IMenuBar extends IContainer {
     @Override default IMenuBar grounds(IColor bg, IColor fg) { return background(bg).foreground(fg); }
     @Override default IMenuBar on(final String name, final Runnable runnable) { return this; }
     @Override default IMenuBar off(final Runnable runnable) { return this; }
-    default IMenuBar onChange(final BoolRunnable runnable) { return this; }
-    default IMenuBar offChange(final BoolRunnable runnable) { return this; }
+    default IMenuBar onChange(final RRunnable<Boolean> runnable) { return this; }
+    default IMenuBar offChange(final RRunnable<Boolean> runnable) { return this; }
     default IMenuBar changed() { return this; }
 }
