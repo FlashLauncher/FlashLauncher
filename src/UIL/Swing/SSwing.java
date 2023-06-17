@@ -34,7 +34,7 @@ public class SSwing extends UI {
     @Override
     public final float getFontHeight(String fontName, int fontSize) {
         final FontMetrics m = new Canvas().getFontMetrics(new Font(fontName, Font.PLAIN, fontSize));
-        return m.getAscent();
+        return m.getHeight();
     }
 
     @Override

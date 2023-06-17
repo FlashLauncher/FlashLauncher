@@ -29,7 +29,7 @@ public class SComboBox extends JComponent implements IComboBox {
     };
     private final ArrayList<ListListener> actions = new ArrayList<>();
 
-    private RRunnable<Integer> borderRadius = Theme.BORDER_RADIUS, imageTextDist = () -> 0;
+    private RRunnable<Integer> borderRadius = Theme.BORDER_RADIUS, imageOffset = UI.ZERO, imageTextDist = imageOffset;
     private IColor bg = Theme.BACKGROUND, fg = Theme.FOREGROUND;
     private IFont font = Theme.FONT;
     private HAlign ha = HAlign.LEFT;
@@ -141,43 +141,50 @@ public class SComboBox extends JComponent implements IComboBox {
     }
 
     @Override
-    protected void paintComponent(Graphics graphics) {
-        Graphics2D g = (Graphics2D) graphics.create();
+    protected void paintComponent(final Graphics graphics) {
+        final Graphics2D g = (Graphics2D) graphics.create();
         g.setRenderingHints(SSwing.RH);
         g.setFont((Font) font.get());
-        final FontMetrics metrics = g.getFontMetrics();
-        final Object t = this.text;
-        final String text = t != null ? t.toString() : null;
+        final FontMetrics m = g.getFontMetrics();
+        final String t;
+        final Image i;
+        final int w = getWidth(), h = getHeight(), fh = m.getHeight(), oi, ot;
+        final Area area;
+        {
+            final Object to = text;
+            t = to == null ? null : to.toString();
 
-        final int br = borderRadius.run(), xl = getWidth() - getHeight(), cy = (getHeight() - metrics.getHeight()) / 2,
-                o = cy * 2, w = getHeight() - o * 2, w2 = getHeight() - cy * 2, yl1 = o + w / 4 + Math.round(w / 2f * a), yl2 = getHeight() - yl1,
-                itd = imageTextDist.run();
+            final IImage io = img;
+            i = io == null ? null : (Image) io.getImage();
 
-        final Area area = br > 0 ? new Area(new RoundRectangle2D.Double(0, 0, getWidth(), getHeight(), br, br)) : new Area();
+            final int br = borderRadius.run();
+            area = br > 0 ? new Area(new RoundRectangle2D.Double(0, 0, w, h, br, br)) : new Area();
 
-        g.setClip(area);
-
-        g.setColor((Color) bg.get());
-        g.fillRect(0, 0, getWidth(), getHeight());
-
-        g.setColor((Color) fg.get());
-        g.drawLine(xl, cy, xl, getHeight() - cy);
-
-        g.drawLine(xl + o, yl1, xl + o + w / 2, yl2);
-        g.drawLine(xl + o + w, yl1, xl + o + w / 2, yl2);
-
-        area.subtract(new Area(new Rectangle(xl, 0, getWidth() - xl, getHeight())));
-        g.setClip(area);
-
-        int x = cy;
-        if (img != null) {
-            final Image i = (Image) img.getImage();
-            g.drawImage(i, x, cy, w2, w2, this);
-            x += w2 + itd;
+            oi = imageOffset.run();
+            ot = imageTextDist.run();
         }
-        if (text != null && text.length() > 0)
-            //g.drawString(text, x, cy + metrics.getAscent());
-            g.drawString(text, x, cy + metrics.getLeading() + metrics.getAscent());
+        final int rb = w - h, asw = h - 20, ash = asw / 2, v = Math.round(a * ash), aoy = 14, ax1 = rb + 10, ax = ax1 + asw / 2, ay1 = aoy + v, ay2 = aoy + ash - v;
+        g.setClip(area);
+        g.setColor((Color) bg.get());
+        g.fillRect(0, 0, w, h);
+        g.setColor((Color) fg.get());
+
+        g.drawLine(rb, 4, rb, h - 4);
+        g.drawLine(ax1, ay1, ax, ay2);
+        g.drawLine(ax, ay2, ax1 + asw, ay1);
+
+        area.subtract(new Area(new Rectangle(rb, 0, h, h)));
+        g.setClip(area);
+
+        if (i == null) {
+            if (t != null && t.length() > 0)
+                g.drawString(t, (h - fh) / 2 + ot, (h - fh) / 2 + m.getLeading() + m.getAscent());
+        } else {
+            final int is = h - oi * 2;
+            g.drawImage(i, oi, oi, is, is, this);
+            if (t != null && t.length() > 0)
+                g.drawString(t, h + ot, (h - fh) / 2 + m.getLeading() + m.getAscent());
+        }
 
         g.dispose();
     }
@@ -232,14 +239,21 @@ public class SComboBox extends JComponent implements IComboBox {
     }
 
     @Override
-    public SComboBox imageTextDist(int imageTextDist) {
+    public SComboBox imageTextDist(final int imageTextDist) {
         this.imageTextDist = () -> imageTextDist;
         return this;
     }
 
     @Override
-    public SComboBox borderRadius(int borderRadius) {
+    public SComboBox borderRadius(final int borderRadius) {
         this.borderRadius = () -> borderRadius;
+        repaint();
+        return this;
+    }
+
+    @Override
+    public IComboBox imageOffset(final int imageOffset) {
+        this.imageOffset = () -> imageOffset;
         repaint();
         return this;
     }
