@@ -293,10 +293,10 @@ public class Core {
             terabytes = Lang.get("size.terabytes");
 
     public static String strSize1024(final long size) {
-        return Long.compareUnsigned(size, 1024) > 0 ?
-                    Long.compareUnsigned(size, 1048576) > 0 ?
-                            Long.compareUnsigned(size, 1073741824L) > 0 ?
-                                    Long.compareUnsigned(size, 1099511627776L) > 0 ?
+        return Long.compareUnsigned(size, 1024) == 1 ?
+                    Long.compareUnsigned(size, 1048576) == 1 ?
+                            Long.compareUnsigned(size, 1073741824L) == 1 ?
+                                    Long.compareUnsigned(size, 1099511627776L) == 1 ?
                                             Long.toUnsignedString(Long.divideUnsigned(size, 1099511627776L)) + " " + terabytes :
                                             Long.toUnsignedString(Long.divideUnsigned(size, 1073741824L)) + " " + gigabytes :
                                     Long.toUnsignedString(size / 1048576) + " " + megabytes :
