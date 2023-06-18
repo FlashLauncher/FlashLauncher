@@ -1,3 +1,3 @@
-package FlashLauncher.metas;
+package Launcher.metas;
 
 public abstract class PluginMeta extends Meta { }

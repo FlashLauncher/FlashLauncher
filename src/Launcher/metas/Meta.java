@@ -1,6 +1,6 @@
-package FlashLauncher.metas;
+package Launcher.metas;
 
-import FlashLauncher.TaskGroup;
+import Launcher.TaskGroup;
 import UIL.base.IImage;
 import Utils.Version;
 

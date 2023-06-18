@@ -1,6 +1,6 @@
 package UIL;
 
-import FlashLauncher.FLCore;
+import Launcher.FLCore;
 import UIL.base.*;
 import Utils.Core;
 

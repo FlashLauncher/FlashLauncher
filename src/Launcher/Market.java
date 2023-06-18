@@ -1,6 +1,6 @@
-package FlashLauncher;
+package Launcher;
 
-import FlashLauncher.metas.Meta;
+import Launcher.metas.Meta;
 import UIL.base.IImage;
 
 public abstract class Market {
