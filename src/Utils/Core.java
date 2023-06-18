@@ -345,22 +345,32 @@ public class Core {
     public static void waitM(final Object... objects) throws InterruptedException {
         if (objects.length == 0)
             return;
+        if (objects.length == 1) {
+            final Object o = objects[0];
+            if (o instanceof ObjLocker)
+                ((ObjLocker) o).waitNotify();
+            else
+                o.wait();
+        }
         final Object o = new Object();
         final ArrayList<Thread> l = new ArrayList<>();
-        for (final Object ob : objects)
-            l.add(new Thread(() -> {
-                try {
-                    synchronized (ob) {
-                        ob.wait();
-                    }
-                    synchronized (o) {
-                        o.notifyAll();
-                    }
-                } catch (final InterruptedException ignored) {}
-            }) {{
-                start();
-            }});
         synchronized (o) {
+            for (final Object ob : objects)
+                l.add(new Thread(() -> {
+                    try {
+                        if (ob instanceof ObjLocker)
+                            ((ObjLocker) ob).waitNotify();
+                        else
+                            synchronized (ob) {
+                                ob.wait();
+                            }
+                        synchronized (o) {
+                            o.notifyAll();
+                        }
+                    } catch (final InterruptedException ignored) {}
+                }) {{
+                    start();
+                }});
             o.wait();
         }
         for (final Thread t : l)
