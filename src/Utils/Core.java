@@ -341,4 +341,29 @@ public class Core {
 
     public static String hashToHex(final String algorithm, final byte[] data) throws NoSuchAlgorithmException { return bytesToHex(hash(algorithm, data)); }
     public static String hashStringToHex(final String algorithm, final String data) throws NoSuchAlgorithmException { return bytesToHex(hash(algorithm, data.getBytes(StandardCharsets.UTF_8))); }
+
+    public static void waitM(final Object... objects) throws InterruptedException {
+        if (objects.length == 0)
+            return;
+        final Object o = new Object();
+        final ArrayList<Thread> l = new ArrayList<>();
+        for (final Object ob : objects)
+            l.add(new Thread(() -> {
+                try {
+                    synchronized (ob) {
+                        ob.wait();
+                    }
+                    synchronized (o) {
+                        o.notifyAll();
+                    }
+                } catch (final InterruptedException ignored) {}
+            }) {{
+                start();
+            }});
+        synchronized (o) {
+            o.wait();
+        }
+        for (final Thread t : l)
+            t.interrupt();
+    }
 }
