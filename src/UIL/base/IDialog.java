@@ -1,6 +1,7 @@
 package UIL.base;
 
 import UIL.UI;
+import Utils.Runnable1arg;
 
 public interface IDialog extends IFrame {
     // IFrame
@@ -14,6 +15,9 @@ public interface IDialog extends IFrame {
     }
 
     @Override IDialog center(IComponent component);
+
+    @Override IDialog onClose(final Runnable1arg<IFrame> listener);
+
     @Override default IDialog dispose() { return this; }
 
     // IContainer

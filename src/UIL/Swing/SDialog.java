@@ -1,9 +1,12 @@
 package UIL.Swing;
 
 import UIL.base.*;
+import Utils.Runnable1arg;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 public class SDialog implements IDialog {
     final JDialog d;
@@ -84,6 +87,17 @@ public class SDialog implements IDialog {
     @Override
     public SDialog background(IColor bg) {
         d.setBackground((Color) bg.get());
+        return this;
+    }
+
+    @Override
+    public SDialog onClose(final Runnable1arg<IFrame> listener) {
+        d.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(final WindowEvent windowEvent) {
+                listener.run(SDialog.this);
+            }
+        });
         return this;
     }
 

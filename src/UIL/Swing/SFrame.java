@@ -4,6 +4,7 @@ import UIL.base.IColor;
 import UIL.base.IComponent;
 import UIL.base.IFrame;
 import UIL.base.IImage;
+import Utils.Runnable1arg;
 
 import javax.swing.*;
 import java.awt.*;
@@ -47,14 +48,13 @@ public class SFrame implements IFrame {
     @Override public SFrame focus() { frame.requestFocus(); return this; }
 
     @Override
-    public SFrame on(String name, Runnable runnable) {
-        if (name.equals("close"))
-            frame.addWindowListener(new WindowAdapter() {
-                @Override
-                public void windowClosing(WindowEvent windowEvent) {
-                    runnable.run();
-                }
-            });
+    public IFrame onClose(final Runnable1arg<IFrame> listener) {
+        frame.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(final WindowEvent windowEvent) {
+                listener.run(SFrame.this);
+            }
+        });
         return this;
     }
 
