@@ -351,6 +351,7 @@ public class Core {
                 ((ObjLocker) o).waitNotify();
             else
                 o.wait();
+            return;
         }
         final Object o = new Object();
         final ArrayList<Thread> l = new ArrayList<>();
