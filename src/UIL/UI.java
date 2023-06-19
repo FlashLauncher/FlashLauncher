@@ -27,6 +27,7 @@ public abstract class UI {
 
     public abstract IComponent newLoader();
     public abstract IProgressBar newProgressBar();
+    public abstract IText newText();
     public abstract IText newText(final Object text);
     public abstract ICheckBox newCheckBox(final Object text, final boolean checked);
     public abstract ITextField newTextField(final String text);
@@ -85,6 +86,7 @@ public abstract class UI {
 
     public static IComponent loader() { return UI.newLoader(); }
     public static IProgressBar progressBar() { return UI.newProgressBar(); }
+    public static IText text() { return UI.newText(); }
     public static IText text(final Object text) { return UI.newText(text); }
     public static ICheckBox checkBox(final Object text, final boolean checked) { return UI.newCheckBox(text, checked); }
     public static ITextField textField(final String text) { return UI.newTextField(text); }

@@ -1,6 +1,5 @@
 package UIL;
 
-import Launcher.FLCore;
 import UIL.base.*;
 import Utils.Core;
 
@@ -8,7 +7,24 @@ import java.io.File;
 import java.util.ArrayList;
 
 public class FSChooser {
-    public static IImage file, folder;
+    public static final IImage ICON_REFRESH, ICON_PARENT, ICON_FILE, ICON_FOLDER;
+
+    static {
+        IImage r = null, p = null, i = null, o = null;
+        try {
+            r = UI.image("ui-lib://images/refresh.png");
+            p = UI.image("ui-lib://images/parent.png");
+            i = UI.image("ui-lib://images/file.png");
+            o = UI.image("ui-lib://images/folder.png");
+        } catch (final Exception ex) {
+            ex.printStackTrace();
+            System.exit(1);
+        }
+        ICON_REFRESH = r;
+        ICON_PARENT = p;
+        ICON_FILE = i;
+        ICON_FOLDER = o;
+    }
 
     private final IDialog dialog;
 
@@ -17,21 +33,26 @@ public class FSChooser {
     private final IScrollPane sp;
     private final IContainer fileContainer;
     private final IText path, filename;
-    private final int width = 720, height = 380, mhf = 252, spw = 704, fw = spw - 8, cw = fw - 16, tw = cw - 16;
+    private final int mhf = 252;
+    private final int spw = 704;
+    private final int fw = spw - 8;
+    private final int cw = fw - 16;
 
     private final ArrayList<IButton> buttons = new ArrayList<>();
     private final ArrayList<File> files = new ArrayList<>();
 
     public FSChooser(IFrame owner, String title) {
+        int height = 380;
+        int width = 720;
         dialog = UI.dialog(owner, title).resizable(false).size(width, height).center(owner)
                 .add(
                         UI.panel().size(width, height).borderRadius(0)
                 ).add(
                         UI.panel().size(spw, 48).pos(8, 8)
                                 .add(
-                                        UI.button(FLCore.iconRefresh).size(32, 32).pos(8, 8).on("action", this::refresh)
+                                        UI.button(ICON_REFRESH).size(32, 32).pos(8, 8).onAction((s, e) -> refresh())
                                 ).add(
-                                        UI.button(FLCore.iconParent).size(32, 32).pos(48, 8).on("action", () -> {
+                                        UI.button(ICON_PARENT).size(32, 32).pos(48, 8).onAction((s, e) -> {
                                             if (current != null)
                                                 current = current.getParentFile();
                                             refresh();
@@ -68,8 +89,8 @@ public class FSChooser {
                 for (File child : l)
                     if (child.isDirectory()) {
                         final IButton btn;
-                        fileContainer.add(btn = UI.button(child.getName(), folder).ha(HAlign.LEFT).size(cw, 24).pos(8, h).on((IButton self, IButton.IButtonActionEvent event) -> {
-                            if (event.isMouse() && event.clickCount() == 2) {
+                        fileContainer.add(btn = UI.button(child.getName(), ICON_FOLDER).ha(HAlign.LEFT).size(cw, 24).pos(8, h).onAction((s, e) -> {
+                            if (e.isMouse() && e.clickCount() == 2) {
                                 current = child;
                                 refresh();
                             } else {
@@ -77,8 +98,8 @@ public class FSChooser {
                                     b.background(UI.TRANSPARENT);
                                 buttons.clear();
                                 files.clear();
-                                self.background(Theme.FSC_FOREGROUND);
-                                buttons.add(self);
+                                s.background(Theme.FSC_FOREGROUND);
+                                buttons.add(s);
                                 files.add(child);
                                 filename.text(child.getName());
                             }
@@ -93,13 +114,13 @@ public class FSChooser {
                 for (File child : l)
                     if (child.isFile()) {
                         final IButton btn;
-                        fileContainer.add(btn = UI.button(child.getName(), file).ha(HAlign.LEFT).size(cw, 24).pos(8, h).on((IButton self, IButton.IButtonActionEvent event) -> {
+                        fileContainer.add(btn = UI.button(child.getName(), ICON_FILE).ha(HAlign.LEFT).size(cw, 24).pos(8, h).onAction((s, e) -> {
                             for (IButton b : buttons)
                                 b.background(UI.TRANSPARENT);
                             buttons.clear();
                             files.clear();
-                            self.background(Theme.FSC_FOREGROUND);
-                            buttons.add(self);
+                            s.background(Theme.FSC_FOREGROUND);
+                            buttons.add(s);
                             files.add(child);
                             filename.text(child.getName());
                         }));
@@ -122,6 +143,7 @@ public class FSChooser {
             path.text("Computer");
             for (File child : File.listRoots()) {
                 final long t = child.getTotalSpace(), u = t - child.getFreeSpace();
+                int tw = cw - 16;
                 fileContainer.add(
                         UI.panel().size(cw, 56).pos(8, h)
                                 .add(
@@ -129,8 +151,8 @@ public class FSChooser {
                                 ).add(
                                         UI.progressBar().size(tw, 8).pos(8, 40).maxProgress(t).progress(u)
                                 ).add(
-                                        UI.button().background(UI.TRANSPARENT).size(cw, 56).on((IButton self, IButton.IButtonActionEvent event) -> {
-                                            if (event.isMouse() && event.clickCount() == 2) {
+                                        UI.button().background(UI.TRANSPARENT).size(cw, 56).onAction((s, e) -> {
+                                            if (e.isMouse() && e.clickCount() == 2) {
                                                 current = child;
                                                 refresh();
                                             } else {
@@ -138,8 +160,8 @@ public class FSChooser {
                                                     b.background(UI.TRANSPARENT);
                                                 buttons.clear();
                                                 files.clear();
-                                                self.background(Theme.FSC_FOREGROUND);
-                                                buttons.add(self);
+                                                s.background(Theme.FSC_FOREGROUND);
+                                                buttons.add(s);
                                                 files.add(child);
                                                 filename.text(child.getName());
                                             }

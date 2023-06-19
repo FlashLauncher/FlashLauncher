@@ -32,10 +32,10 @@ public class SScrollPane extends JPanel implements IScrollPane {
     }
 
     @Override
-    protected void paintComponent(Graphics graphics) {}
+    protected void paintComponent(final Graphics graphics) {}
 
     @Override
-    protected void paintChildren(Graphics graphics) {
+    protected void paintChildren(final Graphics graphics) {
         {
             final int br = borderRadius.run();
             if (br > 0)
@@ -93,55 +93,57 @@ public class SScrollPane extends JPanel implements IScrollPane {
     @Override public boolean visible() { return isVisible(); }
     @Override public boolean isFocused() { return hasFocus(); }
     @Override public int borderRadius() { return borderRadius.run(); }
+    @Override public IComponent[] childs() { return content.childs(); }
     @Override public Object getComponent() { return this; }
-    @Override public SScrollPane content(IContainer container) {
+
+    @Override public SScrollPane content(final IContainer container) {
         if (content != null)
             super.remove((Component) content.getComponent());
         super.add((Component) container.getComponent());
         content = container;
         sx = 0;
         sy = 0;
-        repaint();
         return this;
     }
 
     @Override
-    public SScrollPane add(IComponent component) {
+    public SScrollPane add(final IComponent component) {
         content.add(component);
-        //repaint();
         return this;
     }
 
     @Override
-    public SScrollPane remove(IComponent component) {
-        content.remove(component);
-        repaint();
+    public SScrollPane add(final IComponent... components) {
+        content.add(components);
         return this;
     }
 
-    @Override public IComponent[] childs() { return content.childs(); }
+    @Override
+    public SScrollPane remove(final IComponent component) {
+        content.remove(component);
+        return this;
+    }
 
     @Override
     public SScrollPane clear() {
         content.clear();
-        repaint();
         return this;
     }
 
     @Override
-    public SScrollPane size(int width, int height) {
+    public SScrollPane size(final int width, final int height) {
         setSize(width, height);
         return this;
     }
 
     @Override
-    public SScrollPane pos(int x, int y) {
+    public SScrollPane pos(final int x, final int y) {
         setLocation(x, y);
         return this;
     }
 
     @Override
-    public SScrollPane visible(boolean visible) {
+    public SScrollPane visible(final boolean visible) {
         setVisible(visible);
         return this;
     }
@@ -149,34 +151,34 @@ public class SScrollPane extends JPanel implements IScrollPane {
     @Override public SScrollPane focus() { requestFocus(); return this; }
 
     @Override
-    public SScrollPane borderRadius(int borderRadius) {
+    public SScrollPane borderRadius(final int borderRadius) {
         this.borderRadius = () -> borderRadius;
-        repaint();
         return this;
     }
 
     @Override
     public SScrollPane borderRadius(final RRunnable<Integer> borderRadius) {
         this.borderRadius = borderRadius;
-        repaint();
         return this;
     }
 
     @Override
-    public SScrollPane background(IColor bg) {
+    public SScrollPane background(final IColor bg) {
         this.bg = bg;
-        repaint();
         return this;
     }
 
     @Override
-    public SScrollPane foreground(IColor fg) {
+    public SScrollPane foreground(final IColor fg) {
         this.fg = fg;
-        repaint();
         return this;
     }
 
-    @Override public SScrollPane grounds(IColor bg, IColor fg) { return background(bg).foreground(fg); }
+    @Override public SScrollPane grounds(final IColor bg, final IColor fg) {
+        this.bg = bg;
+        this.fg = fg;
+        return this;
+    }
     @Override public SScrollPane update() {
         sx = Math.min(Math.max(sx, getWidth() - content.width()), 0);
         sy = Math.min(Math.max(sy, getHeight() - content.height()), 0);

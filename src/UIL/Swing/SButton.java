@@ -1,10 +1,7 @@
 package UIL.Swing;
 
 import UIL.*;
-import UIL.base.IButton;
-import UIL.base.IColor;
-import UIL.base.IFont;
-import UIL.base.IImage;
+import UIL.base.*;
 import Utils.RRunnable;
 
 import javax.swing.*;
@@ -28,130 +25,10 @@ public class SButton extends JButton implements IButton {
         setOpaque(false);
         setBorder(new EmptyBorder(0, 0, 0, 0));
     }
-
-    public SButton(LangItem text) { this(); text(text); }
-    public SButton(String text) { this(); text(text); }
-    public SButton(IImage img) { this(); image(img); }
-    public SButton(Object text, IImage img) { this(); text(text); image(img); }
-
-    @Override public int width() { return getWidth(); }
-    @Override public int height() { return getHeight(); }
-    @Override public boolean visible() { return isVisible(); }
-    @Override public boolean isFocused() { return hasFocus(); }
-
-    @Override public SButton size(int width, int height) { setSize(width, height); return this; }
-    @Override public SButton pos(int x, int y) { setLocation(x, y); return this; }
-    @Override public SButton visible(boolean visible) { setVisible(visible); return this; }
-    @Override public SButton focus() { requestFocus(); return this; }
-
-    @Override
-    public SButton on(IButtonAction runnable) {
-        super.addKeyListener(new KeyAdapter() {
-            @Override
-            public void keyPressed(KeyEvent e) {
-                if (e.getKeyCode() == KeyEvent.VK_SPACE)
-                    runnable.run(SButton.this, new SButtonKeyEvent(e));
-            }
-        });
-        addMouseListener(new MouseAdapter() {
-            @Override
-            public void mousePressed(MouseEvent e) {
-                runnable.run(SButton.this, new SButtonMouseEvent(e));
-            }
-        });
-        return this;
-    }
-
-    @Override
-    public SButton onAction(IButtonAction runnable) {
-        super.addKeyListener(new KeyAdapter() {
-            @Override
-            public void keyPressed(KeyEvent e) {
-                if (e.getKeyCode() == KeyEvent.VK_SPACE)
-                    runnable.run(SButton.this, new SButtonKeyEvent(e));
-            }
-        });
-        addMouseListener(new MouseAdapter() {
-            @Override
-            public void mousePressed(MouseEvent e) { runnable.run(SButton.this, new SButtonMouseEvent(e)); }
-        });
-        return this;
-    }
-
-    @Override
-    public SButton on(String name, Runnable runnable) {
-        switch (name) {
-            case "action":
-                super.addActionListener(e -> runnable.run());
-                break;
-        }
-        return this;
-    }
-
-    @Override
-    public SButton on(String name, IButtonRunnable runnable) {
-        on(name, () -> runnable.run(this));
-        return this;
-    }
-
-    @Override
-    public SButton borderRadius(final RRunnable<Integer> borderRadius) {
-        this.borderRadius = borderRadius;
-        repaint();
-        return this;
-    }
-
-    @Override
-    public SButton borderRadius(int borderRadius) {
-        this.borderRadius = () -> borderRadius;
-        repaint();
-        return this;
-    }
-
-    @Override
-    public SButton imageTextDist(int imageTextDist) {
-        this.imageTextDist = () -> imageTextDist;
-        return this;
-    }
-
-    @Override
-    public SButton imageAlign(ImgAlign align) {
-        this.align = align;
-        return this;
-    }
-
-    @Override
-    public SButton imageOffset(int imageOffset) {
-        this.imageOffset = () -> imageOffset;
-        repaint();
-        return this;
-    }
-
-    @Override
-    public SButton getComponent() { return this; }
-    @Override
-    public String text() { return text.toString(); }
-
-    @Override
-    public SButton text(Object text) {
-        this.text = text;
-        repaint();
-        return this;
-    }
-
-    @Override
-    public SButton font(IFont font) {
-        this.font = font;
-        repaint();
-        return this;
-    }
-
-    @Override
-    public SButton ha(HAlign align) {
-        ha = align;
-        repaint();
-        return this;
-    }
+    public SButton(final LangItem text) { this(); this.text = text; }
+    public SButton(final String text) { this(); this.text = text; }
+    public SButton(final IImage image) { this(); this.image = image; }
+    public SButton(final Object text, final IImage image) { this(); this.text = text; this.image = image; }
 
     @Override
     protected void paintComponent(final Graphics graphics) {
@@ -159,8 +36,6 @@ public class SButton extends JButton implements IButton {
         g.setRenderingHints(SSwing.RH);
         g.setFont((Font) font.get());
         final FontMetrics metrics = g.getFontMetrics();
-
-
 
         final String text;
         {
@@ -210,31 +85,122 @@ public class SButton extends JButton implements IButton {
         g.dispose();
     }
 
+    @Override public int width() { return getWidth(); }
+    @Override public int height() { return getHeight(); }
+    @Override public boolean visible() { return isVisible(); }
+    @Override public boolean isFocused() { return hasFocus(); }
+
+    @Override public SButton size(final int width, final int height) { setSize(width, height); return this; }
+    @Override public SButton pos(final int x, final int y) { setLocation(x, y); return this; }
+    @Override public SButton visible(final boolean visible) { setVisible(visible); return this; }
+    @Override public SButton focus() { requestFocus(); return this; }
+
     @Override
-    public SButton background(IColor bg) {
+    public SButton onAction(final IButtonAction runnable) {
+        super.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(final KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_SPACE)
+                    runnable.run(SButton.this, new SButtonKeyEvent(e));
+            }
+        });
+        addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(final MouseEvent e) {
+                runnable.run(SButton.this, new SButtonMouseEvent(e));
+            }
+        });
+        return this;
+    }
+
+    @Override
+    public SButton borderRadius(final RRunnable<Integer> borderRadius) {
+        this.borderRadius = borderRadius;
+        return this;
+    }
+
+    @Override
+    public SButton borderRadius(final int borderRadius) {
+        this.borderRadius = () -> borderRadius;
+        return this;
+    }
+
+    @Override
+    public SButton imageTextDist(final int imageTextDist) {
+        this.imageTextDist = () -> imageTextDist;
+        return this;
+    }
+
+    @Override
+    public SButton imageAlign(final ImgAlign align) {
+        this.align = align;
+        return this;
+    }
+
+    @Override
+    public SButton imageOffset(final int imageOffset) {
+        this.imageOffset = () -> imageOffset;
+        return this;
+    }
+
+    @Override public SButton getComponent() { return this; }
+    @Override public String text() { return text.toString(); }
+
+    @Override
+    public SButton text(final Object text) {
+        this.text = text;
+        return this;
+    }
+
+    @Override
+    public SButton font(final IFont font) {
+        this.font = font;
+        return this;
+    }
+
+    @Override
+    public SButton ha(final HAlign align) {
+        ha = align;
+        return this;
+    }
+
+
+
+    @Override
+    public SButton background(final IColor bg) {
         this.bg = bg;
-        repaint();
         return this;
     }
 
     @Override
-    public SButton foreground(IColor color) {
+    public SButton foreground(final IColor color) {
         fg = color;
-        repaint();
         return this;
     }
 
     @Override
-    public SButton image(IImage image) {
+    public SButton grounds(final IColor bg, final IColor fg) {
+        this.bg = bg;
+        this.fg = fg;
+        return this;
+    }
+
+    @Override
+    public SButton image(final IImage image) {
         this.image = image;
+        return this;
+    }
+
+    @Override
+    public SButton update() {
         repaint();
         return this;
     }
 
     private static class SButtonKeyEvent implements IButtonActionEvent {
-        private final KeyEvent e;
 
-        private SButtonKeyEvent(KeyEvent event) { e = event; }
+        private SButtonKeyEvent(final KeyEvent event) {
+        }
 
         @Override public boolean isMouse() { return false; }
         @Override public int clickCount() { return 0; }

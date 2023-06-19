@@ -30,24 +30,24 @@ public class SLoader extends JComponent implements IComponent {
         setOpaque(false);
         addAncestorListener(new AncestorListener() {
             @Override
-            public void ancestorAdded(AncestorEvent event) {
+            public void ancestorAdded(final AncestorEvent event) {
                 if (event.getComponent() == SLoader.this)
                     timer.start();
             }
 
             @Override
-            public void ancestorRemoved(AncestorEvent event) {
+            public void ancestorRemoved(final AncestorEvent event) {
                 if (event.getComponent() == SLoader.this)
                     timer.stop();
             }
 
-            @Override public void ancestorMoved(AncestorEvent event) {}
+            @Override public void ancestorMoved(final AncestorEvent event) {}
         });
     }
 
     @Override
-    protected void paintComponent(Graphics graphics) {
-        Graphics2D g = (Graphics2D) graphics.create();
+    protected void paintComponent(final Graphics graphics) {
+        final Graphics2D g = (Graphics2D) graphics.create();
         g.setRenderingHints(SSwing.RH);
         g.setColor((Color) fg.get());
 
@@ -86,18 +86,22 @@ public class SLoader extends JComponent implements IComponent {
     @Override public int height() { return getHeight(); }
     @Override public boolean visible() { return isVisible(); }
     @Override public boolean isFocused() { return hasFocus(); }
+    @Override public SLoader getComponent() { return this; }
 
-    @Override public SLoader size(int width, int height) { setSize(width, height); return this; }
-    @Override public SLoader pos(int x, int y) { setLocation(x, y); return this; }
-    @Override public SLoader visible(boolean visible) { setVisible(visible); return this; }
+    @Override public SLoader size(final int width, final int height) { setSize(width, height); return this; }
+    @Override public SLoader pos(final int x, final int y) { setLocation(x, y); return this; }
+    @Override public SLoader visible(final boolean visible) { setVisible(visible); return this; }
     @Override public SLoader focus() { requestFocus(); return this; }
 
     @Override
-    public SLoader foreground(IColor fg) {
+    public SLoader foreground(final IColor fg) {
         this.fg = fg;
-        repaint();
         return this;
     }
 
-    @Override public SLoader getComponent() { return this; }
+    @Override
+    public SLoader update() {
+        repaint();
+        return this;
+    }
 }

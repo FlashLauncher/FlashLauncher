@@ -28,7 +28,7 @@ public class STextField extends JComponent implements ITextField {
     private float ca = 0, ci = 0, csi = -1, ti = 0, tsi = -1, ox = 0, cx = 0;
 
 
-    private void setIndex(int ni) {
+    private void setIndex(final int ni) {
         i = ni;
         final Font f = (Font) font.get();
         ti = getFontMetrics(f).stringWidth(text.substring(0, i));
@@ -38,7 +38,7 @@ public class STextField extends JComponent implements ITextField {
             ox = Math.max(ti - getWidth() + f.getSize() * 2, 0);
     }
 
-    private void setSelIndex(int ni) {
+    private void setSelIndex(final int ni) {
         si = ni;
         if (ni == -1)
             tsi = -1;
@@ -46,7 +46,7 @@ public class STextField extends JComponent implements ITextField {
             tsi = getFontMetrics((Font) font.get()).stringWidth(text.substring(0, si));
     }
 
-    private int getIndexByX(int x) {
+    private int getIndexByX(final int x) {
         final Font f = (Font) font.get();
         final FontMetrics m = getFontMetrics(f);
         final int o = (getHeight() - f.getSize()) / 2;
@@ -103,7 +103,7 @@ public class STextField extends JComponent implements ITextField {
         addMouseListener(new MouseListener() {
             private long l;
 
-            @Override public void mouseClicked(MouseEvent e) {
+            @Override public void mouseClicked(final MouseEvent e) {
                 final long c = System.currentTimeMillis();
                 if (c - l < 250 && text.length() > 0) {
                     setSelIndex(0);
@@ -112,7 +112,7 @@ public class STextField extends JComponent implements ITextField {
                 l = c;
             }
 
-            @Override public void mousePressed(MouseEvent e) {
+            @Override public void mousePressed(final MouseEvent e) {
                 requestFocus();
                 if (e.getButton() != MouseEvent.BUTTON1)
                     return;
@@ -121,7 +121,7 @@ public class STextField extends JComponent implements ITextField {
                 setSelIndex(getIndexByX(e.getX()));
             }
 
-            @Override public void mouseReleased(MouseEvent e) {
+            @Override public void mouseReleased(final MouseEvent e) {
                 if (e.getButton() != MouseEvent.BUTTON1)
                     return;
                 dragging = false;
@@ -129,28 +129,28 @@ public class STextField extends JComponent implements ITextField {
                     setSelIndex(-1);
             }
 
-            @Override public void mouseEntered(MouseEvent e) {}
-            @Override public void mouseExited(MouseEvent e) {}
+            @Override public void mouseEntered(final MouseEvent e) {}
+            @Override public void mouseExited(final MouseEvent e) {}
         });
         addMouseMotionListener(new MouseAdapter() {
-            @Override public void mouseDragged(MouseEvent e) {
+            @Override public void mouseDragged(final MouseEvent e) {
                 if (dragging)
                     setIndex(getIndexByX(e.getX()));
             }
         });
         addFocusListener(new FocusListener() {
             @Override
-            public void focusGained(FocusEvent e) {
+            public void focusGained(final FocusEvent e) {
                 focused = true;
                 timer.start();
             }
 
             @Override
-            public void focusLost(FocusEvent e) { focused = false; }
+            public void focusLost(final FocusEvent e) { focused = false; }
         });
         addKeyListener(new KeyListener() {
             @Override
-            public void keyTyped(KeyEvent e) {
+            public void keyTyped(final KeyEvent e) {
                 if (e.isControlDown())
                     return;
                 switch (e.getKeyChar()) {
@@ -192,7 +192,7 @@ public class STextField extends JComponent implements ITextField {
             }
 
             @Override
-            public void keyPressed(KeyEvent e) {
+            public void keyPressed(final KeyEvent e) {
                 switch (e.getKeyCode()) {
                     case KeyEvent.VK_HOME:
                     case KeyEvent.VK_UP:
@@ -289,28 +289,28 @@ public class STextField extends JComponent implements ITextField {
                 }
             }
 
-            @Override public void keyReleased(KeyEvent e) {}
+            @Override public void keyReleased(final KeyEvent e) {}
         });
         addAncestorListener(new AncestorListener() {
-            @Override public void ancestorAdded(AncestorEvent event) {}
+            @Override public void ancestorAdded(final AncestorEvent event) {}
 
             @Override
-            public void ancestorRemoved(AncestorEvent event) {
+            public void ancestorRemoved(final AncestorEvent event) {
                 if (event.getComponent() == STextField.this)
                     timer.stop();
             }
 
-            @Override public void ancestorMoved(AncestorEvent event) {}
+            @Override public void ancestorMoved(final AncestorEvent event) {}
         });
     }
 
-    public STextField(String string) {
+    public STextField(final String string) {
         this();
         text = string;
     }
 
     @Override
-    protected void paintComponent(Graphics graphics) {
+    protected void paintComponent(final Graphics graphics) {
         final Graphics2D g = (Graphics2D) graphics.create();
         g.setRenderingHints(SSwing.RH);
 
@@ -336,7 +336,6 @@ public class STextField extends JComponent implements ITextField {
         }
         if (ht) {
             g.setColor(tc);
-            //g.drawString(t, c - ox, c + metrics.getAscent());
             g.drawString(t, c - ox, c + metrics.getLeading() + metrics.getAscent());
         }
         if (ca > 0) {
@@ -351,36 +350,40 @@ public class STextField extends JComponent implements ITextField {
     @Override public int height() { return getHeight(); }
     @Override public boolean visible() { return isVisible(); }
     @Override public boolean isFocused() { return hasFocus(); }
+    @Override public String text() { return text; }
+    @Override public STextField getComponent() { return this; }
 
     @Override public STextField size(int width, int height) { setSize(width, height); setIndex(i); return this; }
     @Override public STextField pos(int x, int y) { setLocation(x, y); return this; }
     @Override public STextField visible(boolean visible) { setVisible(visible); return this; }
     @Override public STextField focus() { requestFocus(); return this; }
-    @Override public STextField getComponent() { return this; }
 
     @Override
-    public STextField on(final InputListener listener) {
+    public STextField onInput(final InputListener listener) {
         addKeyListener(new KeyListener() {
             @Override
             public void keyTyped(final KeyEvent e) {
-                if (listener.typed(STextField.this, e.getKeyChar())) e.consume();
+                if (listener.typed(STextField.this, e.getKeyChar()))
+                    e.consume();
             }
 
             @Override
             public void keyPressed(final KeyEvent e) {
-                if (listener.pressed(STextField.this)) e.consume();
+                if (listener.pressed(STextField.this))
+                    e.consume();
             }
 
             @Override
             public void keyReleased(final KeyEvent e) {
-                if (listener.released(STextField.this)) e.consume();
+                if (listener.released(STextField.this))
+                    e.consume();
             }
         });
         return this;
     }
 
     @Override
-    public STextField on(final ActionListener actionListener) {
+    public STextField onAction(final ActionListener actionListener) {
         addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(final KeyEvent e) {
@@ -393,55 +396,55 @@ public class STextField extends JComponent implements ITextField {
         return this;
     }
 
-    @Override
-    public STextField on(final String name, final Runnable runnable) {
-        if (name.equals("action")) on(self -> runnable.run());
-        return this;
-    }
 
     @Override
-    public STextField borderRadius(RRunnable<Integer> borderRadius) {
+    public STextField borderRadius(final RRunnable<Integer> borderRadius) {
         this.borderRadius = borderRadius;
-        repaint();
         return this;
     }
 
     @Override
-    public STextField borderRadius(int borderRadius) {
+    public STextField borderRadius(final int borderRadius) {
         this.borderRadius = () -> borderRadius;
-        repaint();
         return this;
     }
-
-    @Override public String text() { return text; }
 
     @Override
     public STextField text(final Object text) {
         this.text = text.toString();
         setIndex(this.text.length());
-        repaint();
         return this;
     }
 
     @Override
-    public STextField font(IFont font) {
+    public STextField font(final IFont font) {
         this.font = font;
-        repaint();
         return this;
     }
 
-    @Override public STextField ha(HAlign align) { return this; }
+    @Override public STextField ha(final HAlign align) { return this; }
 
     @Override
-    public STextField background(IColor bg) {
+    public STextField background(final IColor bg) {
         this.bg = bg;
-        repaint();
         return this;
     }
 
     @Override
-    public STextField foreground(IColor color) {
+    public STextField foreground(final IColor color) {
         fg = color;
+        return this;
+    }
+
+    @Override
+    public ITextField grounds(final IColor bg, final IColor fg) {
+        this.bg = bg;
+        this.fg = fg;
+        return this;
+    }
+
+    @Override
+    public ITextField update() {
         repaint();
         return this;
     }

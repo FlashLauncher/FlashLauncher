@@ -4,18 +4,18 @@ import UIL.ImagePosMode;
 import UIL.ImageSizeMode;
 
 public interface IImageView extends IComponent {
-    IImageView image(IImage img);
-    IImageView imageSizeMode(ImageSizeMode imageSizeMode);
-    IImageView imagePosMode(ImagePosMode imagePosMode);
+    IImageView image(final IImage img);
+    IImageView imageSizeMode(final ImageSizeMode imageSizeMode);
+    IImageView imagePosMode(final ImagePosMode imagePosMode);
 
     // IComponent
-    @Override IImageView size(int width, int height);
-    @Override IImageView pos(int x, int y);
-    @Override IImageView visible(boolean visible);
+    @Override IImageView size(final int width, final int height);
+    @Override IImageView pos(final int x, final int y);
+    @Override IImageView visible(final boolean visible);
     @Override IImageView focus();
-    @Override default IImageView borderRadius(int borderRadius) { return this; }
-    @Override default IImageView background(IColor bg) { return this; }
-    @Override default IImageView foreground(IColor fg) { return this; }
-    @Override default IImageView grounds(IColor bg, IColor fg) { return background(bg).foreground(fg); }
-    @Override default IImageView on(String name, Runnable runnable) { return this; }
+    @Override default IImageView borderRadius(final int borderRadius) { return this; }
+    @Override default IImageView background(final IColor bg) { return this; }
+    @Override default IImageView foreground(final IColor fg) { return this; }
+    @Override default IImageView grounds(final IColor bg, final IColor fg) { return background(bg).foreground(fg); }
+    @Override default IImageView update() { return this; }
 }

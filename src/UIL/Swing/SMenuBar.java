@@ -13,18 +13,12 @@ import java.awt.geom.RoundRectangle2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.locks.ReentrantLock;
 
 public class SMenuBar extends JPanel implements IMenuBar {
     private IColor bg = Theme.BACKGROUND, fg = Theme.FOREGROUND;
     private RRunnable<Integer> borderRadius = Theme.BORDER_RADIUS;
-
-    private final ReentrantLock chlo = new ReentrantLock();
     private final ArrayList<RRunnable<Boolean>> chl = new ArrayList<>();
-
-    private final ReentrantLock l = new ReentrantLock();
-    private final ArrayList<SButton> top = new ArrayList<>();
-    private final ArrayList<SButton> bottom = new ArrayList<>();
+    private final ArrayList<SButton> top = new ArrayList<>(), bottom = new ArrayList<>();
     private final ConcurrentHashMap<String, SButton> links = new ConcurrentHashMap<>();
 
     private boolean isTop = true;
@@ -56,20 +50,20 @@ public class SMenuBar extends JPanel implements IMenuBar {
         setLayout(null);
         addMouseWheelListener(e -> {
             if (!e.isShiftDown()) {
-                l.lock();
-                final int h = y + iv, nsy = Math.max(Math.min((int) Math.round(sy - e.getPreciseWheelRotation() * e.getScrollAmount() * SSwing.MULTIPLIER), 0), h > getHeight() ? getHeight() - h : 0);
-                if (isTop) {
-                    final int d = nsy - sy;
-                    fy += d;
-                    cy += d;
+                synchronized (top) {
+                    final int nsy = Math.min(Math.max(sy - e.getUnitsToScroll() * SSwing.MULTIPLIER, iv), 0);
+                    if (isTop) {
+                        final int d = nsy - sy;
+                        fy += d;
+                        cy += d;
+                    }
+                    sy = nsy;
+                    int y = 8 + sy;
+                    for (final SButton child : top) {
+                        child.pos(8, y);
+                        y += 40;
+                    }
                 }
-                sy = nsy;
-                int y = 8 + sy;
-                for (SButton child : top) {
-                    child.pos(8, y);
-                    y += 40;
-                }
-                l.unlock();
                 repaint();
             }
         });
@@ -81,7 +75,8 @@ public class SMenuBar extends JPanel implements IMenuBar {
         g.setRenderingHints(SSwing.RH);
 
         final int br = borderRadius.run(), contentHeight = y, sh = getHeight() - iv, h = Math.max(64, sh * (sh / contentHeight)), yl;
-        if (br > 0) g.setClip(new RoundRectangle2D.Double(0, 0, getWidth(), getHeight(), br, br));
+        if (br > 0)
+            g.setClip(new RoundRectangle2D.Double(0, 0, getWidth(), getHeight(), br, br));
 
         g.setColor((Color) bg.get());
         g.fillRect(0, 0, getWidth(), getHeight());
@@ -97,10 +92,10 @@ public class SMenuBar extends JPanel implements IMenuBar {
         super.paintChildren(img.createGraphics());
         g.drawImage(img, 0, 0, this);
 
-        l.lock();
-        for (final SButton btn : bottom)
-            btn.paint(g.create(btn.getX(), btn.getY(), btn.width(), btn.height()));
-        l.unlock();
+        synchronized (bottom) {
+            for (final SButton btn : bottom)
+                btn.paint(g.create(btn.getX(), btn.getY(), btn.width(), btn.height()));
+        }
 
         g.setColor((Color) fg.get());
         g.fillRoundRect(-4, Math.round(cy - ch / 2), 8, Math.round(ch), 8, 8);
@@ -119,101 +114,121 @@ public class SMenuBar extends JPanel implements IMenuBar {
     }
 
     @Override
-    public SMenuBar add(final IImage icon, final String id, final Object text, final Runnable action) {
+    public SMenuBar add(final String id, final IImage icon, final Object text, final Runnable action) {
         final SButton btn = new SButton(text, icon)
                 .imageTextDist(4)
                 .ha(HAlign.LEFT)
                 .background(UI.TRANSPARENT)
-                .size(childW, 32)
-                .pos(8, y)
-                .on("action", self -> {
-                    fy = ((SButton) self).getY() + 16;
+                .size(childW, 32);
+        final int ry;
+        synchronized (top) {
+            synchronized (links) {
+                links.put(id, btn);
+            }
+            top.add(btn);
+            super.add(btn);
+            ry = y;
+            y += 40;
+        }
+        btn.pos(8, ry)
+                .onAction((s, e) -> {
+                    fy = ((SButton) s).getY() + 16;
                     isTop = true;
                     onChange(action);
                 });
-        links.put(id, btn);
-        l.lock();
-        top.add(btn);
-        l.unlock();
-        super.add(btn);
-        y += 40;
         return this;
     }
 
-    @Override public SMenuBar add(final IImage icon, final String id, final Runnable action) { return add(icon, id, null, action); }
+    @Override public SMenuBar add(final String id, final IImage icon, final Runnable action) { return add(id, icon, null, action); }
 
     @Override
-    public SMenuBar addEnd(final IImage icon, final String id, final Runnable action) {
-        if (iv == 0) iv = 8;
-        final int cy = getHeight() - iv - 16;
-        SButton btn = new SButton(icon)
+    public SMenuBar addEnd(final String id, final IImage icon, final Object text, final Runnable action) {
+        final SButton btn = new SButton(text, icon)
                 .ha(HAlign.LEFT)
                 .background(UI.TRANSPARENT)
-                .size(childW, 32)
-                .pos(8, cy - 16)
-                .on("action", self -> {
+                .size(childW, 32);
+        final int h = getHeight(), cy;
+        synchronized (bottom) {
+            if (iv == 0)
+                iv = 8;
+            cy = h - iv - 16;
+            synchronized (links) {
+                links.put(id, btn);
+            }
+            bottom.add(btn);
+            super.add(btn, 0);
+            iv += 40;
+        }
+        btn.pos(8, cy - 16)
+                .onAction((s, e) -> {
                     fy = cy;
                     isTop = false;
                     onChange(action);
                 });
-        links.put(id, btn);
-        l.lock();
-        bottom.add(btn);
-        l.unlock();
-        super.add(btn, 0);
-        iv += 40;
         return this;
     }
+
+    @Override public SMenuBar addEnd(final String id, final IImage icon, final Runnable action) { return addEnd(id, icon, null, action); }
 
     private void onChange(final Runnable action) {
         fh = 32;
         timer.start();
-        chlo.lock();
-        chl.removeIf(RRunnable::run);
-        chlo.unlock();
+        synchronized (chl) {
+            chl.removeIf(RRunnable::run);
+        }
         action.run();
         System.gc();
     }
 
     @Override
-    public SMenuBar changed() {
-        chlo.lock();
-        chl.removeIf(RRunnable::run);
-        chlo.unlock();
-        return this;
-    }
-
-    @Override
     public SMenuBar onChange(final RRunnable<Boolean> runnable) {
-        chlo.lock();
-        chl.add(runnable);
-        chlo.unlock();
+        synchronized (chl) {
+            chl.add(runnable);
+        }
         return this;
     }
 
     @Override
     public SMenuBar offChange(final RRunnable<Boolean> runnable) {
-        chlo.lock();
-        chl.remove(runnable);
-        chlo.unlock();
+        synchronized (chl) {
+            chl.remove(runnable);
+        }
+        return this;
+    }
+
+    @Override
+    public SMenuBar changed() {
+        synchronized (chl) {
+            chl.removeIf(RRunnable::run);
+        }
         return this;
     }
 
     @Override
     public SMenuBar select(final String id) {
-        final SButton b = links.get(id);
-        if (b != null) b.doClick();
+        synchronized (links) {
+            final SButton b = links.get(id);
+            if (b != null)
+                b.doClick();
+        }
         return this;
     }
 
     @Override
-    public SMenuBar add(IComponent component) {
+    public SMenuBar add(final IComponent component) {
         super.add((Component) component.getComponent());
         return this;
     }
 
     @Override
-    public SMenuBar remove(IComponent component) {
+    public SMenuBar add(final IComponent... components) {
+        for (final IComponent c : components)
+            super.add((Component) c.getComponent());
+        return this;
+    }
+
+    @Override
+    public SMenuBar remove(final IComponent component) {
         super.remove((Component) component.getComponent());
         return this;
     }
@@ -223,7 +238,17 @@ public class SMenuBar extends JPanel implements IMenuBar {
     @Override
     public SMenuBar clear() {
         super.removeAll();
-        repaint();
+        synchronized (top) {
+            synchronized (bottom) {
+                synchronized (links) {
+                    iv = sy = 0;
+                    y = 8;
+                    links.clear();
+                    top.clear();
+                    bottom.clear();
+                }
+            }
+        }
         return this;
     }
 
@@ -231,41 +256,44 @@ public class SMenuBar extends JPanel implements IMenuBar {
     @Override public int height() { return getHeight(); }
     @Override public boolean visible() { return isVisible(); }
     @Override public boolean isFocused() { return hasFocus(); }
+    @Override public SMenuBar getComponent() { return this; }
 
-    @Override public SMenuBar size(int width, int height) {
+    @Override public SMenuBar size(final int width, final int height) {
         setSize(width, height);
         childW = width - 16;
         return this;
     }
-    @Override public SMenuBar pos(int x, int y) { setLocation(x, y); return this; }
-    @Override public SMenuBar visible(boolean visible) { setVisible(visible); return this; }
+    @Override public SMenuBar pos(final int x, final int y) { setLocation(x, y); return this; }
+    @Override public SMenuBar visible(final boolean visible) { setVisible(visible); return this; }
     @Override public SMenuBar focus() { requestFocus(); return this; }
-    @Override public SMenuBar getComponent() { return this; }
+
 
     @Override
-    public SMenuBar background(IColor bg) {
+    public SMenuBar background(final IColor bg) {
         this.bg = bg;
-        repaint();
         return this;
     }
 
     @Override
-    public SMenuBar foreground(IColor fg) {
+    public SMenuBar foreground(final IColor fg) {
         this.fg = fg;
-        repaint();
         return this;
     }
 
     @Override
     public SMenuBar borderRadius(final RRunnable<Integer> borderRadius) {
         this.borderRadius = borderRadius;
-        repaint();
         return this;
     }
 
     @Override
-    public SMenuBar borderRadius(int borderRadius) {
+    public SMenuBar borderRadius(final int borderRadius) {
         this.borderRadius = () -> borderRadius;
+        return this;
+    }
+
+    @Override
+    public SMenuBar update() {
         repaint();
         return this;
     }

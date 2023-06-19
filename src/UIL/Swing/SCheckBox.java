@@ -42,7 +42,6 @@ public class SCheckBox extends JComponent implements ICheckBox {
             g.setFont((Font) f.get());
             final FontMetrics m = g.getFontMetrics();
             g.setColor((Color) fg.get());
-            //g.drawString(t, getHeight() + 8, (getHeight() - m.getHeight()) / 2 + m.getAscent());
             g.drawString(t, getHeight() + 8, (getHeight() - m.getHeight()) / 2 + m.getLeading() + m.getAscent());
         }
 
@@ -56,19 +55,19 @@ public class SCheckBox extends JComponent implements ICheckBox {
     @Override public boolean checked() { return c; }
     @Override public String text() { return t.toString(); }
 
-    @Override public SCheckBox checked(final boolean checked) { c = checked; repaint(); return this; }
-    @Override public SCheckBox text(final Object text) { t = text; repaint(); return this; }
-    @Override public SCheckBox font(final IFont font) { f = font; repaint(); return this; }
+    @Override public SCheckBox checked(final boolean checked) { c = checked; return this; }
+    @Override public SCheckBox text(final Object text) { t = text; return this; }
+    @Override public SCheckBox font(final IFont font) { f = font; return this; }
     @Override public SCheckBox ha(final HAlign align) { return this; }
     @Override public SCheckBox size(final int width, final int height) { setSize(width, height); return this; }
     @Override public SCheckBox pos(final int x, final int y) { setLocation(x, y); return this; }
     @Override public SCheckBox visible(final boolean visible) { setVisible(visible); return this; }
     @Override public SCheckBox focus() { requestFocus(); return this; }
-    @Override public SCheckBox borderRadius(final RRunnable<Integer> borderRadius) { br = borderRadius; repaint(); return this; }
-    @Override public SCheckBox borderRadius(final int borderRadius) { br = () -> borderRadius; repaint(); return this; }
-    @Override public SCheckBox background(final IColor bg) { this.bg = bg; repaint(); return this; }
-    @Override public SCheckBox foreground(final IColor fg) { this.fg = fg; repaint(); return this; }
-    @Override public SCheckBox grounds(final IColor bg, final IColor fg) { this.bg = bg; this.fg = fg; repaint(); return this; }
-    @Override public SCheckBox on(String name, Runnable runnable) { return this; }
+    @Override public SCheckBox borderRadius(final RRunnable<Integer> borderRadius) { br = borderRadius; return this; }
+    @Override public SCheckBox borderRadius(final int borderRadius) { br = () -> borderRadius; return this; }
+    @Override public SCheckBox background(final IColor bg) { this.bg = bg; return this; }
+    @Override public SCheckBox foreground(final IColor fg) { this.fg = fg; return this; }
+    @Override public SCheckBox grounds(final IColor bg, final IColor fg) { this.bg = bg; this.fg = fg; return this; }
+    @Override public SCheckBox update() { repaint(); return this; }
     @Override public SCheckBox getComponent() { return this; }
 }

@@ -9,11 +9,11 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
 public class SDialog implements IDialog {
-    final JDialog d;
+    private final JDialog d;
     private final Container cont;
     private boolean packed = false;
 
-    public SDialog(IFrame owner, String title) {
+    public SDialog(final IFrame owner, final String title) {
         d = new JDialog(owner == null ? null : (JFrame) owner.getComponent(), title);
         d.setModal(true);
         cont = d.getContentPane();
@@ -24,38 +24,38 @@ public class SDialog implements IDialog {
     @Override public int height() { return cont.getHeight(); }
     @Override public boolean visible() { return d.isVisible(); }
     @Override public boolean isFocused() { return d.isFocused(); }
-
+    @Override public IComponent[] childs() { return (IComponent[]) cont.getComponents(); }
     @Override public Object getComponent() { return this; }
 
     @Override
-    public SDialog icon(IImage icon) {
+    public SDialog icon(final IImage icon) {
         d.setIconImage((Image) icon.getImage());
         return this;
     }
 
     @Override
-    public SDialog resizable(boolean resizable) {
+    public SDialog resizable(final boolean resizable) {
         d.setResizable(resizable);
         return this;
     }
 
-    @Override public SDialog icon(String path) throws Exception { IDialog.super.icon(path); return this; }
-
     @Override
-    public SDialog add(IComponent component) {
+    public SDialog add(final IComponent component) {
         cont.add((Component) component.getComponent(), 0);
         return this;
     }
 
     @Override
-    public SDialog remove(IComponent component) {
-        cont.remove((Component) component.getComponent());
+    public SDialog add(final IComponent... components) {
+        for (final IComponent c : components)
+            cont.add((Component) c.getComponent(), 0);
         return this;
     }
 
     @Override
-    public IComponent[] childs() {
-        return (IComponent[]) cont.getComponents();
+    public SDialog remove(final IComponent component) {
+        cont.remove((Component) component.getComponent());
+        return this;
     }
 
     @Override
@@ -65,16 +65,15 @@ public class SDialog implements IDialog {
     }
 
     @Override
-    public SDialog size(int width, int height) {
-        //if (isUndecorated())
-            cont.setPreferredSize(new Dimension(width, height));
+    public SDialog size(final int width, final int height) {
+        cont.setPreferredSize(new Dimension(width, height));
         d.setSize(width + (d.getInsets()).left + (d.getInsets()).right, height + (d.getInsets()).top + (d.getInsets()).bottom);
         return this;
     }
 
-    @Override public SDialog pos(int x, int y) { d.setLocation(x, y); return this; }
-    @Override public SDialog center(IComponent component) { d.setLocationRelativeTo(component == null ? null : (Component) component.getComponent()); return this; }
-    @Override public SDialog visible(boolean visible) {
+    @Override public SDialog pos(final int x, final int y) { d.setLocation(x, y); return this; }
+    @Override public SDialog center(final IComponent component) { d.setLocationRelativeTo(component == null ? null : (Component) component.getComponent()); return this; }
+    @Override public SDialog visible(final boolean visible) {
         if (!packed) {
             packed = true;
             d.pack();
@@ -85,7 +84,7 @@ public class SDialog implements IDialog {
     @Override public SDialog focus() { d.requestFocus(); return this; }
 
     @Override
-    public SDialog background(IColor bg) {
+    public SDialog background(final IColor bg) {
         d.setBackground((Color) bg.get());
         return this;
     }
@@ -98,6 +97,12 @@ public class SDialog implements IDialog {
                 listener.run(SDialog.this);
             }
         });
+        return this;
+    }
+
+    @Override
+    public SDialog update() {
+        d.repaint();
         return this;
     }
 

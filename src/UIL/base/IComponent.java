@@ -15,14 +15,14 @@ public interface IComponent {
     IComponent pos(final int x, final int y);
     IComponent visible(final boolean visible);
     IComponent focus();
+    Object getComponent();
 
     default IComponent borderRadius(final RRunnable<Integer> borderRadius) { return this; }
     default IComponent borderRadius(final int borderRadius) { return this; }
     default IComponent background(final IColor bg) { return this; }
     default IComponent foreground(final IColor fg) { return this; }
     default IComponent grounds(final IColor bg, final IColor fg) { return background(bg).foreground(fg); }
-    default IComponent on(final String name, final Runnable runnable) { return this; }
-    default IComponent off(final Runnable runnable) { return this; }
+    default IComponent update() { return this; }
 
-    Object getComponent();
+
 }

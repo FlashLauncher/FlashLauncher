@@ -16,7 +16,7 @@ public class SFrame implements IFrame {
     private final JFrame frame;
     private final Container root;
 
-    public SFrame(String title) {
+    public SFrame(final String title) {
         frame = new JFrame(title);
         root = frame.getContentPane();
         root.setLayout(null);
@@ -26,6 +26,8 @@ public class SFrame implements IFrame {
     @Override public int height() { return root.getHeight(); }
     @Override public boolean visible() { return frame.isVisible(); }
     @Override public boolean isFocused() { return frame.hasFocus(); }
+    @Override public IComponent[] childs() { return (IComponent[]) root.getComponents(); }
+    @Override public JFrame getComponent() { return frame; }
 
     @Override
     public SFrame size(final int width, final int height) {
@@ -36,8 +38,8 @@ public class SFrame implements IFrame {
     }
 
     @Override public SFrame pos(final int x, final int y) { frame.setLocation(x, y); return this; }
-    @Override public SFrame center(IComponent component) { frame.setLocationRelativeTo(component == null ? null : (Component) component.getComponent()); return this; }
-    @Override public SFrame visible(boolean visible) {
+    @Override public SFrame center(final IComponent component) { frame.setLocationRelativeTo(component == null ? null : (Component) component.getComponent()); return this; }
+    @Override public SFrame visible(final boolean visible) {
         if (!packed) {
             packed = true;
             frame.pack();
@@ -59,49 +61,51 @@ public class SFrame implements IFrame {
     }
 
     @Override
-    public JFrame getComponent() { return frame; }
-
-    @Override
     public SFrame add(final IComponent component) {
         root.add((Component) component.getComponent(), 0);
-        frame.repaint();
+        return this;
+    }
+
+    @Override
+    public SFrame add(final IComponent... components) {
+        for (final IComponent c : components)
+            root.add((Component) c.getComponent(), 0);
         return this;
     }
 
     @Override
     public SFrame remove(final IComponent component) {
         root.remove((Component) component);
-        frame.repaint();
         return this;
-    }
-
-    @Override
-    public IComponent[] childs() {
-        return (IComponent[]) root.getComponents();
     }
 
     @Override
     public SFrame clear() {
         root.removeAll();
-        frame.repaint();
         return this;
     }
 
     @Override
-    public SFrame icon(IImage icon) {
+    public SFrame icon(final IImage icon) {
         frame.setIconImage((Image) icon.getImage());
         return this;
     }
 
     @Override
-    public SFrame resizable(boolean resizable) {
+    public SFrame resizable(final boolean resizable) {
         frame.setResizable(resizable);
         return this;
     }
 
     @Override
-    public SFrame background(IColor bg) {
+    public SFrame background(final IColor bg) {
         frame.setBackground((Color) bg.get());
+        return this;
+    }
+
+    @Override
+    public SFrame update() {
+        frame.repaint();
         return this;
     }
 

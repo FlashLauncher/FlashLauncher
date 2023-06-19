@@ -12,45 +12,14 @@ public class SImageView extends JComponent implements IImageView {
     private ImagePosMode imagePosMode;
     private IImage image = null;
 
-    public SImageView(ImagePosMode imagePosMode, ImageSizeMode imageSizeMode) {
+    public SImageView(final ImagePosMode imagePosMode, final ImageSizeMode imageSizeMode) {
         this.imagePosMode = imagePosMode;
         this.imageSizeMode = imageSizeMode;
         setOpaque(false);
     }
 
-    @Override public int width() { return getWidth(); }
-    @Override public int height() { return getHeight(); }
-    @Override public boolean visible() { return isVisible(); }
-    @Override public boolean isFocused() { return hasFocus(); }
-
-    @Override public SImageView size(int width, int height) { setSize(width, height); return this; }
-    @Override public SImageView pos(int x, int y) { setLocation(x, y); return this; }
-    @Override public SImageView visible(boolean visible) { setVisible(visible); return this; }
-    @Override public SImageView focus() { requestFocus(); return this; }
-
     @Override
-    public SImageView image(IImage img) {
-        image = img;
-        repaint();
-        return this;
-    }
-
-    @Override
-    public SImageView imageSizeMode(ImageSizeMode imageSizeMode) {
-        this.imageSizeMode = imageSizeMode;
-        repaint();
-        return this;
-    }
-
-    @Override
-    public SImageView imagePosMode(ImagePosMode imagePosMode) {
-        this.imagePosMode = imagePosMode;
-        repaint();
-        return this;
-    }
-
-    @Override
-    protected void paintComponent(Graphics graphics) {
+    protected void paintComponent(final Graphics graphics) {
         final IImage ii = image;
         final Image img = ii == null ? null : (Image) image.getImage();
         if (img == null)
@@ -91,11 +60,44 @@ public class SImageView extends JComponent implements IImageView {
             y = Math.round((ch - ih) / 2);
         }
 
-        Graphics2D g = (Graphics2D) graphics.create();
+        final Graphics2D g = (Graphics2D) graphics.create();
         g.setRenderingHints(SSwing.RH);
         g.drawImage(img, x, y, Math.round(iw), Math.round(ih), this);
         g.dispose();
     }
 
+    @Override public int width() { return getWidth(); }
+    @Override public int height() { return getHeight(); }
+    @Override public boolean visible() { return isVisible(); }
+    @Override public boolean isFocused() { return hasFocus(); }
     @Override public SImageView getComponent() { return this; }
+
+    @Override public SImageView size(final int width, final int height) { setSize(width, height); return this; }
+    @Override public SImageView pos(final int x, final int y) { setLocation(x, y); return this; }
+    @Override public SImageView visible(final boolean visible) { setVisible(visible); return this; }
+    @Override public SImageView focus() { requestFocus(); return this; }
+
+    @Override
+    public SImageView image(final IImage img) {
+        image = img;
+        return this;
+    }
+
+    @Override
+    public SImageView imageSizeMode(final ImageSizeMode imageSizeMode) {
+        this.imageSizeMode = imageSizeMode;
+        return this;
+    }
+
+    @Override
+    public SImageView imagePosMode(final ImagePosMode imagePosMode) {
+        this.imagePosMode = imagePosMode;
+        return this;
+    }
+
+    @Override
+    public SImageView update() {
+        repaint();
+        return this;
+    }
 }

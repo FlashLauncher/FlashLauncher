@@ -19,11 +19,13 @@ public class SComboBox extends JComponent implements IComboBox {
             if (content == null) {
                 a = Math.max(a - d, 0);
                 repaint();
-                if (a == 0) stop();
+                if (a == 0)
+                    stop();
             } else {
                 a = Math.min(a + d, 1);
                 repaint();
-                if (a == 1) stop();
+                if (a == 1)
+                    stop();
             }
         }
     };
@@ -32,7 +34,6 @@ public class SComboBox extends JComponent implements IComboBox {
     private RRunnable<Integer> borderRadius = Theme.BORDER_RADIUS, imageOffset = UI.ZERO, imageTextDist = imageOffset;
     private IColor bg = Theme.BACKGROUND, fg = Theme.FOREGROUND;
     private IFont font = Theme.FONT;
-    private HAlign ha = HAlign.LEFT;
 
     private float a = 0;
 
@@ -78,14 +79,14 @@ public class SComboBox extends JComponent implements IComboBox {
 
         private final ContainerListener cl = new ContainerListener() {
             @Override
-            public void componentAdded(ContainerEvent e) {
+            public void componentAdded(final ContainerEvent e) {
                 if (e.getChild() instanceof Container)
                     ((Container) e.getChild()).addContainerListener(cl);
                 e.getChild().addFocusListener(fa);
             }
 
             @Override
-            public void componentRemoved(ContainerEvent e) {
+            public void componentRemoved(final ContainerEvent e) {
                 if (e.getChild() instanceof Container)
                     ((Container) e.getChild()).removeContainerListener(cl);
                 e.getChild().removeFocusListener(fa);
@@ -99,7 +100,7 @@ public class SComboBox extends JComponent implements IComboBox {
         }
     }
 
-    private static boolean containsComponent(JComponent container, Component component) {
+    private static boolean containsComponent(final JComponent container, final Component component) {
         final Component[] cl = container.getComponents();
         for (final Component c : cl)
             if (c == component)
@@ -188,53 +189,47 @@ public class SComboBox extends JComponent implements IComboBox {
 
         g.dispose();
     }
-
+    @Override public int width() { return getWidth(); }
+    @Override public int height() { return getHeight(); }
+    @Override public boolean visible() { return isVisible(); }
+    @Override public boolean isFocused() { return hasFocus(); }
     @Override public int borderRadius() { return borderRadius.run(); }
 
     @Override
-    public SComboBox image(IImage image) {
+    public SComboBox image(final IImage image) {
         img = image;
-        repaint();
         return this;
     }
 
     @Override public String text() { return text.toString(); }
 
     @Override
-    public SComboBox text(Object text) {
+    public SComboBox text(final Object text) {
         this.text = text;
-        repaint();
         return this;
     }
 
     @Override
-    public SComboBox font(IFont font) {
+    public SComboBox font(final IFont font) {
         this.font = font;
-        repaint();
         return this;
     }
 
     @Override
-    public SComboBox ha(HAlign align) {
-        ha = align;
-        repaint();
+    public SComboBox ha(final HAlign align) {
         return this;
     }
 
-    @Override public int width() { return getWidth(); }
-    @Override public int height() { return getHeight(); }
-    @Override public boolean visible() { return isVisible(); }
-    @Override public boolean isFocused() { return hasFocus(); }
 
-    @Override public SComboBox size(int width, int height) { setSize(width, height); return this; }
-    @Override public SComboBox pos(int x, int y) { setLocation(x, y); return this; }
-    @Override public SComboBox visible(boolean visible) { setVisible(visible); return this; }
+
+    @Override public SComboBox size(final int width, final int height) { setSize(width, height); return this; }
+    @Override public SComboBox pos(final int x, final int y) { setLocation(x, y); return this; }
+    @Override public SComboBox visible(final boolean visible) { setVisible(visible); return this; }
     @Override public SComboBox focus() { requestFocus(); return this; }
 
     @Override
     public SComboBox borderRadius(final RRunnable<Integer> borderRadius) {
         this.borderRadius = borderRadius;
-        repaint();
         return this;
     }
 
@@ -247,37 +242,42 @@ public class SComboBox extends JComponent implements IComboBox {
     @Override
     public SComboBox borderRadius(final int borderRadius) {
         this.borderRadius = () -> borderRadius;
-        repaint();
         return this;
     }
 
     @Override
     public IComboBox imageOffset(final int imageOffset) {
         this.imageOffset = () -> imageOffset;
-        repaint();
         return this;
     }
 
     @Override
-    public SComboBox background(IColor bg) {
+    public SComboBox background(final IColor bg) {
         this.bg = bg;
-        repaint();
         return this;
     }
 
     @Override
-    public SComboBox foreground(IColor fg) {
+    public SComboBox foreground(final IColor fg) {
         this.fg = fg;
-        repaint();
         return this;
     }
 
-    @Override public SComboBox grounds(IColor bg, IColor fg) { return background(bg).foreground(fg); }
+    @Override public SComboBox grounds(final IColor bg, final IColor fg) {
+        this.bg = bg;
+        this.fg = fg;
+        return this;
+    }
 
-    @Override public SComboBox on(String name, Runnable runnable) { return this; }
     @Override
     public SComboBox onList(final ListListener listener) {
         synchronized (actions) { actions.add(listener); }
+        return this;
+    }
+
+    @Override
+    public SComboBox update() {
+        repaint();
         return this;
     }
 

@@ -7,17 +7,18 @@ public interface ICheckBox extends IText {
     ICheckBox checked(final boolean value);
 
     // IText
-    ICheckBox text(Object text);
-    ICheckBox font(IFont font);
-    ICheckBox ha(HAlign align);
+    ICheckBox text(final Object text);
+    ICheckBox font(final IFont font);
+    ICheckBox ha(final HAlign align);
 
     // IComponent
-    @Override ICheckBox size(int width, int height);
-    @Override ICheckBox pos(int x, int y);
-    @Override ICheckBox visible(boolean visible);
+    @Override ICheckBox size(final int width, final int height);
+    @Override ICheckBox pos(final int x, final int y);
+    @Override ICheckBox visible(final boolean visible);
     @Override ICheckBox focus();
-    @Override default ICheckBox borderRadius(int borderRadius) { return this; }
-    @Override default ICheckBox background(IColor bg) { return this; }
-    @Override default ICheckBox foreground(IColor fg) { return this; }
-    @Override default ICheckBox grounds(IColor bg, IColor fg) { return background(bg).foreground(fg); }
+    @Override default ICheckBox borderRadius(final int borderRadius) { return this; }
+    @Override default ICheckBox background(final IColor bg) { return this; }
+    @Override default ICheckBox foreground(final IColor fg) { return this; }
+    @Override default ICheckBox grounds(final IColor bg, final IColor fg) { return background(bg).foreground(fg); }
+    @Override default ICheckBox update() { return this; }
 }

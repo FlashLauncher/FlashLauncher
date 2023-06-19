@@ -5,11 +5,11 @@ import java.util.Random;
 import java.util.concurrent.locks.ReentrantLock;
 
 public abstract class STimer {
-    private float s;
+    private final float s;
     private final ReentrantLock locker = new ReentrantLock();
     private long id;
 
-    public STimer(float sleep) { s = sleep; }
+    public STimer(final float sleep) { s = sleep; }
 
     public abstract void run();
 

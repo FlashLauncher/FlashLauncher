@@ -18,7 +18,7 @@ public class SSwing extends UI {
             new Object[]{RenderingHints.VALUE_ANTIALIAS_ON, RenderingHints.VALUE_TEXT_ANTIALIAS_ON, RenderingHints.VALUE_RENDER_QUALITY}
     ));
 
-    public static int MULTIPLIER = 16;
+    public static final int MULTIPLIER = 16;
 
     @Override public IColor newColor(final int r, final int g, final int b, final int a) { return new SColor(r, g, b, a); }
     @Override public IColor newColor(final int r, final int g, final int b) { return new SColor(r, g, b); }
@@ -32,7 +32,7 @@ public class SSwing extends UI {
     }
 
     @Override
-    public final float getFontHeight(String fontName, int fontSize) {
+    public final float getFontHeight(final String fontName, final int fontSize) {
         final FontMetrics m = new Canvas().getFontMetrics(new Font(fontName, Font.PLAIN, fontSize));
         return m.getHeight();
     }
@@ -47,24 +47,25 @@ public class SSwing extends UI {
     @Override public IDialog newDialog(final IFrame owner, final String title) { return new SDialog(owner, title); }
     @Override public IComponent newLoader() { return new SLoader(); }
     @Override public IProgressBar newProgressBar() { return new SProgressBar(); }
+    @Override public IText newText() { return new SText(); }
     @Override public IText newText(final Object text) { return new SText(text); }
     @Override public ICheckBox newCheckBox(final Object text, final boolean checked) { return new SCheckBox(text, checked); }
     @Override public ITextField newTextField(final String text) { return new STextField(text); }
     @Override public IButton newButton() { return new SButton(); }
-    @Override public IButton newButton(LangItem text) { return new SButton(text); }
-    @Override public IButton newButton(String text) { return new SButton(text); }
-    @Override public IButton newButton(IImage img) { return new SButton(img); }
-    @Override public IButton newButton(Object text, IImage img) { return new SButton(text, img); }
+    @Override public IButton newButton(final LangItem text) { return new SButton(text); }
+    @Override public IButton newButton(final String text) { return new SButton(text); }
+    @Override public IButton newButton(final IImage img) { return new SButton(img); }
+    @Override public IButton newButton(final Object text, IImage img) { return new SButton(text, img); }
     @Override public IComboBox newComboBox() { return new SComboBox(); }
     @Override public IContainer newPanel() { return new SPanel(); }
     @Override public IScrollPane newScrollPane() { return new SScrollPane(); }
     @Override public IMenuBar newMenuBar() { return new SMenuBar(); }
-    @Override public IImageView newImageView(ImagePosMode posMode, ImageSizeMode sizeMode) { return new SImageView(posMode, sizeMode); }
+    @Override public IImageView newImageView(final ImagePosMode posMode, final ImageSizeMode sizeMode) { return new SImageView(posMode, sizeMode); }
 
-    @Override public void invoke(Runnable action) { SwingUtilities.invokeLater(action); }
+    @Override public void invoke(final Runnable action) { SwingUtilities.invokeLater(action); }
 
     @Override
-    public void invokeAndWait(Runnable action) throws InterruptedException {
+    public void invokeAndWait(final Runnable action) throws InterruptedException {
         try {
             SwingUtilities.invokeAndWait(action);
         } catch (InvocationTargetException ex) {

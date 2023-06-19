@@ -18,76 +18,7 @@ public class SPanel extends JPanel implements IContainer {
 
     public SPanel() { setOpaque(false); setLayout(null); }
 
-    @Override public int width() { return getWidth(); }
-    @Override public int height() { return getHeight(); }
-    @Override public boolean visible() { return isVisible(); }
-    @Override public boolean isFocused() { return hasFocus(); }
-
-    @Override
-    public SPanel size(int width, int height) {
-        setPreferredSize(new Dimension(width, height));
-        setSize(width, height);
-        return this;
-    }
-    @Override public SPanel pos(int x, int y) { setLocation(x, y); return this; }
-    @Override public SPanel visible(boolean visible) { setVisible(visible); return this; }
-    @Override public SPanel focus() { requestFocus(); return this; }
-    @Override public SPanel getComponent() { return this; }
-
-    @Override
-    public SPanel add(IComponent component) {
-        super.add((Component) component.getComponent(), 0);
-        repaint();
-        return this;
-    }
-
-    @Override
-    public SPanel remove(IComponent component) {
-        super.remove((Component) component.getComponent());
-        return this;
-    }
-
-    @Override
-    public IComponent[] childs() {
-        final ArrayList<IComponent> r = new ArrayList<>();
-        for (final Component c : getComponents())
-            if (c instanceof IComponent)
-                r.add((IComponent) c);
-        return r.toArray(new IComponent[0]);
-    }
-
-    @Override
-    public SPanel clear() {
-        super.removeAll();
-        repaint();
-        return this;
-    }
-
-    @Override
-    public SPanel background(IColor bg) {
-        this.bg = bg;
-        repaint();
-        return this;
-    }
-
-    @Override public int borderRadius() { return borderRadius.run(); }
-
-    @Override
-    public SPanel borderRadius(final RRunnable<Integer> borderRadius) {
-        this.borderRadius = borderRadius;
-        repaint();
-        return this;
-    }
-
-
-    @Override
-    public SPanel borderRadius(final int borderRadius) {
-        this.borderRadius = () -> borderRadius;
-        repaint();
-        return this;
-    }
-
-    @Override protected void paintComponent(Graphics g) {}
+    @Override protected void paintComponent(final Graphics g) {}
 
     @Override
     protected void paintChildren(final Graphics graphics) {
@@ -108,5 +39,83 @@ public class SPanel extends JPanel implements IContainer {
         g.drawImage(img, 0, 0, this);
 
         g.dispose();
+    }
+
+    @Override public int width() { return getWidth(); }
+    @Override public int height() { return getHeight(); }
+    @Override public boolean visible() { return isVisible(); }
+    @Override public int borderRadius() { return borderRadius.run(); }
+    @Override public boolean isFocused() { return hasFocus(); }
+
+    @Override
+    public SPanel size(final int width, final int height) {
+        setPreferredSize(new Dimension(width, height));
+        setSize(width, height);
+        return this;
+    }
+    @Override public SPanel pos(final int x, final int y) { setLocation(x, y); return this; }
+    @Override public SPanel visible(final boolean visible) { setVisible(visible); return this; }
+    @Override public SPanel focus() { requestFocus(); return this; }
+    @Override
+    public IComponent[] childs() {
+        final ArrayList<IComponent> r = new ArrayList<>();
+        for (final Component c : getComponents())
+            if (c instanceof IComponent)
+                r.add((IComponent) c);
+        return r.toArray(new IComponent[0]);
+    }
+    @Override public SPanel getComponent() { return this; }
+
+    @Override
+    public SPanel add(final IComponent component) {
+        super.add((Component) component.getComponent(), 0);
+        return this;
+    }
+
+    @Override
+    public SPanel add(final IComponent... components) {
+        for (final IComponent c : components)
+            super.add((Component) c.getComponent(), 0);
+        return this;
+    }
+
+    @Override
+    public SPanel remove(final IComponent component) {
+        super.remove((Component) component.getComponent());
+        return this;
+    }
+
+
+
+    @Override
+    public SPanel clear() {
+        super.removeAll();
+        return this;
+    }
+
+    @Override
+    public SPanel background(final IColor bg) {
+        this.bg = bg;
+        return this;
+    }
+
+
+
+    @Override
+    public SPanel borderRadius(final RRunnable<Integer> borderRadius) {
+        this.borderRadius = borderRadius;
+        return this;
+    }
+
+    @Override
+    public SPanel borderRadius(final int borderRadius) {
+        this.borderRadius = () -> borderRadius;
+        return this;
+    }
+
+    @Override
+    public SPanel update() {
+        repaint();
+        return this;
     }
 }
