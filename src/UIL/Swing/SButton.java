@@ -9,6 +9,7 @@ import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.RoundRectangle2D;
+import java.util.ArrayList;
 
 public class SButton extends JButton implements IButton {
     private IImage image = null;
@@ -21,9 +22,43 @@ public class SButton extends JButton implements IButton {
 
     private RRunnable<Integer> borderRadius = Theme.BORDER_RADIUS, imageTextDist = () -> 0, imageOffset = () -> 0;
 
+    private final ArrayList<IButtonAction> actionListeners = new ArrayList<>();
+
     public SButton() {
         setOpaque(false);
         setBorder(new EmptyBorder(0, 0, 0, 0));
+        super.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(final KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_SPACE) {
+                    final IButtonAction[] actions;
+                    synchronized (actionListeners) {
+                        if (actionListeners.size() == 0)
+                            return;
+                        else
+                            actions = actionListeners.toArray(new IButtonAction[0]);
+                    }
+                    final SButtonKeyEvent evt = new SButtonKeyEvent(e);
+                    for (final IButtonAction a : actions)
+                        a.run(SButton.this, evt);
+                }
+            }
+        });
+        addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(final MouseEvent e) {
+                final IButtonAction[] actions;
+                synchronized (actionListeners) {
+                    if (actionListeners.size() == 0)
+                        return;
+                    else
+                        actions = actionListeners.toArray(new IButtonAction[0]);
+                }
+                final SButtonMouseEvent evt = new SButtonMouseEvent(e);
+                for (final IButtonAction a : actions)
+                    a.run(SButton.this, evt);
+            }
+        });
     }
     public SButton(final LangItem text) { this(); this.text = text; }
     public SButton(final String text) { this(); this.text = text; }
@@ -97,19 +132,9 @@ public class SButton extends JButton implements IButton {
 
     @Override
     public SButton onAction(final IButtonAction runnable) {
-        super.addKeyListener(new KeyAdapter() {
-            @Override
-            public void keyPressed(final KeyEvent e) {
-                if (e.getKeyCode() == KeyEvent.VK_SPACE)
-                    runnable.run(SButton.this, new SButtonKeyEvent(e));
-            }
-        });
-        addMouseListener(new MouseAdapter() {
-            @Override
-            public void mousePressed(final MouseEvent e) {
-                runnable.run(SButton.this, new SButtonMouseEvent(e));
-            }
-        });
+        synchronized (actionListeners) {
+            actionListeners.add(runnable);
+        }
         return this;
     }
 
@@ -195,6 +220,18 @@ public class SButton extends JButton implements IButton {
     public SButton update() {
         repaint();
         return this;
+    }
+
+    @Override
+    public void doClick() {
+        final IButtonAction[] al;
+        synchronized (actionListeners) {
+            if (actionListeners.size() == 0)
+                return;
+            al = actionListeners.toArray(new IButtonAction[0]);
+        }
+        for (final IButtonAction a : al)
+            a.run(this, null);
     }
 
     private static class SButtonKeyEvent implements IButtonActionEvent {

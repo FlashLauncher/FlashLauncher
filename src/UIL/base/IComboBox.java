@@ -4,7 +4,7 @@ import UIL.HAlign;
 
 public interface IComboBox extends IButton {
     interface ListListener {
-        boolean run(final IComboBox self, final IScrollPane sp);
+        boolean run(final IComboBox self, final IContainer sp);
     }
 
     default IComboBox onList(final ListListener listener) { return this; }

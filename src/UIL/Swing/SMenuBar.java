@@ -126,16 +126,15 @@ public class SMenuBar extends JPanel implements IMenuBar {
                 links.put(id, btn);
             }
             top.add(btn);
-            super.add(btn);
             ry = y;
             y += 40;
         }
-        btn.pos(8, ry)
+        super.add(btn.pos(8, ry)
                 .onAction((s, e) -> {
                     fy = ((SButton) s).getY() + 16;
                     isTop = true;
                     onChange(action);
-                });
+                }));
         return this;
     }
 
@@ -156,15 +155,14 @@ public class SMenuBar extends JPanel implements IMenuBar {
                 links.put(id, btn);
             }
             bottom.add(btn);
-            super.add(btn, 0);
             iv += 40;
         }
-        btn.pos(8, cy - 16)
+        super.add(btn.pos(8, cy - 16)
                 .onAction((s, e) -> {
                     fy = cy;
                     isTop = false;
                     onChange(action);
-                });
+                }), 0);
         return this;
     }
 

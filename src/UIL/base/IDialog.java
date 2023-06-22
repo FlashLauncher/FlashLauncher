@@ -7,6 +7,7 @@ public interface IDialog extends IFrame {
     @Override IDialog icon(final IImage icon);
     @Override IDialog resizable(final boolean resizable);
 
+    @Override IDialog pack();
     @Override IDialog center(final IComponent component);
 
     @Override IDialog onClose(final Runnable1arg<IFrame> listener);

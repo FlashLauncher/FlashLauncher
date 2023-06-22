@@ -40,7 +40,7 @@ public class SComboBox extends JComponent implements IComboBox {
     private Object text = null;
     private IImage img = null;
 
-    private SScrollPane content = null;
+    private SPanel content = null;
 
     public SComboBox() {
         setOpaque(false);
@@ -63,7 +63,7 @@ public class SComboBox extends JComponent implements IComboBox {
         });
     }
 
-    private class SCBSP extends SScrollPane {
+    private class SCBSP extends SPanel {
         private JRootPane r;
         private Component f;
 

@@ -6,6 +6,7 @@ public interface IFrame extends IContainer {
     IFrame icon(final IImage icon);
     IFrame resizable(final boolean resizable);
 
+    IFrame pack();
     IFrame center(final IComponent component);
 
     IFrame onClose(final Runnable1arg<IFrame> listener);

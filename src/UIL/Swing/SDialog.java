@@ -72,6 +72,16 @@ public class SDialog implements IDialog {
     }
 
     @Override public SDialog pos(final int x, final int y) { d.setLocation(x, y); return this; }
+
+    @Override
+    public SDialog pack() {
+        if (!packed) {
+            packed = true;
+            d.pack();
+        }
+        return this;
+    }
+
     @Override public SDialog center(final IComponent component) { d.setLocationRelativeTo(component == null ? null : (Component) component.getComponent()); return this; }
     @Override public SDialog visible(final boolean visible) {
         if (!packed) {

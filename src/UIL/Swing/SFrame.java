@@ -38,6 +38,16 @@ public class SFrame implements IFrame {
     }
 
     @Override public SFrame pos(final int x, final int y) { frame.setLocation(x, y); return this; }
+
+    @Override
+    public SFrame pack() {
+        if (!packed) {
+            packed = true;
+            frame.pack();
+        }
+        return this;
+    }
+
     @Override public SFrame center(final IComponent component) { frame.setLocationRelativeTo(component == null ? null : (Component) component.getComponent()); return this; }
     @Override public SFrame visible(final boolean visible) {
         if (!packed) {
