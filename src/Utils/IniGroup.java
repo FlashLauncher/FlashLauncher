@@ -1,52 +1,42 @@
 package Utils;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
 public class IniGroup {
-    public static final String[] comments = new String[] { ";", "#" };
-    public static final char[] eq = new char[] { '=', ':' };
+    public static final String[] COMMENTS = new String[] { ";", "#" };
+    public static final char[] EQUALS = new char[] { '=', ':' };
 
-    private final HashMap<String, Object> values = new HashMap<>();
+    private final ListMap<String, Object> values = new ListMap<>();
 
     public IniGroup() {}
     public IniGroup(final String data, final boolean allowNSubGroups) {
         IniGroup c = this;
+        int i;
         for (final String line : data.replaceAll("\r", "").split("\n")) {
-            {
-                int i;
-                if (line.startsWith("[") && (i = line.indexOf("]")) > -1) {
-                    if (allowNSubGroups) {
-                        String[] l = line.substring(1, i).split("\\.");
-                        if (l.length == 1 && l[0].length() == 0) {
-                            c = this;
-                            continue;
-                        }
-                        if (l[0].length() != 0)
-                            c = this;
-                        for (final String m : l)
-                            c = c.newGroup(m);
-                        continue;
-                    }
-                    if (line.length() == 2) {
-                        c = this;
-                        continue;
-                    }
-                    c = c.newGroup(line.substring(1, i));
+            if (line.startsWith("[") && (i = line.indexOf("]")) > -1) {
+                final String l = Core.removeStart(line.substring(1, i), " ", "\t");
+                if (l.length() == 0) {
+                    c = this;
                     continue;
                 }
-            }
-            if (Core.startsWith(line, comments))
+                if (allowNSubGroups) {
+                    final String[] sl = l.split("\\.");
+                    if (sl[0].length() != 0)
+                        c = this;
+                    for (final String s : sl)
+                        if (s.length() == 0)
+                            c = c.newGroup(s);
+                    continue;
+                }
+                c = newGroup(l);
                 continue;
-            final int i = Core.minIndexOf(line, eq);
-            if (i > 0) {
-                String key = line.substring(0, i), value = line.substring(i + 1);
-                if (key.endsWith(" "))
-                    key = key.substring(0, key.length() - 1);
-                if (value.startsWith(" "))
-                    value = value.substring(1);
-                c.put(key, value);
+            }
+            if (Core.startsWith(line, COMMENTS))
+                continue;
+            if ((i = Core.minIndexOf(line, EQUALS)) > 0) {
+                final String key = line.substring(0, i), value = line.substring(i + 1);
+                c.put(key.endsWith(" ") ? key.substring(0, i - 1) : key, value.startsWith(" ") ? value.substring(1) : value);
             }
         }
     }
@@ -56,25 +46,25 @@ public class IniGroup {
     public Set<String> keys() { return values.keySet(); }
     public Set<Map.Entry<String, Object>> entrySet() { return values.entrySet(); }
 
-    public IniGroup newGroup(String k) {
-        IniGroup g = new IniGroup();
-        values.put(k, g);
-        return g;
+    public IniGroup newGroup(final String k) {
+        return new IniGroup() {{
+            values.put(k, this);
+        }};
     }
 
-    public IniGroup getAsGroup(String k) {
-        Object o = get(k);
+    public IniGroup getAsGroup(final String k) {
+        final Object o = get(k);
         return o != null ? (IniGroup) o : null;
     }
 
-    public String getAsString(String k) {
-        Object o = get(k);
-        return o != null ? (String) o : null;
+    public String getAsString(final String k) {
+        final Object o = get(k);
+        return o != null ? o.toString() : null;
     }
 
-    public int getAsInt(String k) { return Integer.parseInt(getAsString(k)); }
-    public float getAsFloat(String k) { return Float.parseFloat(getAsString(k)); }
-    public void put(String k, String v) { values.put(k, v); }
+    public int getAsInt(final String k) { return Integer.parseInt(getAsString(k)); }
+    public float getAsFloat(final String k) { return Float.parseFloat(getAsString(k)); }
+    public void put(final String k, final String v) { values.put(k, v); }
 
     @Override
     public String toString() {
