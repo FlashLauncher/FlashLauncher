@@ -1,11 +1,14 @@
 package UIL;
 
 import Utils.IniGroup;
+import Utils.ListMap;
 
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.Collections;
 
 public class Lang {
-    private static final HashMap<String, LangItem> items = new HashMap<>();
+    private static final ArrayList<IniGroup> languages = new ArrayList<>();
+    private static final ListMap<String, LangItem> items = new ListMap<>();
 
     public static LangItem get(String key) {
         synchronized (items) {
@@ -19,10 +22,29 @@ public class Lang {
         }
     }
 
-    public static void apply(final IniGroup lang) {
-        synchronized (items) {
-            for (final String k : lang.keys())
-                get(k).value = lang.getAsString(k);
+    public static void add(final IniGroup... langs) {
+        synchronized (languages) {
+            Collections.addAll(languages, langs);
+        }
+    }
+
+    public static void update() {
+        synchronized (languages) {
+            synchronized (items) {
+                final ArrayList<String> keys = new ArrayList<>();
+                for (int i = languages.size() - 1; i >= 0; i--) {
+                    final IniGroup g = languages.get(i);
+                    for (final String k : g.keys())
+                        if (!keys.contains(k)) {
+                            keys.add(k);
+                            final LangItem item = items.get(k);
+                            if (item == null)
+                                items.put(k, new LangItem(g.getAsString(k)));
+                            else
+                                item.value = g.getAsString(k);
+                        }
+                }
+            }
         }
     }
 }
