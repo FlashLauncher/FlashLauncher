@@ -22,4 +22,5 @@ public class ListSet<T> implements Set<T> {
     @Override public boolean retainAll(Collection<?> c) { return l.retainAll(c); }
     @Override public boolean removeAll(Collection<?> c) { return l.removeAll(c); }
     @Override public void clear() { l.clear(); }
+    @Override public String toString() { return l.toString(); }
 }

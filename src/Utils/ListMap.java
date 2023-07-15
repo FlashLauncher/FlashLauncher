@@ -2,15 +2,21 @@ package Utils;
 
 import java.util.*;
 
-public class ListMap<K extends Object,V extends Object> implements Map<K,V> {
+public class ListMap<K, V> implements Map<K, V> {
     private final ArrayList<Pair<K, V>> entries = new ArrayList<>();
 
+    public ListMap() {}
+    public ListMap(final Map<K, V> map) {
+        for (final Entry<K, V> e : map.entrySet())
+            entries.add(new Pair<>(e.getKey(), e.getValue()));
+    }
+
     @Override public int size() { return entries.size(); }
-    @Override public boolean isEmpty() { return size() == 0; }
+    @Override public boolean isEmpty() { return entries.isEmpty(); }
 
     @Override
-    public boolean containsKey(Object key) {
-        for (Pair<K, V> e : entries)
+    public boolean containsKey(final Object key) {
+        for (final Pair<K, V> e : entries)
             if (e.getKey().equals(key))
                 return true;
         return false;
@@ -42,7 +48,7 @@ public class ListMap<K extends Object,V extends Object> implements Map<K,V> {
     }
 
     @Override
-    public V remove(Object key) {
+    public V remove(final Object key) {
         final int s = size();
         for (int i = 0; i < s; i++) {
             final Pair<K, V> e = entries.get(i);
@@ -56,9 +62,9 @@ public class ListMap<K extends Object,V extends Object> implements Map<K,V> {
 
     @Override
     public void putAll(final Map m) {
-        if (m == null) return;
-        Set<Entry<K, V>> s = m.entrySet();
-        for (Entry<K, V> e : s)
+        if (m == null)
+            return;
+        for (final Entry<K, V> e : (Set<Entry<K, V>>) m.entrySet())
             put(e.getKey(), e.getValue());
     }
 
@@ -66,15 +72,15 @@ public class ListMap<K extends Object,V extends Object> implements Map<K,V> {
 
     @Override
     public Set<K> keySet() {
-        Set<K> keys = new ListSet<>();
-        for (Pair<K, V> e : entries)
+        final Set<K> keys = new ListSet<>();
+        for (final Pair<K, V> e : entries)
             keys.add(e.getKey());
         return keys;
     }
 
     @Override
     public Collection<V> values() {
-        Set<V> values = new ListSet<>();
+        final Set<V> values = new ListSet<>();
         for (final Pair<K, V> e : entries)
             values.add(e.getValue());
         return values;
