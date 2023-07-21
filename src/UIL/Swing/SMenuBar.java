@@ -5,6 +5,7 @@ import UIL.base.IColor;
 import UIL.base.IComponent;
 import UIL.base.IImage;
 import UIL.base.IMenuBar;
+import Utils.ListMap;
 import Utils.RRunnable;
 
 import javax.swing.*;
@@ -12,6 +13,7 @@ import java.awt.*;
 import java.awt.geom.RoundRectangle2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class SMenuBar extends JPanel implements IMenuBar {
@@ -19,7 +21,7 @@ public class SMenuBar extends JPanel implements IMenuBar {
     private RRunnable<Integer> borderRadius = Theme.BORDER_RADIUS;
     private final ArrayList<RRunnable<Boolean>> chl = new ArrayList<>();
     private final ArrayList<SButton> top = new ArrayList<>(), bottom = new ArrayList<>();
-    private final ConcurrentHashMap<String, SButton> links = new ConcurrentHashMap<>();
+    private final ListMap<String, SButton> links = new ListMap<>();
 
     private boolean isTop = true;
     private int childW = 0, sy = 0, iv = 0, y = 8, fh = 32, fy = 24;
@@ -247,6 +249,25 @@ public class SMenuBar extends JPanel implements IMenuBar {
                 }
             }
         }
+        return this;
+    }
+
+    @Override
+    public SMenuBar clearTop() {
+        final ArrayList<SButton> l;
+        synchronized (top) {
+            synchronized (links) {
+                for (final Map.Entry<String, SButton> e : links.entrySet())
+                    if (top.contains(e.getValue())) {
+                        links.remove(e.getKey());
+                        continue;
+                    }
+                l = new ArrayList<>(top);
+                top.clear();
+            }
+        }
+        for (final SButton b : l)
+            super.remove(b);
         return this;
     }
 

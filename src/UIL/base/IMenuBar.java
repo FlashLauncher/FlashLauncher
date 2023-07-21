@@ -9,6 +9,7 @@ public interface IMenuBar extends IContainer {
     IMenuBar addEnd(final String id, final IImage icon, final Runnable action);
     IMenuBar select(final String id);
     IMenuBar subSelect(final boolean sub);
+    IMenuBar clearTop();
 
     default IMenuBar onChange(final RRunnable<Boolean> runnable) { return this; }
     default IMenuBar offChange(final RRunnable<Boolean> runnable) { return this; }
