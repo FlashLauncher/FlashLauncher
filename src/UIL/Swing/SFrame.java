@@ -16,11 +16,7 @@ public class SFrame implements IFrame {
     private final JFrame frame;
     private final Container root;
 
-    public SFrame(final String title) {
-        frame = new JFrame(title);
-        root = frame.getContentPane();
-        root.setLayout(null);
-    }
+    public SFrame(final String title) { (root = (frame = new JFrame(title)).getContentPane()).setLayout(null); }
 
     @Override public int width() { return root.getWidth(); }
     @Override public int height() { return root.getHeight(); }

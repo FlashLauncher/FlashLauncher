@@ -15,7 +15,7 @@ import java.awt.image.BufferedImage;
 public class SScrollPane extends JPanel implements IScrollPane {
     IContainer content = null;
     private RRunnable<Integer> borderRadius = Theme.BORDER_RADIUS;
-    private IColor bg = Theme.BACKGROUND, fg = Theme.FOREGROUND;
+    private IColor bg = Theme.BACKGROUND_COLOR, fg = Theme.FOREGROUND_COLOR;
 
     private int sx = 0, sy = 0;
 
@@ -94,6 +94,7 @@ public class SScrollPane extends JPanel implements IScrollPane {
     @Override public boolean isFocused() { return hasFocus(); }
     @Override public int borderRadius() { return borderRadius.run(); }
     @Override public IComponent[] childs() { return content.childs(); }
+    @Override public IContainer content() { return content; }
     @Override public Object getComponent() { return this; }
 
     @Override public SScrollPane content(final IContainer container) {

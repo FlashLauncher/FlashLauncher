@@ -6,6 +6,9 @@ public interface ICheckBox extends IText {
     boolean checked();
     ICheckBox checked(final boolean value);
 
+    ICheckBox backgroundAccent(final IColor color);
+    ICheckBox foregroundAccent(final IColor color);
+
     // IText
     ICheckBox text(final Object text);
     ICheckBox font(final IFont font);

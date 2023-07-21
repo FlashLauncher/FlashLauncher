@@ -14,7 +14,7 @@ import java.util.ArrayList;
 
 public class SPanel extends JPanel implements IContainer {
     private RRunnable<Integer> borderRadius = Theme.BORDER_RADIUS;
-    private IColor bg = Theme.BACKGROUND;
+    private IColor bg = Theme.BACKGROUND_COLOR;
 
     public SPanel() { setOpaque(false); setLayout(null); }
 

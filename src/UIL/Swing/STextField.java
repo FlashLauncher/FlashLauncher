@@ -18,10 +18,11 @@ import java.awt.geom.RoundRectangle2D;
 public class STextField extends JComponent implements ITextField {
     private static final float AM = SSwing.ANIMATION * 200;
 
-    private IColor bg = Theme.BACKGROUND, fg = Theme.FOREGROUND;
+    private IColor bg = Theme.BACKGROUND_COLOR, fg = Theme.FOREGROUND_COLOR;
     private IFont font = Theme.FONT;
     private RRunnable<Integer> borderRadius = Theme.BORDER_RADIUS;
     private String text;
+    private Object hint = null;
 
     private boolean focused = false, dragging = false;
     private int i = 0, si = -1;
@@ -171,8 +172,14 @@ public class STextField extends JComponent implements ITextField {
                     case KeyEvent.VK_BACK_SPACE:
                         if (si > -1) {
                             text = text.substring(0, Math.min(si, i)) + text.substring(Math.max(si, i));
+                            if (text.length() == 0) {
+                                cx = 0;
+                                ci = 0;
+                                csi = tsi = -1;
+                            }
                             setIndex(Math.min(si, i));
                             setSelIndex(-1);
+
                         } else if (i > 0) {
                             text = text.substring(0, i - 1) + text.substring(i);
                             setIndex(i - 1);
@@ -263,10 +270,12 @@ public class STextField extends JComponent implements ITextField {
                             if (si > -1) {
                                 text = text.substring(0, Math.min(si, i)) + s + text.substring(Math.max(si, i));
                                 setIndex(Math.min(si, i) + s.length());
+                                //ox = i = Math.min(si, i) + s.length();
                                 setSelIndex(-1);
                             } else {
                                 text = text.substring(0, i) + s + text.substring(i);
                                 setIndex(i + s.length());
+                                //ox = i = i + s.length();
                             }
                         }
                         break;
@@ -327,7 +336,7 @@ public class STextField extends JComponent implements ITextField {
         final boolean ht = t != null && t.length() > 0;
         final int c = (getHeight() - metrics.getHeight()) / 2, ox = Math.round(cx), x = c + Math.round(ci) - ox, h = getHeight() - c;
         if (csi > -1) {
-            g.setColor((Color) Theme.TEXT_SELECTION.get());
+            g.setColor((Color) Theme.TEXT_SELECTION_COLOR.get());
             final int x2 = c + Math.round(csi) - ox;
             if (x2 > x)
                 g.fillRect(x, c, x2 - x, h - c);
@@ -337,6 +346,13 @@ public class STextField extends JComponent implements ITextField {
         if (ht) {
             g.setColor(tc);
             g.drawString(t, c - ox, c + metrics.getLeading() + metrics.getAscent());
+        } else {
+            final Object ho = hint;
+            final String hint = ho == null ? null : ho.toString();
+            if (hint != null && hint.length() > 0) {
+                g.setColor((Color) Theme.TEXT_HINT_COLOR.get());
+                g.drawString(hint, c, c + metrics.getLeading() + metrics.getAscent());
+            }
         }
         if (ca > 0) {
             g.setColor(new Color(tc.getRed(), tc.getGreen(), tc.getBlue(), Math.round(255 * (ca > 1 ? 1 - (ca - 1) : ca))));
@@ -396,6 +412,11 @@ public class STextField extends JComponent implements ITextField {
         return this;
     }
 
+    @Override
+    public STextField hint(final Object hint) {
+        this.hint = hint;
+        return this;
+    }
 
     @Override
     public STextField borderRadius(final RRunnable<Integer> borderRadius) {

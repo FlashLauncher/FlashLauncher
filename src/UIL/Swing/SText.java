@@ -11,7 +11,7 @@ import java.util.ArrayList;
 
 public class SText extends JComponent implements IText {
     private Object text = null;
-    private IColor fg = Theme.FOREGROUND;
+    private IColor fg = Theme.FOREGROUND_COLOR;
     private IFont font = Theme.FONT;
     private HAlign ha = HAlign.CENTER;
 

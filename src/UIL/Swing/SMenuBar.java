@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class SMenuBar extends JPanel implements IMenuBar {
-    private IColor bg = Theme.BACKGROUND, fg = Theme.FOREGROUND;
+    private IColor bg = Theme.BACKGROUND_COLOR, fg = Theme.FOREGROUND_COLOR;
     private RRunnable<Integer> borderRadius = Theme.BORDER_RADIUS;
     private final ArrayList<RRunnable<Boolean>> chl = new ArrayList<>();
     private final ArrayList<SButton> top = new ArrayList<>(), bottom = new ArrayList<>();

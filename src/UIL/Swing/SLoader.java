@@ -12,7 +12,7 @@ import java.awt.*;
 public class SLoader extends JComponent implements IComponent {
     private static final float ROT = SSwing.ANIMATION * 6.28f / 10;
 
-    private IColor fg = Theme.FOREGROUND;
+    private IColor fg = Theme.FOREGROUND_COLOR;
 
     private float rot;
 

@@ -32,9 +32,13 @@ public class SSwing extends UI {
     }
 
     @Override
-    public final float getFontHeight(final String fontName, final int fontSize) {
-        final FontMetrics m = new Canvas().getFontMetrics(new Font(fontName, Font.PLAIN, fontSize));
-        return m.getHeight();
+    public final float getFontHeight(final String fontName, final FontStyle fontStyle, final int fontSize) {
+        return new Canvas().getFontMetrics(new Font(fontName, fontStyle == FontStyle.BOLD ? Font.BOLD : fontStyle == FontStyle.ITALIC ? Font.ITALIC : Font.PLAIN, fontSize)).getHeight();
+    }
+
+    @Override
+    public float getStringWidth(final IFont font, final String string) {
+        return new Canvas().getFontMetrics((SFont) font.get()).stringWidth(string);
     }
 
     @Override
@@ -55,7 +59,8 @@ public class SSwing extends UI {
     @Override public IButton newButton(final LangItem text) { return new SButton(text); }
     @Override public IButton newButton(final String text) { return new SButton(text); }
     @Override public IButton newButton(final IImage img) { return new SButton(img); }
-    @Override public IButton newButton(final Object text, IImage img) { return new SButton(text, img); }
+    @Override public IButton newButton(final Object text, final IImage img) { return new SButton(text, img); }
+    @Override public IToggleButton newToggleButton(final Object text, final IImage img, final boolean checked) { return new SToggleButton(text, img,checked); }
     @Override public IComboBox newComboBox() { return new SComboBox(); }
     @Override public IContainer newPanel() { return new SPanel(); }
     @Override public IScrollPane newScrollPane() { return new SScrollPane(); }

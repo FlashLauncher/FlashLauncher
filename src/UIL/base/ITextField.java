@@ -16,6 +16,8 @@ public interface ITextField extends IText {
     ITextField onAction(final ActionListener listener);
     ITextField onInput(final InputListener listener);
 
+    ITextField hint(final Object hint);
+
     // IText
     ITextField text(final Object text);
     ITextField font(final IFont font);

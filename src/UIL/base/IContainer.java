@@ -5,6 +5,7 @@ import Utils.RRunnable;
 public interface IContainer extends IComponent {
     IContainer add(final IComponent component);
     IContainer add(final IComponent... components);
+
     IContainer remove(final IComponent component);
     IComponent[] childs();
     IContainer clear();

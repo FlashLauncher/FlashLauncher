@@ -13,7 +13,7 @@ public class SProgressBar extends JComponent implements IProgressBar {
     private long maxProgress = 100, progress = 0;
 
     private RRunnable<Integer> borderRadius = Theme.PB_BORDER_RADIUS;
-    private IColor bg = Theme.BACKGROUND, fg = Theme.FOREGROUND;
+    private IColor bg = Theme.BACKGROUND_COLOR, fg = Theme.FOREGROUND_COLOR;
 
     @Override
     protected void paintComponent(final Graphics graphics) {

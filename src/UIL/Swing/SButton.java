@@ -15,7 +15,7 @@ public class SButton extends JButton implements IButton {
     private IImage image = null;
     private ImgAlign align = ImgAlign.LEFT;
 
-    private IColor bg = Theme.BACKGROUND, fg = Theme.FOREGROUND;
+    private IColor bg = Theme.BACKGROUND_COLOR, fg = Theme.FOREGROUND_COLOR;
     private IFont font = Theme.FONT;
     private HAlign ha = HAlign.CENTER;
     private Object text = null;

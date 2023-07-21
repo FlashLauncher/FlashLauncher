@@ -29,10 +29,11 @@ public class SComboBox extends JComponent implements IComboBox {
             }
         }
     };
-    private final ArrayList<ListListener> actions = new ArrayList<>();
+    private final ArrayList<OnListListener> actions = new ArrayList<>();
+    private final ArrayList<CloseListListener> closeListListeners = new ArrayList<>();
 
     private RRunnable<Integer> borderRadius = Theme.BORDER_RADIUS, imageOffset = UI.ZERO, imageTextDist = imageOffset;
-    private IColor bg = Theme.BACKGROUND, fg = Theme.FOREGROUND;
+    private IColor bg = Theme.BACKGROUND_COLOR, fg = Theme.FOREGROUND_COLOR;
     private IFont font = Theme.FONT;
 
     private float a = 0;
@@ -63,26 +64,31 @@ public class SComboBox extends JComponent implements IComboBox {
         });
     }
 
-    private class SCBSP extends SPanel {
-        private JRootPane r;
-        private Component f;
+    private final class CBP extends SPanel {
+        private IContainer p;
 
         private final FocusAdapter fa = new FocusAdapter() {
             @Override public void focusLost(final FocusEvent e) {
-                if (SCBSP.this == e.getOppositeComponent() || containsComponent(SCBSP.this, e.getOppositeComponent())) return;
-                r.remove(SCBSP.this);
+                if (CBP.this == e.getOppositeComponent() || containsComponent(CBP.this, e.getOppositeComponent()))
+                    return;
+                p.remove(CBP.this).update();
                 SComboBox.this.content = null;
-                if (f != null) f.repaint();
                 animator.start();
+                final CloseListListener[] listeners;
+                synchronized (closeListListeners) { listeners = closeListListeners.toArray(new CloseListListener[0]); }
+                for (final CloseListListener l : listeners)
+                    try {
+                        l.run(SComboBox.this, CBP.this, l);
+                    } catch (final Throwable ex) {
+                        ex.printStackTrace();
+                    }
             }
         };
 
         private final ContainerListener cl = new ContainerListener() {
             @Override
             public void componentAdded(final ContainerEvent e) {
-                if (e.getChild() instanceof Container)
-                    ((Container) e.getChild()).addContainerListener(cl);
-                e.getChild().addFocusListener(fa);
+                scan(e.getChild());
             }
 
             @Override
@@ -93,7 +99,16 @@ public class SComboBox extends JComponent implements IComboBox {
             }
         };
 
-        public SCBSP() {
+        private void scan(final Component co) {
+            co.addFocusListener(fa);
+            if (co instanceof Container) {
+                ((Container) co).addContainerListener(cl);
+                for (final Component c : ((Container) co).getComponents())
+                    scan(c);
+            }
+        }
+
+        public CBP() {
             super();
             addFocusListener(fa);
             addContainerListener(cl);
@@ -112,7 +127,7 @@ public class SComboBox extends JComponent implements IComboBox {
     }
 
     private void showMenu() {
-        final SCBSP sp = new SCBSP();
+        final CBP sp = new CBP();
         sp.addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(final KeyEvent e) {
@@ -120,25 +135,21 @@ public class SComboBox extends JComponent implements IComboBox {
                     SComboBox.this.requestFocus();
             }
         });
+        IContainer c = null;
         synchronized (actions) {
-            for (final ListListener al : actions)
-                if (!al.run(SComboBox.this, sp))
-                    return;
+            if (actions.size() == 0)
+                return;
+            IContainer cu;
+            for (final OnListListener al : actions)
+                if ((cu = al.run(SComboBox.this, sp)) != null)
+                    c = cu;
+            if (c == null)
+                return;
         }
-        Component p = getParent();
-        while (p != null) {
-            if (p instanceof JRootPane) {
-                requestFocus();
-                sp.r = (JRootPane) p;
-                sp.f = p.getParent();
-                sp.r.add(sp, 0);
-                if (sp.f != null) sp.f.repaint();
-                (content = sp).requestFocus();
-                animator.start();
-                break;
-            }
-            p = p.getParent();
-        }
+        requestFocus();
+        sp.p = c.add(sp).update();
+        (content = sp).requestFocus();
+        animator.start();
     }
 
     @Override
@@ -164,15 +175,15 @@ public class SComboBox extends JComponent implements IComboBox {
             oi = imageOffset.run();
             ot = imageTextDist.run();
         }
-        final int rb = w - h, asw = h - 20, ash = asw / 2, v = Math.round(a * ash), aoy = 14, ax1 = rb + 10, ax = ax1 + asw / 2, ay1 = aoy + v, ay2 = aoy + ash - v;
+        final int rb = w - h, xc = rb + h / 2, o = h / 3, hc = h / 5, ho = (h - hc) / 2 + Math.round(a * hc), y1 = h - ho;
         g.setClip(area);
         g.setColor((Color) bg.get());
         g.fillRect(0, 0, w, h);
         g.setColor((Color) fg.get());
 
         g.drawLine(rb, 4, rb, h - 4);
-        g.drawLine(ax1, ay1, ax, ay2);
-        g.drawLine(ax, ay2, ax1 + asw, ay1);
+        g.drawLine(rb + o, ho, xc, y1);
+        g.drawLine(xc, y1, w - o, ho);
 
         area.subtract(new Area(new Rectangle(rb, 0, h, h)));
         g.setClip(area);
@@ -219,8 +230,6 @@ public class SComboBox extends JComponent implements IComboBox {
     public SComboBox ha(final HAlign align) {
         return this;
     }
-
-
 
     @Override public SComboBox size(final int width, final int height) { setSize(width, height); return this; }
     @Override public SComboBox pos(final int x, final int y) { setLocation(x, y); return this; }
@@ -270,8 +279,24 @@ public class SComboBox extends JComponent implements IComboBox {
     }
 
     @Override
-    public SComboBox onList(final ListListener listener) {
+    public SComboBox onList(final OnListListener listener) {
         synchronized (actions) { actions.add(listener); }
+        return this;
+    }
+
+    @Override
+    public IComboBox onCloseList(final CloseListListener listener) {
+        synchronized (closeListListeners) {
+            closeListListeners.add(listener);
+        }
+        return this;
+    }
+
+    @Override
+    public IComboBox offCloseList(final CloseListListener listener) {
+        synchronized (closeListListeners) {
+            closeListListeners.remove(listener);
+        }
         return this;
     }
 

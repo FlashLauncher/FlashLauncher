@@ -12,7 +12,7 @@ import java.awt.*;
 
 public class SCheckBox extends JComponent implements ICheckBox {
     private IFont f = Theme.FONT;
-    private IColor bg = Theme.BACKGROUND, fg = Theme.FOREGROUND;
+    private IColor bg = Theme.BACKGROUND_COLOR, fg = Theme.FOREGROUND_COLOR, fga = Theme.FOREGROUND_ACCENT_COLOR, bga = Theme.FOREGROUND_ACCENT_COLOR;
     private RRunnable<Integer> br = Theme.BORDER_RADIUS;
     private Object t;
     private boolean c;
@@ -30,7 +30,9 @@ public class SCheckBox extends JComponent implements ICheckBox {
 
         final RRunnable<Integer> borderRadius = br;
         final int br = borderRadius == null ? 0 : borderRadius.run();
-        g.setColor((Color) bg.get());
+        final boolean checked = c;
+
+        g.setColor((Color) (checked ? bga : bg).get());
         if (br > 0)
             g.fillRoundRect(0, 0, getHeight(), getHeight(), br, br);
         else
@@ -38,6 +40,7 @@ public class SCheckBox extends JComponent implements ICheckBox {
 
         final Object to = t;
         final String t = to == null ? null : to.toString();
+
         if (t != null && t.length() > 0) {
             g.setFont((Font) f.get());
             final FontMetrics m = g.getFontMetrics();
@@ -67,6 +70,8 @@ public class SCheckBox extends JComponent implements ICheckBox {
     @Override public SCheckBox borderRadius(final int borderRadius) { br = () -> borderRadius; return this; }
     @Override public SCheckBox background(final IColor bg) { this.bg = bg; return this; }
     @Override public SCheckBox foreground(final IColor fg) { this.fg = fg; return this; }
+    @Override public SCheckBox backgroundAccent(final IColor color) { bga = color; return this; }
+    @Override public SCheckBox foregroundAccent(final IColor color) { fga = color; return this; }
     @Override public SCheckBox grounds(final IColor bg, final IColor fg) { this.bg = bg; this.fg = fg; return this; }
     @Override public SCheckBox update() { repaint(); return this; }
     @Override public SCheckBox getComponent() { return this; }

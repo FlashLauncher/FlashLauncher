@@ -3,11 +3,17 @@ package UIL.base;
 import UIL.HAlign;
 
 public interface IComboBox extends IButton {
-    interface ListListener {
-        boolean run(final IComboBox self, final IContainer sp);
+    interface OnListListener {
+        IContainer run(final IComboBox self, final IContainer container);
     }
 
-    default IComboBox onList(final ListListener listener) { return this; }
+    interface CloseListListener {
+        void run(final IComboBox selfObject, final IContainer container, final CloseListListener selfListener);
+    }
+
+    default IComboBox onList(final OnListListener listener) { return this; }
+    default IComboBox onCloseList(final CloseListListener listener) { return this; }
+    default IComboBox offCloseList(final CloseListListener listener) { return this; }
 
     // IButton
     @Override IComboBox image(final IImage image);
