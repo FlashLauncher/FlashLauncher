@@ -2,6 +2,7 @@ package Utils;
 
 import UIL.Lang;
 import UIL.LangItem;
+import Utils.fixed.FixedEntry;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -17,144 +18,10 @@ import java.security.NoSuchAlgorithmException;
 import java.util.*;
 
 public class Core {
-    public static int BUFFER_SIZE = 1024 * 1024;
-
-    private interface IReader {
-        byte[] run(final InputStream inputStream) throws IOException;
-    }
-
-    private static final IReader reader;
-    private static IReader detectReader() {
-        try {
-            final Method m = InputStream.class.getMethod("readAllBytes");
-            return is -> {
-                try {
-                    return (byte[]) m.invoke(is);
-                } catch (final Throwable ex) {
-                    if (ex instanceof InvocationTargetException)
-                        throw (IOException) ((InvocationTargetException) ex).getTargetException();
-                    throw new IOException(ex);
-                }
-            };
-        } catch (final NoSuchMethodException ignored) {}
-        try {
-            final Class<?> c = Class.forName("sun.misc.IOUtils");
-            try {
-                final Method m = c.getDeclaredMethod("readFully", InputStream.class);
-                return is -> {
-                    try {
-                        return (byte[]) m.invoke(null, is);
-                    } catch (final Throwable ex) {
-                        if (ex instanceof InvocationTargetException)
-                            throw (IOException) ((InvocationTargetException) ex).getTargetException();
-                        throw new IOException(ex);
-                    }
-                };
-            } catch (final NoSuchMethodException ignored) {}
-            try {
-                final Method m = c.getDeclaredMethod("readFully", InputStream.class, int.class, boolean.class);
-                return is -> {
-                    try {
-                        return (byte[]) m.invoke(null, is, -1, true);
-                    } catch (final Throwable ex) {
-                        if (ex instanceof InvocationTargetException)
-                            throw (IOException) ((InvocationTargetException) ex).getTargetException();
-                        throw new IOException(ex);
-                    }
-                };
-            } catch (final NoSuchMethodException ignored) {}
-        } catch (final ClassNotFoundException ignored) {}
-        return is -> {
-            final ByteArrayOutputStream r = new ByteArrayOutputStream();
-            final byte[] buff = new byte[BUFFER_SIZE];
-            for (int len = is.read(buff, 0, buff.length); len > -1; len = is.read(buff, 0, buff.length))
-                r.write(buff, 0, len);
-            return r.toByteArray();
-        };
-    }
-
-    static {
-        reader = detectReader();
-    }
-
-    public static byte[] readFully(final InputStream inputStream, final boolean close) throws IOException {
-        final byte[] r = reader.run(inputStream);
-        if (close) inputStream.close();
-        return r;
-    }
-
-    public static byte[] readFully(final InputStream inputStream) throws IOException { return readFully(inputStream, true); }
-
-    public static final String RES = "res://";
-    public static final String FILE = "file://";
-
-    private static void pcd(final File dir) {
-        final File[] l = dir.listFiles();
-        if (l == null) return;
-        for (final File f : l) {
-            if (f.isDirectory()) pcd(f);
-            f.delete();
-        }
-    }
-
-    public static void cleanDir(final File dir) { pcd(dir.getAbsoluteFile()); }
-
-    private static void makeDir(final File dir) {
-        if (!dir.exists()) {
-            makeDir(dir.getParentFile());
-            dir.mkdir();
-        } else if (dir.isFile()) {
-            dir.delete();
-            dir.mkdir();
-        }
-    }
-
-    public static void mkdir(final File file) { makeDir(file.getAbsoluteFile()); }
-
-    public static OutputStream writeStream(File file) throws IOException {
-        file = file.getAbsoluteFile();
-        makeDir(file.getParentFile());
-        if (file.exists() && file.isDirectory()) {
-            pcd(file);
-            file.delete();
-        } else if (!file.exists())
-            file.createNewFile();
-        return Files.newOutputStream(file.toPath());
-    }
-
-    public static InputStream openStream(String path) throws IOException, SecurityException {
-        if (path.startsWith(RES))
-            return ClassLoader.getSystemResourceAsStream(path.substring(RES.length()));
-        if (path.startsWith(FILE))
-            path = path.substring(FILE.length());
-        else {
-            final int ip = path.indexOf("://");
-            if (ip > -1 && ip == path.indexOf(':') && ip < path.indexOf("/"))
-                return ClassLoader.getSystemResourceAsStream("assets/" + path.substring(0, ip) + path.substring(ip + 2));
-        }
-        return Files.newInputStream(Paths.get(path));
-    }
-
-    public static boolean exists(String path) {
-        if (path.startsWith(RES))
-            return ClassLoader.getSystemResource(path.substring(RES.length())) != null;
-        if (path.startsWith(FILE))
-            path = path.substring(FILE.length());
-        else {
-            final int ip = path.indexOf("://");
-            if (ip > -1 && ip == path.indexOf(':') && ip < path.indexOf("/"))
-                return ClassLoader.getSystemResource("assets/" + path.substring(0, ip) + path.substring(ip + 2)) != null;
-        }
-        return new File(path).exists();
-    }
-
-    public static byte[] readFully(final File path) throws IOException { return readFully(Files.newInputStream(path.toPath())); }
-
-    public static byte[] readFully(final String path, final boolean close) throws IOException, SecurityException { return readFully(openStream(path), close); }
-
-    public static byte[] readFully(final String path) throws IOException, SecurityException { return readFully(openStream(path), true); }
-
-    public static BufferedImage getImage(final String path) throws IOException, SecurityException { return ImageIO.read(openStream(path)); }
+    public static final String
+            CHARS_NUMS = "0123456789",
+            CHARS_EN_LOW = "abcdefghijklmnopqrstuvwxyz",
+            CHARS_EN_UP = CHARS_EN_LOW.toUpperCase();
 
     public static int minIndexOf(final String str, final String... sub) { return minIndexOf(str, 0, sub); }
 
@@ -261,30 +128,6 @@ public class Core {
 
     public static File getPath(final Class<?> c) { return getFile(c).getParentFile(); }
 
-    public static String relative(final File main, final File other) {
-        final File[] mp = parents(main);
-        final File[] op = parents(other);
-
-        int i = 0;
-        for (; i < mp.length && i < op.length; i++)
-            if (!mp[i].getPath().equals(op[i].getPath())) {
-                if (i == 0) return other.getAbsolutePath();
-                break;
-            }
-        final int s = mp.length - i;
-        final StringBuilder b = new StringBuilder(i == 1 ? "/" : s > 1 ? String.join("", Collections.nCopies(s, "../")) : "./");
-        for (; i < op.length; i++) b.append(op[i].getName()).append("/");
-        return b.toString();
-    }
-
-    public static File[] parents(File f) {
-        if (f != null) f = f.getAbsoluteFile();
-        final ArrayList<File> parents = new ArrayList<>();
-        for (; f != null; f = f.getParentFile())
-            parents.add(0, f);
-        return parents.toArray(new File[0]);
-    }
-
     private static final LangItem
             bytes = Lang.get("size.bytes"),
             kilobytes = Lang.get("size.kilobytes"),
@@ -293,21 +136,26 @@ public class Core {
             terabytes = Lang.get("size.terabytes");
 
     public static String strSize1024(final long size) {
+        if (size > -1)
+            return size >= 1024 ?
+                    size >= 1048576 ?
+                            size >= 1073741824L ?
+                                    size >= 1099511627776L ?
+                                            size / 1099511627776L + " " + terabytes :
+                                            size / 1073741824L + " " + gigabytes :
+                                    size / 1048576 + " " + megabytes :
+                            size / 1024 + " " + kilobytes :
+                    size + " " + bytes;
         return Long.compareUnsigned(size, 1024) == 1 ?
-                    Long.compareUnsigned(size, 1048576) == 1 ?
-                            Long.compareUnsigned(size, 1073741824L) == 1 ?
-                                    Long.compareUnsigned(size, 1099511627776L) == 1 ?
-                                            Long.toUnsignedString(Long.divideUnsigned(size, 1099511627776L)) + " " + terabytes :
-                                            Long.toUnsignedString(Long.divideUnsigned(size, 1073741824L)) + " " + gigabytes :
-                                    Long.toUnsignedString(size / 1048576) + " " + megabytes :
-                            Long.toUnsignedString(size / 1024) + " " + kilobytes :
-                    Long.toUnsignedString(size) + " " + bytes;
+                Long.compareUnsigned(size, 1048576) == 1 ?
+                        Long.compareUnsigned(size, 1073741824L) == 1 ?
+                                Long.compareUnsigned(size, 1099511627776L) == 1 ?
+                                        Long.toUnsignedString(Long.divideUnsigned(size, 1099511627776L)) + " " + terabytes :
+                                        Long.toUnsignedString(Long.divideUnsigned(size, 1073741824L)) + " " + gigabytes :
+                                Long.toUnsignedString(size / 1048576) + " " + megabytes :
+                        Long.toUnsignedString(size / 1024) + " " + kilobytes :
+                Long.toUnsignedString(size) + " " + bytes;
     }
-
-    public static final String
-            CHARS_NUMS = "0123456789",
-            CHARS_EN_LOW = "abcdefghijklmnopqrstuvwxyz",
-            CHARS_EN_UP = CHARS_EN_LOW.toUpperCase();
 
     public static String random(int len) { return random(len, CHARS_NUMS + CHARS_EN_LOW + CHARS_EN_UP); }
 
@@ -376,5 +224,152 @@ public class Core {
         }
         for (final Thread t : l)
             t.interrupt();
+    }
+
+    private static final ListMap<Object, FixedEntry<Thread, ArrayList<Runnable>>> waiterList = new ListMap<>();
+    public static Runnable onNotifyLoop(final Object object, final Runnable listener) {
+        if (listener == null)
+            return null;
+        synchronized (waiterList) {
+            final FixedEntry<Thread, ArrayList<Runnable>> l = waiterList.get(object);
+            if (l == null) {
+                final ArrayList<Runnable> rl = new ArrayList<>();
+                rl.add(listener);
+                waiterList.put(object, new FixedEntry<>(
+                        new Thread(() -> {
+                            while (true)
+                                synchronized (object) {
+                                    final Runnable[] rul;
+                                    synchronized (rl) {
+                                        rul = rl.toArray(new Runnable[0]);
+                                    }
+                                    for (final Runnable r : rul)
+                                        try {
+                                            r.run();
+                                        } catch (final Throwable ex) {
+                                            ex.printStackTrace();
+                                        }
+                                    try {
+                                        object.wait();
+                                    } catch (final InterruptedException ignored) {
+                                        break;
+                                    }
+                                }
+                        }) {{
+                            start();
+                        }}, rl
+                ));
+            } else {
+                synchronized (l.getValue()) {
+                    l.getValue().add(listener);
+                }
+                synchronized (object) {
+                    listener.run();
+                }
+            }
+        }
+        return listener;
+    }
+
+    public static void offNotifyLoop(final Runnable listener) {
+        if (listener == null)
+            return;
+        synchronized (waiterList) {
+            for (final Map.Entry<Object, FixedEntry<Thread, ArrayList<Runnable>>> e : waiterList.entrySet()) {
+                final ArrayList<Runnable> l = e.getValue().getValue();
+                synchronized (l) {
+                    if (l.contains(listener)) {
+                        if (l.size() > 1)
+                            l.remove(listener);
+                        else {
+                            e.getValue().getKey().interrupt();
+                            waiterList.remove(e.getKey());
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    private static final ListMap<Object, FixedEntry<Thread, ArrayList<Runnable>>> waiterList2 = new ListMap<>();
+    public static Runnable onNotify(final Object object, final Runnable listener) {
+        if (listener == null)
+            return null;
+        synchronized (waiterList2) {
+            final FixedEntry<Thread, ArrayList<Runnable>> l = waiterList2.get(object);
+            if (l == null) {
+                final ArrayList<Runnable> rl = new ArrayList<>();
+                rl.add(listener);
+                waiterList2.put(object, new FixedEntry<>(
+                        new Thread(() -> {
+                            while (true)
+                                synchronized (object) {
+                                    try {
+                                        object.wait();
+                                    } catch (final InterruptedException ignored) {
+                                        break;
+                                    }
+                                    final Runnable[] rul;
+                                    synchronized (rl) {
+                                        rul = rl.toArray(new Runnable[0]);
+                                    }
+                                    for (final Runnable r : rul)
+                                        try {
+                                            r.run();
+                                        } catch (final Throwable ex) {
+                                            ex.printStackTrace();
+                                        }
+                                }
+                        }) {{
+                            start();
+                        }}, rl
+                ));
+            } else {
+                synchronized (l.getValue()) {
+                    l.getValue().add(listener);
+                }
+                synchronized (object) {
+                    listener.run();
+                }
+            }
+        }
+        return listener;
+    }
+
+    public static void offNotify(final Runnable listener) {
+        if (listener == null)
+            return;
+        synchronized (waiterList2) {
+            for (final Map.Entry<Object, FixedEntry<Thread, ArrayList<Runnable>>> e : waiterList2.entrySet()) {
+                final ArrayList<Runnable> l = e.getValue().getValue();
+                synchronized (l) {
+                    if (l.contains(listener)) {
+                        if (l.size() > 1)
+                            l.remove(listener);
+                        else {
+                            e.getValue().getKey().interrupt();
+                            waiterList2.remove(e.getKey());
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    public static int syncGetSize(final Collection<?> collection) { synchronized (collection) { return collection.size(); } }
+    public static int syncGetSize(final Map<?, ?> map) { synchronized (map) { return map.size(); } }
+
+    public static <T> T syncGet(final List<T> list, final int index) {
+        synchronized (list) {
+            return list.get(index);
+        }
+    }
+
+    public static <K, V> V syncGet(final Map<K, V> map, final K key) {
+        synchronized (map) {
+            return map.get(key);
+        }
     }
 }
