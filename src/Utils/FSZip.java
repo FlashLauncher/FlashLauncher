@@ -50,12 +50,14 @@ public class FSZip extends FSRoot {
     @Override
     public FSFile[] list(final String path) throws IOException {
         final String p2 = path + "/";
-        final int le = path.length();
+        final int le = p2.length();
         final ArrayList<FSFile> l = new ArrayList<>();
 
         try (final ZipInputStream zis = new ZipInputStream(Files.newInputStream(a.toPath()))) {
             for (ZipEntry e = zis.getNextEntry(); e != null; e = zis.getNextEntry())
                 if (e.getName().startsWith(p2)) {
+                    if (e.getName().length() == le)
+                        continue;
                     final String n = e.getName().substring(le);
                     final int i = n.indexOf('/');
                     if (i == -1) {
@@ -93,7 +95,7 @@ public class FSZip extends FSRoot {
 
         @Override
         public String toString() {
-            return p;
+            return p + "/" + n;
         }
     }
 }
