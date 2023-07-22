@@ -8,4 +8,9 @@ public abstract class FSRoot {
     public abstract InputStream openInputStream(final String path) throws IOException;
     public abstract byte[] readFully(final String path) throws IOException;
     public abstract FSFile[] list(final String path) throws IOException;
+
+    public boolean exists(final FSFile file) { return exists(file.toString()); }
+    public InputStream openInputStream(final FSFile path) throws IOException { return openInputStream(path.toString()); }
+    public byte[] readFully(final FSFile path) throws IOException { return readFully(path.toString()); }
+    public FSFile[] list(final FSFile path) throws IOException { return list(path.toString()); }
 }
