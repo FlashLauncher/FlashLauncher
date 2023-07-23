@@ -6,8 +6,8 @@ import UIL.base.IScrollPane;
 
 public class ContainerListBuilder implements IContainer {
     private final IScrollPane sp;
-    public final int w, h, o, wo, ho;
-    private int x, y;
+    public final int o;
+    private int w, h, wo, ho, x, y;
 
     public ContainerListBuilder(final IScrollPane scrollPane, final int size, final int offset) {
         sp = scrollPane;
@@ -22,6 +22,15 @@ public class ContainerListBuilder implements IContainer {
         wo = w + (y = x = o = offset);
         ho = h + o;
     }
+
+    public ContainerListBuilder childSize(final int width, final int height) {
+        wo = (w = width) + o;
+        ho = (h = height) + o;
+        return this;
+    }
+
+    public int getChildWidth() { return w; }
+    public int getChildHeight() { return h; }
 
     @Override
     public ContainerListBuilder add(final IComponent component) {
