@@ -1,47 +1,58 @@
 package Utils.json;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 
-public class Json extends InputStream {
-    private final InputStream is;
-    private int p = -1;
+public abstract class Json extends InputStream implements AutoCloseable {
+    int p = -1;
 
-    private Json(final InputStream inputStream) { is = inputStream; }
+    public static JsonElement parse(final String str) throws IOException {
+        final char[] l = str.toCharArray();
+        try (final Json j = new Json() {
+            private int i = 0;
 
-    public static JsonElement parse(final String str) throws Exception {
-        final Json e = new Json(new ByteArrayInputStream(str.getBytes(StandardCharsets.UTF_8)));
-        try {
-            return e.p();
-        } catch (final Throwable ex) {
-            throw ex;
+            @Override
+            public int read() {
+                if (p != -1) {
+                    final int p2 = p;
+                    p = -1;
+                    return p2;
+                }
+                if (l.length == i)
+                    throw new IndexOutOfBoundsException("String size = " + l.length + ", index = " + i);
+                return l[i++];
+            }
+        }) {
+            return j.p();
         }
     }
 
-    public static JsonElement parse(final InputStream is) throws Exception {
-        final Json e = new Json(is);
-        try {
-            return e.p();
-        } catch (final Throwable ex) {
-            throw ex;
+    public static JsonElement parse(final InputStream is, final boolean autoClose) throws IOException {
+        try (final Json j = new Json() {
+            public int read() throws IOException {
+                if (p != -1) {
+                    final int p2 = p;
+                    p = -1;
+                    return p2;
+                }
+                final int p2 = is.read();
+                if (p2 == -1)
+                    throw new IOException("-1");
+                return p2;
+            }
+
+            @Override
+            public void close() throws IOException {
+                if (autoClose)
+                    is.close();
+                super.close();
+            }
+        }) {
+            return j.p();
         }
     }
 
-    @Override
-    public final int read() throws IOException {
-        if (p != -1) {
-            final int p2 = p;
-            p = -1;
-            return p2;
-        }
-        final int p2 = is.read();
-        if (p2 == -1) throw new IOException("-1");
-        return p2;
-    }
-
-    private JsonElement p() throws Exception {
+    JsonElement p() throws IOException {
         char cha;
         while (true)
             switch (cha = (char) read()) {
@@ -66,7 +77,8 @@ public class Json extends InputStream {
                                                 key.append('\\');
                                             break;
                                         case '"':
-                                            if (nbs) break s1;
+                                            if (nbs)
+                                                break s1;
                                             key.append(ch1);
                                             nbs = true;
                                             break;
@@ -81,8 +93,9 @@ public class Json extends InputStream {
                                             key.append(ch1);
                                             break;
                                     }
-                                while ((ch = (char) read()) == ' ' || ch == '\t') continue;
-                                if (ch != ':') throw new Exception("Unexpected char " + ch + ", I need :");
+                                while ((ch = (char) read()) == ' ' || ch == '\t') {}
+                                if (ch != ':')
+                                    throw new IOException("Unexpected char " + ch + ", I need :");
                                 d.put(key.toString(), p());
                                 break;
                             default:
@@ -134,7 +147,8 @@ public class Json extends InputStream {
                     while (true)
                         switch (ch2 = (char) read()) {
                             case '.':
-                                if (num.indexOf(".") != -1) throw new Exception("Unexpected " + ch2);
+                                if (num.indexOf(".") != -1)
+                                    throw new IOException("Unexpected " + ch2);
                             case '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9':
                                 num.append(ch2);
                                 break;
@@ -144,7 +158,8 @@ public class Json extends InputStream {
                                 return new JsonElement(num.indexOf(".") != -1 ? Double.parseDouble(num.toString()) : Integer.parseInt(num.toString()));
                             case 'f': case 'F': return new JsonElement(Float.parseFloat(num.toString()));
                             case 'b': case 'B': return new JsonElement(num.toString().equals("1"));
-                            default: throw new Exception("Unexpected " + ch2);
+                            default:
+                                throw new IOException("Unexpected " + ch2);
                         }
                 case '"':
                     final StringBuilder str = new StringBuilder();
