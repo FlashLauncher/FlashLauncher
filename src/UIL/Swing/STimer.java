@@ -1,67 +1,43 @@
 package UIL.Swing;
 
-import javax.swing.*;
-import java.util.Random;
-import java.util.concurrent.locks.ReentrantLock;
-
 public abstract class STimer {
+    private final Object o = new Object();
     private final float s;
-    private final ReentrantLock locker = new ReentrantLock();
-    private long id;
+    private Thread t = null;
 
     public STimer(final float sleep) { s = sleep; }
 
     public abstract void run();
 
     public STimer start() {
-        if (id != 0)
-            return this;
-        locker.lock();
-        try {
-            if (id != 0)
+        synchronized (o) {
+            if (t != null)
                 return this;
-            Random r = new Random();
-            long nid;
-            do {
-                nid = r.nextLong();
-            } while (nid == id || nid == 0);
-            id = nid;
-            final long fid = nid;
-            new Thread(() -> {
-                long l = System.currentTimeMillis();
-                while (id == fid)
-                    try {
-                        SwingUtilities.invokeAndWait(STimer.this::run);
-                        final long c = System.currentTimeMillis();
-                        final float d = s - (c - l);
-                        l = c;
+            t = new Thread(() -> {
+                try {
+                    long l1 = System.currentTimeMillis(), l2;
+                    while (true) {
+                        run();
+                        l2 = System.currentTimeMillis();
+                        final float d = s - (l2 - l1);
+                        l1 = l2;
                         if (d > 0)
                             Thread.sleep((int) Math.ceil(d));
-                    } catch (Exception ex) {
-                        ex.printStackTrace();
-                        break;
                     }
-                locker.lock();
-                if (id == fid)
-                    id = 0;
-                locker.unlock();
-            }).start();
-        } finally {
-            locker.unlock();
+                } catch (final InterruptedException ignored) {}
+            });
+            t.setPriority(Thread.MAX_PRIORITY);
+            t.start();
         }
         return this;
     }
 
     public STimer stop() {
-        if (id == 0)
-            return this;
-        locker.lock();
-        try {
-            if (id == 0)
+        synchronized (o) {
+            if (t == null)
                 return this;
-            id = 0;
-        } finally {
-            locker.unlock();
+            t.interrupt();
+            t = null;
         }
         return this;
     }
