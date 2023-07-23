@@ -1,28 +1,35 @@
-package UIL.Swing;
+package Utils;
 
-public abstract class STimer {
+public abstract class Timer {
     private final Object o = new Object();
-    private final float s;
     private Thread t = null;
+    private boolean f;
+    private float s;
 
-    public STimer(final float sleep) { s = sleep; }
+    public Timer(final float sleep) { s = sleep; f = true; }
+    public Timer(final float sleep, final boolean firstRun) { s = sleep; f = firstRun; }
 
     public abstract void run();
 
-    public STimer start() {
+    public Timer start() {
         synchronized (o) {
             if (t != null)
                 return this;
             t = new Thread(() -> {
                 try {
                     long l1 = System.currentTimeMillis(), l2;
-                    while (true) {
+                    if (f)
                         run();
+                    while (true) {
                         l2 = System.currentTimeMillis();
-                        final float d = s - (l2 - l1);
+                        final float d;
+                        synchronized (o) {
+                            d = s - (l2 - l1);
+                        }
                         l1 = l2;
                         if (d > 0)
                             Thread.sleep((int) Math.ceil(d));
+                        run();
                     }
                 } catch (final InterruptedException ignored) {}
             });
@@ -32,13 +39,25 @@ public abstract class STimer {
         return this;
     }
 
-    public STimer stop() {
+    public Timer stop() {
         synchronized (o) {
             if (t == null)
                 return this;
             t.interrupt();
             t = null;
         }
+        return this;
+    }
+
+    public Timer setInterval(final float sleep) {
+        synchronized (o) {
+            s = sleep;
+        }
+        return this;
+    }
+
+    public Timer firstRun(final boolean firstRun) {
+        f = firstRun;
         return this;
     }
 }
