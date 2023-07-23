@@ -29,21 +29,21 @@ public class FSZip extends FSRoot {
 
     @Override
     public InputStream openInputStream(final String path) throws IOException {
-        try (final ZipInputStream zis = new ZipInputStream(Files.newInputStream(a.toPath()))) {
-            for (ZipEntry e = zis.getNextEntry(); e != null; e = zis.getNextEntry())
-                if (e.getName().equals(path))
-                    return zis;
-        }
+        final ZipInputStream zis = new ZipInputStream(Files.newInputStream(a.toPath()));
+        for (ZipEntry e = zis.getNextEntry(); e != null; e = zis.getNextEntry())
+            if (e.getName().equals(path))
+                return zis;
+        zis.close();
         throw new IOException("File " + path + " not found!");
     }
 
     @Override
     public byte[] readFully(final String path) throws IOException {
-        try (final ZipInputStream zis = new ZipInputStream(Files.newInputStream(a.toPath()))) {
-            for (ZipEntry e = zis.getNextEntry(); e != null; e = zis.getNextEntry())
-                if (e.getName().equals(path))
-                    return IO.readFully(zis);
-        }
+        final ZipInputStream zis = new ZipInputStream(Files.newInputStream(a.toPath()));
+        for (ZipEntry e = zis.getNextEntry(); e != null; e = zis.getNextEntry())
+            if (e.getName().equals(path))
+                return IO.readFully(zis);
+        zis.close();
         throw new IOException("File " + path + " not found!");
     }
 
@@ -83,19 +83,8 @@ public class FSZip extends FSRoot {
             d = isDir;
         }
 
-        @Override
-        public String getName() {
-            return n;
-        }
-
-        @Override
-        public boolean isDir() {
-            return d;
-        }
-
-        @Override
-        public String toString() {
-            return p + "/" + n;
-        }
+        @Override public String getName() { return n; }
+        @Override public boolean isDir() { return d; }
+        @Override public String toString() { return p + "/" + n; }
     }
 }
