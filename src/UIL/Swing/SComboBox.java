@@ -13,7 +13,7 @@ import java.util.ArrayList;
 
 public class SComboBox extends JComponent implements IComboBox {
     private static final float d = SSwing.DELTA / 300;
-    private final STimer animator = new STimer(SSwing.DELTA) {
+    private final SFPSTimer animator = new SFPSTimer() {
         @Override
         public void run() {
             if (content == null) {

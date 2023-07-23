@@ -14,7 +14,6 @@ import java.awt.geom.RoundRectangle2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class SMenuBar extends JPanel implements IMenuBar {
     private IColor bg = Theme.BACKGROUND_COLOR, fg = Theme.FOREGROUND_COLOR;
@@ -28,7 +27,7 @@ public class SMenuBar extends JPanel implements IMenuBar {
     private float cy = fy, ch = fh;
 
     private static final float d = SSwing.DELTA / 2f, d2 = d / 2;
-    private final STimer timer = new STimer(SSwing.DELTA) {
+    private final SFPSTimer timer = new SFPSTimer() {
         @Override
         public void run() {
             final boolean yu = cy != fy, hu = ch != fh;

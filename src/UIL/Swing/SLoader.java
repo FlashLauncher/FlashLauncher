@@ -16,7 +16,7 @@ public class SLoader extends JComponent implements IComponent {
 
     private float rot;
 
-    private final STimer timer = new STimer(SSwing.DELTA) {
+    private final SFPSTimer timer = new SFPSTimer() {
         @Override
         public void run() {
             rot += ROT;

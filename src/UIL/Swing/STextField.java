@@ -64,7 +64,7 @@ public class STextField extends JComponent implements ITextField {
         }
     }
 
-    private final STimer timer = new STimer(SSwing.DELTA) {
+    private final SFPSTimer timer = new SFPSTimer() {
         @Override
         public void run() {
             ca += SSwing.ANIMATION;
