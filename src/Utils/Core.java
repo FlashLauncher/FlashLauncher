@@ -4,15 +4,10 @@ import UIL.Lang;
 import UIL.LangItem;
 import Utils.fixed.FixedEntry;
 
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
 import java.io.*;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.net.URISyntaxException;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
@@ -21,7 +16,19 @@ public class Core {
     public static final String
             CHARS_NUMS = "0123456789",
             CHARS_EN_LOW = "abcdefghijklmnopqrstuvwxyz",
-            CHARS_EN_UP = CHARS_EN_LOW.toUpperCase();
+            CHARS_EN_UP = CHARS_EN_LOW.toUpperCase(),
+            UTF_8 = StandardCharsets.UTF_8.toString(),
+            URI_CHARS = CHARS_EN_LOW + CHARS_EN_UP + CHARS_NUMS + ":/?#[]@!$&'()*+,;=-._~";
+
+    public static String encodeURI(final String url) throws UnsupportedEncodingException {
+        StringBuilder b = new StringBuilder();
+        for (final char ch : url.replaceAll(" ", "%20").toCharArray())
+            if (URI_CHARS.indexOf(ch) == -1)
+                b.append(URLEncoder.encode(String.valueOf(ch), UTF_8));
+            else
+                b.append(ch);
+        return b.toString();
+    }
 
     public static int minIndexOf(final String str, final String... sub) { return minIndexOf(str, 0, sub); }
 
@@ -269,6 +276,15 @@ public class Core {
             }
         }
         return listener;
+    }
+
+    public static Runnable onNotifyLoop(final Object object, final Runnable1arg<Runnable> listener) {
+        return onNotifyLoop(object, new Runnable() {
+            @Override
+            public void run() {
+                listener.run(this);
+            }
+        });
     }
 
     public static void offNotifyLoop(final Runnable listener) {
