@@ -28,6 +28,12 @@ public class Lang {
         }
     }
 
+    public static void remove(final IniGroup lang) {
+        synchronized (languages) {
+            languages.remove(lang);
+        }
+    }
+
     public static void update() {
         synchronized (languages) {
             synchronized (items) {
