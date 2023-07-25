@@ -18,7 +18,7 @@ public class Core {
             CHARS_EN_LOW = "abcdefghijklmnopqrstuvwxyz",
             CHARS_EN_UP = CHARS_EN_LOW.toUpperCase(),
             UTF_8 = StandardCharsets.UTF_8.toString(),
-            URI_CHARS = CHARS_EN_LOW + CHARS_EN_UP + CHARS_NUMS + ":/?#[]@!$&'()*+,;=-._~";
+            URI_CHARS = CHARS_EN_LOW + CHARS_EN_UP + CHARS_NUMS + ":/?#[]@!$&'()*+,;=-._~%";
 
     public static String encodeURI(final String url) throws UnsupportedEncodingException {
         StringBuilder b = new StringBuilder();
