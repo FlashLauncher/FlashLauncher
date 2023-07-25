@@ -1,6 +1,7 @@
 package UIL.Swing;
 
 import UIL.Theme;
+import UIL.UI;
 import UIL.base.IColor;
 import UIL.base.IComponent;
 import UIL.base.IContainer;
@@ -16,6 +17,7 @@ public class SScrollPane extends JPanel implements IScrollPane {
     IContainer content = null;
     private RRunnable<Integer> borderRadius = Theme.BORDER_RADIUS;
     private IColor bg = Theme.BACKGROUND_COLOR, fg = Theme.FOREGROUND_COLOR;
+    private BufferedImage bi = null;
 
     private int sx = 0, sy = 0;
 
@@ -36,18 +38,17 @@ public class SScrollPane extends JPanel implements IScrollPane {
 
     @Override
     protected void paintChildren(final Graphics graphics) {
-        {
-            final int br = borderRadius.run();
-            if (br > 0)
-                graphics.setClip(new RoundRectangle2D.Double(0, 0, getWidth(), getHeight(), br, br));
-
-            final IContainer c = content;
-            if (c != null)
-                c.pos(sx, sy);
-        }
         final Graphics2D g = (Graphics2D) graphics.create();
         g.setRenderingHints(SSwing.RH);
-        final int chw = content.width(), chh = content.height();
+        final int br = borderRadius.run(), chw = content.width(), chh = content.height();
+
+        if (br > 0)
+            g.setClip(new RoundRectangle2D.Double(0, 0, getWidth(), getHeight(), br, br));
+
+        final IContainer c = content;
+        if (c != null)
+            c.pos(sx, sy);
+
         boolean vs = false, hs = false;
         int cw = getWidth(), ch = getHeight();
         if (chh > ch) {
@@ -63,8 +64,15 @@ public class SScrollPane extends JPanel implements IScrollPane {
             }
         }
 
-        final BufferedImage img = g.getDeviceConfiguration().createCompatibleImage(cw, ch, Transparency.TRANSLUCENT);
-        final Graphics g2 = img.createGraphics();
+        final BufferedImage img;
+        if (bi == null || bi.getWidth() != cw || bi.getHeight() != ch)
+            bi = img = g.getDeviceConfiguration().createCompatibleImage(cw, ch, Transparency.TRANSLUCENT);
+        else
+            img = bi;
+        final Graphics2D g2 = (Graphics2D) img.getGraphics();
+        g2.setBackground((Color) UI.TRANSPARENT);
+
+        g2.clearRect(0, 0, cw, ch);
         super.paintChildren(g2);
         g2.dispose();
         g.drawImage(img, 0, 0, this);
