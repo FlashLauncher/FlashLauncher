@@ -86,10 +86,19 @@ public abstract class Json extends InputStream implements AutoCloseable {
                                             if (!nbs) {
                                                 key.append('\n');
                                                 nbs = true;
-                                                break;
-                                            }
+                                            } else
+                                                key.append('n');
+                                            break;
+                                        case 'r':
+                                            if (!nbs) {
+                                                key.append('\r');
+                                                nbs = true;
+                                            } else
+                                                key.append('r');
+                                            break;
                                         default:
-                                            if (!nbs) nbs = true;
+                                            if (!nbs)
+                                                nbs = true;
                                             key.append(ch1);
                                             break;
                                     }
@@ -123,7 +132,8 @@ public abstract class Json extends InputStream implements AutoCloseable {
                                             if (s != null) {
                                                 k.append(s).append(ch2);
                                                 s = null;
-                                            } else k.append(ch2);
+                                            } else
+                                                k.append(ch2);
                                             break;
                                     }
                                 d.put(k.toString(), p());
@@ -156,8 +166,10 @@ public abstract class Json extends InputStream implements AutoCloseable {
                                 p = ch2;
                             case ' ': case '\t': case '\r': case '\n':
                                 return new JsonElement(num.indexOf(".") != -1 ? Double.parseDouble(num.toString()) : Integer.parseInt(num.toString()));
-                            case 'f': case 'F': return new JsonElement(Float.parseFloat(num.toString()));
-                            case 'b': case 'B': return new JsonElement(num.toString().equals("1"));
+                            case 'f': case 'F':
+                                return new JsonElement(Float.parseFloat(num.toString()));
+                            case 'b': case 'B':
+                                return new JsonElement(num.toString().equals("1"));
                             default:
                                 throw new IOException("Unexpected " + ch2);
                         }
@@ -173,9 +185,26 @@ public abstract class Json extends InputStream implements AutoCloseable {
                                     str.append('\\');
                                 break;
                             case '"':
-                                if (nbs) return new JsonElement(str.toString());
+                                if (nbs)
+                                    return new JsonElement(str.toString());
                                 nbs = true;
+                            case 'n':
+                                if (!nbs) {
+                                    str.append('\n');
+                                    nbs = true;
+                                } else
+                                    str.append('n');
+                                break;
+                            case 'r':
+                                if (!nbs) {
+                                    str.append('\r');
+                                    nbs = true;
+                                } else
+                                    str.append('r');
+                                break;
                             default:
+                                if (!nbs)
+                                    System.out.println("Error: \\" + ch3);
                                 str.append(ch3);
                                 break;
                         }
@@ -200,8 +229,10 @@ public abstract class Json extends InputStream implements AutoCloseable {
                                 if (!nbs1) nbs1 = true;
                                 sb.append(ch4);
                                 if (i < 5) {
-                                    if (i == 3 && sb.toString().equals("true")) return new JsonElement(true);
-                                    if (i == 4 && sb.toString().equals("false")) return new JsonElement(false);
+                                    if (i == 3 && sb.toString().equals("true"))
+                                        return new JsonElement(true);
+                                    if (i == 4 && sb.toString().equals("false"))
+                                        return new JsonElement(false);
                                     i++;
                                 }
                                 break;

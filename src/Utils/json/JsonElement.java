@@ -15,6 +15,7 @@ public class JsonElement {
     public String getAsString() { return o.toString(); }
     public int getAsInt() { return (int) o; }
     public float getAsFloat() { return (float) o; }
+    public boolean getAsBool() { return (boolean) o; }
 
     @Override public String toString() { return o == null ? "null" : o instanceof String ? "\"" + o +  "\"" : o.toString(); }
 }

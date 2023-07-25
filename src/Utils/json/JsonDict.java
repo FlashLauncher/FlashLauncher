@@ -44,14 +44,15 @@ public class JsonDict extends JsonElement {
                 value instanceof JsonElement ? (JsonElement) value : new JsonElement(value));
     }
 
-    public boolean has(String key) { return elements.containsKey(key); }
-    public JsonElement get(String key) { return elements.get(key); }
+    public boolean has(final String key) { return elements.containsKey(key); }
+    public JsonElement get(final String key) { return elements.get(key); }
 
-    public JsonDict getAsDict(String key) { return get(key).getAsDict(); }
-    public JsonList getAsList(String key) { return get(key).getAsList(); }
-    public String getAsString(String key) { return get(key).getAsString(); }
-    public int getAsInt(String key) { return get(key).getAsInt(); }
-    public float getAsFloat(String key) { return get(key).getAsFloat(); }
+    public JsonDict getAsDict(final String key) { return get(key).getAsDict(); }
+    public JsonList getAsList(final String key) { return get(key).getAsList(); }
+    public String getAsString(final String key) { return get(key).getAsString(); }
+    public int getAsInt(final String key) { return get(key).getAsInt(); }
+    public float getAsFloat(final String key) { return get(key).getAsFloat(); }
+    public boolean getAsBool(final String key) { return get(key).getAsBool(); }
 
     public String getAsStringOrDefault(final String key, final String value) {
         final JsonElement v = get(key);
