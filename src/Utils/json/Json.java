@@ -1,55 +1,116 @@
 package Utils.json;
 
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
+import java.nio.charset.Charset;
 
-public abstract class Json extends InputStream implements AutoCloseable {
+public abstract class Json extends Reader implements AutoCloseable {
     int p = -1;
 
-    public static JsonElement parse(final String str) throws IOException {
-        final char[] l = str.toCharArray();
+    public static JsonElement parse(final char[] buf) throws IOException {
         try (final Json j = new Json() {
             private int i = 0;
 
             @Override
-            public int read() {
-                if (p != -1) {
-                    final int p2 = p;
-                    p = -1;
-                    return p2;
-                }
-                if (l.length == i)
-                    throw new IndexOutOfBoundsException("String size = " + l.length + ", index = " + i);
-                return l[i++];
+            public int read(final char[] cbuf, final int off, final int len) {
+                if (i == buf.length)
+                    return -1;
+                if (i + len > buf.length) {
+                    final int r = buf.length - i;
+                    System.arraycopy(buf, i, cbuf, off, r);
+                    i = buf.length;
+                    return r;
+                } else
+                    System.arraycopy(buf, i, cbuf, off, len);
+                return len;
+            }
+
+            @Override public void close() {}
+        }) {
+            return j.p();
+        }
+    }
+
+    public static JsonElement parse(final String string) throws IOException {
+        try (final Json j = new Json() {
+            private final StringReader isr = new StringReader(string);
+
+            @Override
+            public int read(final char[] cbuf, final int off, final int len) throws IOException {
+                return isr.read(cbuf, off, len);
+            }
+
+            @Override public void close() { isr.close(); }
+        }) {
+            return j.p();
+        }
+    }
+
+    public static JsonElement parse(final InputStreamReader isr, final boolean autoClose) throws IOException {
+        try (final Json j = new Json() {
+            @Override
+            public int read(final char[] cbuf, final int off, final int len) throws IOException {
+                return isr.read(cbuf, off, len);
+            }
+
+            @Override
+            public void close() throws IOException {
+                if (autoClose)
+                    isr.close();
             }
         }) {
             return j.p();
         }
     }
 
-    public static JsonElement parse(final InputStream is, final boolean autoClose) throws IOException {
+    public static JsonElement parse(final InputStream is, final boolean autoClose, Charset charset) throws IOException {
         try (final Json j = new Json() {
-            public int read() throws IOException {
-                if (p != -1) {
-                    final int p2 = p;
-                    p = -1;
-                    return p2;
-                }
-                final int p2 = is.read();
-                if (p2 == -1)
-                    throw new IOException("-1");
-                return p2;
+            private final BufferedReader isr = new BufferedReader(new InputStreamReader(is, charset));
+
+            @Override
+            public int read(final char[] cbuf, final int off, final int len) throws IOException {
+                return isr.read(cbuf, off, len);
             }
 
             @Override
             public void close() throws IOException {
                 if (autoClose)
-                    is.close();
-                super.close();
+                    isr.close();
             }
         }) {
             return j.p();
         }
+    }
+
+    public static JsonElement parse(final InputStream is, final boolean autoClose, String charset) throws IOException {
+        try (final Json j = new Json() {
+            private final BufferedReader isr = new BufferedReader(new InputStreamReader(is, charset));
+
+            @Override
+            public int read(final char[] cbuf, final int off, final int len) throws IOException {
+                return isr.read(cbuf, off, len);
+            }
+
+            @Override
+            public void close() throws IOException {
+                if (autoClose)
+                    isr.close();
+            }
+        }) {
+            return j.p();
+        }
+    }
+
+    @Override
+    public int read() throws IOException {
+        if (p != -1) {
+            final int p2 = p;
+            p = -1;
+            return p2;
+        }
+        final int p2 = super.read();
+        if (p2 == -1)
+            throw new IOException("-1");
+        return p2;
     }
 
     JsonElement p() throws IOException {
