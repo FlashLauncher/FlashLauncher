@@ -31,6 +31,4 @@ public interface IMenuBar extends IContainer {
     @Override default IMenuBar foreground(final IColor fg) { return this; }
     @Override default IMenuBar grounds(final IColor bg, final IColor fg) { return background(bg).foreground(fg); }
     @Override default IMenuBar update() { return this; }
-
-
 }

@@ -51,6 +51,8 @@ public abstract class UI {
     public abstract void invoke(final Runnable action);
     public abstract void invokeAndWait(final Runnable action) throws InterruptedException;
 
+    public abstract void dispose();
+
 
     public static UI UI;
 

@@ -20,28 +20,26 @@ public class SSwing extends UI {
 
     public static final int MULTIPLIER = 16;
 
-    public SSwing() {
-        new Thread(() -> {
-            try {
-                long l1 = System.currentTimeMillis(), l2;
-                while (true) {
-                    synchronized (SFPSTimer.timers) {
-                        if (SFPSTimer.timers.size() == 0) {
-                            SFPSTimer.timers.wait();
-                            continue;
-                        }
-                        for (final SFPSTimer t : SFPSTimer.timers)
-                            t.run();
+    private static final Thread updater = new Thread(() -> {
+        try {
+            long l1 = System.currentTimeMillis(), l2;
+            while (true) {
+                synchronized (SFPSTimer.timers) {
+                    if (SFPSTimer.timers.size() == 0) {
+                        SFPSTimer.timers.wait();
+                        continue;
                     }
-                    l2 = System.currentTimeMillis();
-                    final float d = SSwing.DELTA - (l2 - l1);
-                    l1 = l2;
-                    if (d > 0)
-                        Thread.sleep((int) Math.ceil(d));
+                    for (final SFPSTimer t : SFPSTimer.timers)
+                        t.run();
                 }
-            } catch (final InterruptedException ignored) {}
-        }).start();
-    }
+                l2 = System.currentTimeMillis();
+                final float d = SSwing.DELTA - (l2 - l1);
+                l1 = l2;
+                if (d > 0)
+                    Thread.sleep((int) Math.ceil(d));
+            }
+        } catch (final InterruptedException ignored) {}
+    }) {{ start(); }};
 
     @Override public IColor newColor(final int r, final int g, final int b, final int a) { return new SColor(r, g, b, a); }
     @Override public IColor newColor(final int r, final int g, final int b) { return new SColor(r, g, b); }
@@ -99,5 +97,10 @@ public class SSwing extends UI {
         } catch (InvocationTargetException ex) {
             throw new RuntimeException(ex);
         }
+    }
+
+    @Override
+    public void dispose() {
+        updater.interrupt();
     }
 }
