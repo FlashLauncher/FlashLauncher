@@ -79,6 +79,10 @@ public class TaskGroup {
         }
     }
 
+    public long getProgress() { synchronized (po) { return p; } }
+    public long getMaxProgress() { synchronized (po) { return m; } }
+    public boolean isFinished() { return f; }
+
     final Task lockAny() {
         synchronized (tasks) {
             if (tl > -1 && tc >= tl)
@@ -90,6 +94,17 @@ public class TaskGroup {
                         tc++;
                         return t;
                     }
+                }
+            return null;
+        }
+    }
+
+    final Task getAny() {
+        synchronized (tasks) {
+            for (final Task t : tasks)
+                synchronized (t.po) {
+                    if (!t.f)
+                        return t;
                 }
             return null;
         }
