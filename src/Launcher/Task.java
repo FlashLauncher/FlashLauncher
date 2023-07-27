@@ -34,14 +34,9 @@ public abstract class Task {
                         }
                         if (fg) {
                             synchronized (FLCore.iml) {
-                                boolean ni = false;
                                 for (final Map.Entry<String, TaskGroup> e : FLCore.iml.entrySet())
                                     if (g == e.getValue())
-                                        //if (FLCore.iml.remove(e.getKey()) != null)
-                                        //    ni = true;
                                         FLCore.iml.remove(e.getKey());
-                                //if (ni)
-                                //    FLCore.iml.notifyAll();
                             }
                             g.notifyAll();
                             if (n)
@@ -123,7 +118,7 @@ public abstract class Task {
                 return;
             if (!FLCore.isTaskThread()) {
                 while (!f)
-                    wait();
+                    po.wait();
                 return;
             }
         }
