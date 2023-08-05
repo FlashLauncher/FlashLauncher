@@ -34,7 +34,7 @@ public class ObjLocker {
                                 }
                     }
                 } catch (final InterruptedException ignored) {}
-            }) {{
+            }, "ObjectLocker of " + o.getClass().getName() + " - " + o) {{
                 setPriority(MIN_PRIORITY);
                 start();
             }};

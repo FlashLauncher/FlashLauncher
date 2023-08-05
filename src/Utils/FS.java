@@ -131,6 +131,8 @@ public class FS {
     };
 
     public static void addRoot(final FSRoot root) {
+        if (root == null)
+            throw new RuntimeException("Root is null");
         synchronized (roots) {
             roots.add(0, root);
         }
