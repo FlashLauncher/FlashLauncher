@@ -1,5 +1,7 @@
 package Launcher;
 
+import Launcher.base.IAccount;
+import Launcher.base.IProfile;
 import UIL.ImagePosMode;
 import UIL.ImageSizeMode;
 import UIL.UI;
@@ -54,6 +56,9 @@ public class FlashLauncher {
     private final IFrame f;
     final IMenuBar menuBar = UI.menuBar().size(48, height - 16).pos(8, 8);
     private IContainer content = null;
+
+    IAccount account = null;
+    IProfile profile = null;
 
     FlashLauncher() {
         synchronized (FLCore.frames) {
