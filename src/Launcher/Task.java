@@ -2,9 +2,7 @@ package Launcher;
 
 import Utils.ObjLocker;
 
-import java.util.ArrayList;
 import java.util.Map;
-import java.util.function.IntFunction;
 
 public abstract class Task {
     final Object po = new Object();
@@ -28,7 +26,7 @@ public abstract class Task {
                     synchronized (g) {
                         synchronized (g.tasks) {
                             pop = g.tasks.remove(this);
-                            fg = pop && g.tasks.size() == 0;
+                            fg = pop && g.tasks.isEmpty();
                             if (pop)
                                 g.tc--;
                         }
