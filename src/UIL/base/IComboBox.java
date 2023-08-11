@@ -8,7 +8,7 @@ public interface IComboBox extends IButton {
     }
 
     interface CloseListListener {
-        void run(final IComboBox selfObject, final IContainer container, final CloseListListener selfListener);
+        boolean run(final IComboBox selfObject, final IContainer container, final CloseListListener selfListener);
     }
 
     default IComboBox onList(final OnListListener listener) { return this; }

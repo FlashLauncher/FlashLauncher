@@ -10,6 +10,7 @@ import java.awt.event.*;
 import java.awt.geom.Area;
 import java.awt.geom.RoundRectangle2D;
 import java.util.ArrayList;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class SComboBox extends JComponent implements IComboBox {
     private static final float d = SSwing.DELTA / 300;
@@ -30,7 +31,7 @@ public class SComboBox extends JComponent implements IComboBox {
         }
     };
     private final ArrayList<OnListListener> actions = new ArrayList<>();
-    private final ArrayList<CloseListListener> closeListListeners = new ArrayList<>();
+    private final ConcurrentLinkedQueue<CloseListListener> closeListListeners = new ConcurrentLinkedQueue<>();
 
     private RRunnable<Integer> borderRadius = Theme.BORDER_RADIUS, imageOffset = UI.ZERO, imageTextDist = imageOffset;
     private IColor bg = Theme.BACKGROUND_COLOR, fg = Theme.FOREGROUND_COLOR;
@@ -74,14 +75,16 @@ public class SComboBox extends JComponent implements IComboBox {
                 p.remove(CBP.this).update();
                 SComboBox.this.content = null;
                 animator.start();
-                final CloseListListener[] listeners;
+                /*final CloseListListener[] listeners;
                 synchronized (closeListListeners) { listeners = closeListListeners.toArray(new CloseListListener[0]); }
+
                 for (final CloseListListener l : listeners)
                     try {
                         l.run(SComboBox.this, CBP.this, l);
                     } catch (final Throwable ex) {
                         ex.printStackTrace();
-                    }
+                    }*/
+                closeListListeners.removeIf(l -> l.run(SComboBox.this, CBP.this, l));
             }
         };
 
@@ -137,7 +140,7 @@ public class SComboBox extends JComponent implements IComboBox {
         });
         IContainer c = null;
         synchronized (actions) {
-            if (actions.size() == 0)
+            if (actions.isEmpty())
                 return;
             IContainer cu;
             for (final OnListListener al : actions)
@@ -189,12 +192,12 @@ public class SComboBox extends JComponent implements IComboBox {
         g.setClip(area);
 
         if (i == null) {
-            if (t != null && t.length() > 0)
+            if (t != null && !t.isEmpty())
                 g.drawString(t, (h - fh) / 2 + ot, (h - fh) / 2 + m.getLeading() + m.getAscent());
         } else {
             final int is = h - oi * 2;
             g.drawImage(i, oi, oi, is, is, this);
-            if (t != null && t.length() > 0)
+            if (t != null && !t.isEmpty())
                 g.drawString(t, h + ot, (h - fh) / 2 + m.getLeading() + m.getAscent());
         }
 
@@ -286,17 +289,17 @@ public class SComboBox extends JComponent implements IComboBox {
 
     @Override
     public IComboBox onCloseList(final CloseListListener listener) {
-        synchronized (closeListListeners) {
-            closeListListeners.add(listener);
-        }
+        //synchronized (closeListListeners) {
+        closeListListeners.add(listener);
+        //}
         return this;
     }
 
     @Override
     public IComboBox offCloseList(final CloseListListener listener) {
-        synchronized (closeListListeners) {
-            closeListListeners.remove(listener);
-        }
+        //synchronized (closeListListeners) {
+        closeListListeners.remove(listener);
+        //}
         return this;
     }
 
