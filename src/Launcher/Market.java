@@ -3,7 +3,11 @@ package Launcher;
 import UIL.Lang;
 import UIL.base.IImage;
 
+import java.util.concurrent.ConcurrentLinkedQueue;
+
 public abstract class Market {
+    final ConcurrentLinkedQueue<Object> cl = new ConcurrentLinkedQueue<>();
+
     private final String id;
     private final Object n;
     private final IImage i;
@@ -27,6 +31,31 @@ public abstract class Market {
     public final String getID() { return id; }
     public final IImage getIcon() { return i; }
     public Object getName() { return n; }
+
+    public final void addCategory(final Object category) {
+        cl.add(category);
+        synchronized (FLCore.markets) {
+            if (FLCore.markets.contains(this))
+                FLCore.markets.notifyAll();
+        }
+    }
+
+    public final void removeCategory(final Object category) {
+        cl.remove(category);
+        synchronized (FLCore.markets) {
+            if (FLCore.markets.contains(this))
+                FLCore.markets.notifyAll();
+        }
+    }
+    public final void clearCategories() {
+        cl.clear();
+        synchronized (FLCore.markets) {
+            if (FLCore.markets.contains(this))
+                FLCore.markets.notifyAll();
+        }
+    }
+
+    public final Object[] getCategories() { return cl.toArray(); }
 
     public abstract void checkForUpdates(final Meta... items);
 
