@@ -25,7 +25,7 @@ public class SSwing extends UI {
             long l1 = System.currentTimeMillis(), l2;
             while (true) {
                 synchronized (SFPSTimer.timers) {
-                    if (SFPSTimer.timers.size() == 0) {
+                    if (SFPSTimer.timers.isEmpty()) {
                         SFPSTimer.timers.wait();
                         continue;
                     }

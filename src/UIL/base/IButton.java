@@ -22,7 +22,6 @@ public interface IButton extends IText {
     @Override IButton visible(final boolean visible);
     @Override IButton focus();
     @Override default IButton borderRadius(final RRunnable<Integer> borderRadius) { return this; }
-    @Override default IButton borderRadius(final int borderRadius) { return this; }
     @Override default IButton background(final IColor bg) { return this; }
     @Override default IButton foreground(final IColor fg) { return this; }
     @Override default IButton grounds(final IColor bg, final IColor fg) { return background(bg).foreground(fg); }

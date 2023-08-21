@@ -20,7 +20,7 @@ public class SText extends JComponent implements IText {
 
     @Override
     protected void paintComponent(final Graphics graphics) {
-        final Graphics2D g = (Graphics2D) graphics.create();
+        final Graphics2D g = (Graphics2D) (graphics instanceof Graphics2D ? graphics : graphics.create());
         g.setRenderingHints(SSwing.RH);
         g.setColor((Color) fg.get());
         g.setFont((Font) font.get());

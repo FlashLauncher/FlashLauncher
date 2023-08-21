@@ -1,6 +1,7 @@
 package UIL.base;
 
 import UIL.HAlign;
+import Utils.RRunnable;
 
 public interface IComboBox extends IButton {
     interface OnListListener {
@@ -29,7 +30,7 @@ public interface IComboBox extends IButton {
     @Override IComboBox pos(final int x, final int y);
     @Override IComboBox visible(final boolean visible);
     @Override IComboBox focus();
-    @Override default IComboBox borderRadius(final int borderRadius) { return this; }
+    @Override default IComboBox borderRadius(final RRunnable<Integer> borderRadius) { return this; }
     @Override default IComboBox background(final IColor bg) { return this; }
     @Override default IComboBox foreground(final IColor fg) { return this; }
     @Override default IComboBox grounds(final IColor bg, final IColor fg) { return background(bg).foreground(fg); }

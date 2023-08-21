@@ -19,7 +19,6 @@ public interface ICheckBox extends IText {
     @Override ICheckBox pos(final int x, final int y);
     @Override ICheckBox visible(final boolean visible);
     @Override ICheckBox focus();
-    @Override default ICheckBox borderRadius(final int borderRadius) { return this; }
     @Override default ICheckBox background(final IColor bg) { return this; }
     @Override default ICheckBox foreground(final IColor fg) { return this; }
     @Override default ICheckBox grounds(final IColor bg, final IColor fg) { return background(bg).foreground(fg); }

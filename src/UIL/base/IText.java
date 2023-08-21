@@ -13,7 +13,6 @@ public interface IText extends IComponent {
     @Override IText pos(final int x, final int y);
     @Override IText visible(final boolean visible);
     @Override IText focus();
-    @Override default IText borderRadius(final int borderRadius) { return this; }
     @Override default IText background(final IColor bg) { return this; }
     @Override default IText foreground(final IColor fg) { return this; }
     @Override default IText grounds(final IColor bg, final IColor fg) { return background(bg).foreground(fg); }

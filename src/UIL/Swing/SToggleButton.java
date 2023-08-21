@@ -2,7 +2,6 @@ package UIL.Swing;
 
 import UIL.HAlign;
 import UIL.ImgAlign;
-import UIL.LangItem;
 import UIL.Theme;
 import UIL.base.IColor;
 import UIL.base.IFont;
@@ -13,15 +12,11 @@ import Utils.RRunnable;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.awt.geom.RoundRectangle2D;
-import java.util.ArrayList;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class SToggleButton extends JButton implements IToggleButton {
-    private IImage image = null;
+    private IImage image;
     private ImgAlign align = ImgAlign.LEFT;
     private boolean c;
 
@@ -32,7 +27,7 @@ public class SToggleButton extends JButton implements IToggleButton {
 
     private RRunnable<Integer> borderRadius = Theme.BORDER_RADIUS, imageTextDist = () -> 0, imageOffset = () -> 0;
 
-    private final ArrayList<IToggleButtonListener> listeners = new ArrayList<>();
+    private final ConcurrentLinkedQueue<IToggleButtonListener> listeners = new ConcurrentLinkedQueue<>();
 
     public SToggleButton(final Object text, final IImage image, final boolean checked) {
         setOpaque(false);
@@ -42,18 +37,14 @@ public class SToggleButton extends JButton implements IToggleButton {
         c = checked;
         addActionListener(e -> {
             c = !c;
-            IToggleButtonListener[] l;
-            synchronized (listeners) {
-                l = listeners.toArray(new IToggleButtonListener[0]);
-            }
-            for (final IToggleButtonListener li : l)
+            for (final IToggleButtonListener li : listeners)
                 li.run(this, c);
         });
     }
 
     @Override
     protected void paintComponent(final Graphics graphics) {
-        final Graphics2D g = (Graphics2D) graphics.create();
+        final Graphics2D g = (Graphics2D) (graphics instanceof Graphics2D ? graphics : graphics.create());
         g.setRenderingHints(SSwing.RH);
         g.setFont((Font) font.get());
         final FontMetrics metrics = g.getFontMetrics();
@@ -74,7 +65,7 @@ public class SToggleButton extends JButton implements IToggleButton {
 
         g.setColor((Color) (c ? fga : fg).get());
 
-        final boolean t = text.length() > 0;
+        final boolean t = !text.isEmpty();
         final HAlign ha = this.ha;
         final ImgAlign ia = align;
         final Image img;
@@ -120,7 +111,6 @@ public class SToggleButton extends JButton implements IToggleButton {
     @Override public SToggleButton visible(final boolean visible) { setVisible(visible); return this; }
     @Override public SToggleButton focus() { requestFocus(); return this; }
     @Override public SToggleButton borderRadius(final RRunnable<Integer> borderRadius) { this.borderRadius = borderRadius; return this; }
-    @Override public SToggleButton borderRadius(final int borderRadius) { this.borderRadius = () -> borderRadius; return this; }
     @Override public SToggleButton imageTextDist(final int imageTextDist) { this.imageTextDist = () -> imageTextDist; return this; }
     @Override public SToggleButton imageAlign(final ImgAlign align) { this.align = align; return this; }
     @Override public SToggleButton imageOffset(final int imageOffset) { this.imageOffset = () -> imageOffset; return this; }
@@ -134,12 +124,5 @@ public class SToggleButton extends JButton implements IToggleButton {
     @Override public SToggleButton foregroundAccent(final IColor color) { fga = color; return this; }
     @Override public SToggleButton image(final IImage image) { this.image = image; return this; }
     @Override public SToggleButton update() { repaint(); return this; }
-
-    @Override
-    public SToggleButton onChange(final IToggleButtonListener listener) {
-        synchronized (listeners) {
-            listeners.add(listener);
-        }
-        return this;
-    }
+    @Override public SToggleButton onChange(final IToggleButtonListener listener) { listeners.add(listener); return this; }
 }

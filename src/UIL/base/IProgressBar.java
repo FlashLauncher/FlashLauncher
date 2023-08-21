@@ -15,7 +15,6 @@ public interface IProgressBar extends IComponent {
     @Override IProgressBar visible(final boolean visible);
     @Override IProgressBar focus();
     @Override default IProgressBar borderRadius(final RRunnable<Integer> borderRadius) { return this; }
-    @Override default IProgressBar borderRadius(final int borderRadius) { return this; }
     @Override default IProgressBar background(final IColor bg) { return this; }
     @Override default IProgressBar foreground(final IColor fg) { return this; }
     @Override default IProgressBar grounds(final IColor bg, final IColor fg) { return background(bg).foreground(fg); }

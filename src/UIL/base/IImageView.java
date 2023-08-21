@@ -13,7 +13,6 @@ public interface IImageView extends IComponent {
     @Override IImageView pos(final int x, final int y);
     @Override IImageView visible(final boolean visible);
     @Override IImageView focus();
-    @Override default IImageView borderRadius(final int borderRadius) { return this; }
     @Override default IImageView background(final IColor bg) { return this; }
     @Override default IImageView foreground(final IColor fg) { return this; }
     @Override default IImageView grounds(final IColor bg, final IColor fg) { return background(bg).foreground(fg); }

@@ -13,6 +13,8 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
 public class SPanel extends JPanel implements IContainer {
+    private BufferedImage bi = null;
+
     private RRunnable<Integer> borderRadius = Theme.BORDER_RADIUS;
     private IColor bg = Theme.BACKGROUND_COLOR;
 
@@ -22,21 +24,27 @@ public class SPanel extends JPanel implements IContainer {
 
     @Override
     protected void paintChildren(final Graphics graphics) {
-        final Graphics2D g = (Graphics2D) graphics.create();
+        final Graphics2D g = (Graphics2D) (graphics instanceof Graphics2D ? graphics : graphics.create());
         g.setRenderingHints(SSwing.RH);
 
-        final int br = borderRadius.run();
+        final int br = borderRadius.run(), cw = getWidth(), ch = getHeight();
         if (br > 0)
-            g.setClip(new RoundRectangle2D.Double(0, 0, getWidth(), getHeight(), br, br));
+            g.setClip(new RoundRectangle2D.Double(0, 0, cw, ch, br, br));
 
         g.setColor((Color) bg.get());
-        g.fillRect(0, 0, getWidth(), getHeight());
+        g.fillRect(0, 0, cw, ch);
 
-        final BufferedImage img = g.getDeviceConfiguration().createCompatibleImage(getWidth(), getHeight(), Transparency.TRANSLUCENT);
-        final Graphics gi = img.createGraphics();
-        super.paintChildren(gi);
-        gi.dispose();
-        g.drawImage(img, 0, 0, this);
+        final BufferedImage img;
+        if (bi == null || bi.getWidth() != cw || bi.getHeight() != ch)
+            bi = img = g.getDeviceConfiguration().createCompatibleImage(cw, ch, Transparency.TRANSLUCENT);
+        else
+            img = bi;
+        final Graphics2D g2 = img.createGraphics();
+        g2.setBackground((Color) UI.TRANSPARENT);
+        g2.clearRect(0, 0, cw, ch);
+        super.paintChildren(g2);
+        g2.dispose();
+        g.drawImage(img, 0, 0, null);
 
         g.dispose();
     }
@@ -44,7 +52,6 @@ public class SPanel extends JPanel implements IContainer {
     @Override public int width() { return getWidth(); }
     @Override public int height() { return getHeight(); }
     @Override public boolean visible() { return isVisible(); }
-    @Override public int borderRadius() { return borderRadius.run(); }
     @Override public boolean isFocused() { return hasFocus(); }
 
     @Override
@@ -85,8 +92,6 @@ public class SPanel extends JPanel implements IContainer {
         return this;
     }
 
-
-
     @Override
     public SPanel clear() {
         super.removeAll();
@@ -99,17 +104,9 @@ public class SPanel extends JPanel implements IContainer {
         return this;
     }
 
-
-
     @Override
     public SPanel borderRadius(final RRunnable<Integer> borderRadius) {
         this.borderRadius = borderRadius;
-        return this;
-    }
-
-    @Override
-    public SPanel borderRadius(final int borderRadius) {
-        this.borderRadius = () -> borderRadius;
         return this;
     }
 

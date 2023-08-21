@@ -33,63 +33,67 @@ public class SScrollPane extends JPanel implements IScrollPane {
         });
     }
 
-    @Override
-    protected void paintComponent(final Graphics graphics) {}
+    @Override protected void paintComponent(final Graphics graphics) {}
 
     @Override
     protected void paintChildren(final Graphics graphics) {
-        final Graphics2D g = (Graphics2D) graphics.create();
+        final Graphics2D g = graphics instanceof Graphics2D ? (Graphics2D) graphics : (Graphics2D) graphics.create();
         g.setRenderingHints(SSwing.RH);
-        final int br = borderRadius.run(), chw = content.width(), chh = content.height();
+
+        final IContainer c = content;
+        final int br = borderRadius.run(), chw, chh;
 
         if (br > 0)
             g.setClip(new RoundRectangle2D.Double(0, 0, getWidth(), getHeight(), br, br));
 
-        final IContainer c = content;
-        if (c != null)
+        if (c != null) {
             c.pos(sx, sy);
+            chw = c.width();
+            chh = c.height();
 
-        boolean vs = false, hs = false;
-        int cw = getWidth(), ch = getHeight();
-        if (chh > ch) {
-            vs = true;
-            cw -= 8;
-        }
-        if (chw > cw) {
-            hs = true;
-            ch -= 8;
-            if (!vs && chh > ch) {
+            boolean vs = false, hs = false;
+            int cw = getWidth(), ch = getHeight();
+            if (chh > ch) {
                 vs = true;
                 cw -= 8;
             }
-        }
-
-        final BufferedImage img;
-        if (bi == null || bi.getWidth() != cw || bi.getHeight() != ch)
-            bi = img = g.getDeviceConfiguration().createCompatibleImage(cw, ch, Transparency.TRANSLUCENT);
-        else
-            img = bi;
-        final Graphics2D g2 = (Graphics2D) img.getGraphics();
-        g2.setBackground((Color) UI.TRANSPARENT);
-
-        g2.clearRect(0, 0, cw, ch);
-        super.paintChildren(g2);
-        g2.dispose();
-        g.drawImage(img, 0, 0, this);
-
-        if (vs || hs) {
-            g.setColor((Color) bg.get());
-            if (vs) g.fillRect(cw, 0, 8, ch);
-            if (hs) g.fillRect(0, ch, cw, 8);
-
-            g.setColor((Color) fg.get());
-            if (vs) {
-                final int h = Math.max(32, Math.round(1f * ch / content.height() * ch));
-                g.fillRect(cw, Math.round((float) (ch - h) / (content.height() - getHeight()) * (-sy)), 8, h);
+            if (chw > cw) {
+                hs = true;
+                ch -= 8;
+                if (!vs && chh > ch) {
+                    vs = true;
+                    cw -= 8;
+                }
             }
-            if (hs) {
-                final int w = Math.max(32, Math.round(1f * cw / content.width() * cw));
-                g.fillRect(Math.round((float) (cw - w) / (content.width() - getWidth()) * (-sx)), ch, w, 8);
+
+            final BufferedImage img;
+            if (bi == null || bi.getWidth() != cw || bi.getHeight() != ch)
+                bi = img = g.getDeviceConfiguration().createCompatibleImage(cw, ch, Transparency.TRANSLUCENT);
+            else
+                img = bi;
+
+            final Graphics2D g2 = (Graphics2D) img.getGraphics();
+            g2.setBackground((Color) UI.TRANSPARENT);
+            g2.clearRect(0, 0, cw, ch);
+            super.paintChildren(g2);
+            g2.dispose();
+
+            g.drawImage(img, 0, 0, null);
+
+            if (vs || hs) {
+                g.setColor((Color) bg.get());
+                if (vs) g.fillRect(cw, 0, 8, ch);
+                if (hs) g.fillRect(0, ch, cw, 8);
+
+                g.setColor((Color) fg.get());
+                if (vs) {
+                    final int h = Math.max(32, Math.round(1f * ch / content.height() * ch));
+                    g.fillRect(cw, Math.round((float) (ch - h) / (content.height() - getHeight()) * (-sy)), 8, h);
+                }
+                if (hs) {
+                    final int w = Math.max(32, Math.round(1f * cw / content.width() * cw));
+                    g.fillRect(Math.round((float) (cw - w) / (content.width() - getWidth()) * (-sx)), ch, w, 8);
+                }
             }
         }
 
@@ -100,7 +104,6 @@ public class SScrollPane extends JPanel implements IScrollPane {
     @Override public int height() { return getHeight(); }
     @Override public boolean visible() { return isVisible(); }
     @Override public boolean isFocused() { return hasFocus(); }
-    @Override public int borderRadius() { return borderRadius.run(); }
     @Override public IComponent[] childs() { return content.childs(); }
     @Override public IContainer content() { return content; }
     @Override public Object getComponent() { return this; }
@@ -158,12 +161,6 @@ public class SScrollPane extends JPanel implements IScrollPane {
     }
 
     @Override public SScrollPane focus() { requestFocus(); return this; }
-
-    @Override
-    public SScrollPane borderRadius(final int borderRadius) {
-        this.borderRadius = () -> borderRadius;
-        return this;
-    }
 
     @Override
     public SScrollPane borderRadius(final RRunnable<Integer> borderRadius) {

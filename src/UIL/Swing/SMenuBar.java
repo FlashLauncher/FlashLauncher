@@ -176,7 +176,6 @@ public class SMenuBar extends JPanel implements IMenuBar {
             chl.removeIf(RRunnable::run);
         }
         action.run();
-        System.gc();
     }
 
     @Override
@@ -301,12 +300,6 @@ public class SMenuBar extends JPanel implements IMenuBar {
     @Override
     public SMenuBar borderRadius(final RRunnable<Integer> borderRadius) {
         this.borderRadius = borderRadius;
-        return this;
-    }
-
-    @Override
-    public SMenuBar borderRadius(final int borderRadius) {
-        this.borderRadius = () -> borderRadius;
         return this;
     }
 

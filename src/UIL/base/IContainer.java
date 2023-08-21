@@ -16,7 +16,6 @@ public interface IContainer extends IComponent {
     @Override IContainer visible(final boolean visible);
     @Override IContainer focus();
     @Override default IContainer borderRadius(final RRunnable<Integer> borderRadius) { return this; }
-    @Override default IContainer borderRadius(final int borderRadius) { return this; }
     @Override default IContainer background(final IColor bg) { return this; }
     @Override default IContainer foreground(final IColor fg) { return this; }
     @Override default IContainer grounds(final IColor bg, final IColor fg) { return background(bg).foreground(fg); }

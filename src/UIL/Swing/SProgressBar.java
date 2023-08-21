@@ -17,7 +17,7 @@ public class SProgressBar extends JComponent implements IProgressBar {
 
     @Override
     protected void paintComponent(final Graphics graphics) {
-        final Graphics2D g = (Graphics2D) graphics;
+        final Graphics2D g = (Graphics2D) (graphics instanceof Graphics2D ? graphics : graphics.create());
         final int br = borderRadius.run();
         if (br > 0)
             g.setClip(new RoundRectangle2D.Double(0, 0, getWidth(), getHeight(), br, br));
@@ -37,7 +37,6 @@ public class SProgressBar extends JComponent implements IProgressBar {
     @Override public int height() { return getHeight(); }
     @Override public boolean visible() { return isVisible(); }
     @Override public boolean isFocused() { return hasFocus(); }
-    @Override public int borderRadius() { return borderRadius.run(); }
     @Override public long maxProgress() { return maxProgress; }
     @Override public long progress() { return progress; }
     @Override public SProgressBar getComponent() { return this; }
@@ -46,53 +45,11 @@ public class SProgressBar extends JComponent implements IProgressBar {
     @Override public SProgressBar pos(final int x, final int y) { setLocation(x, y); return this; }
     @Override public SProgressBar visible(final boolean visible) { setVisible(visible); return this; }
     @Override public SProgressBar focus() { requestFocus(); return this; }
-
-    @Override
-    public SProgressBar maxProgress(final long max) {
-        this.maxProgress = max;
-        return this;
-    }
-
-    @Override
-    public SProgressBar progress(final long progress) {
-        this.progress = progress;
-        return this;
-    }
-
-    @Override
-    public SProgressBar borderRadius(final RRunnable<Integer> borderRadius) {
-        this.borderRadius = borderRadius;
-        return this;
-    }
-
-    @Override
-    public SProgressBar borderRadius(final int borderRadius) {
-        this.borderRadius = () -> borderRadius;
-        return this;
-    }
-
-    @Override
-    public SProgressBar background(final IColor bg) {
-        this.bg = bg;
-        return this;
-    }
-
-    @Override
-    public SProgressBar foreground(final IColor fg) {
-        this.fg = fg;
-        return this;
-    }
-
-    @Override
-    public SProgressBar grounds(final IColor bg, final IColor fg) {
-        this.bg = bg;
-        this.fg = fg;
-        return this;
-    }
-
-    @Override
-    public SProgressBar update() {
-        repaint();
-        return this;
-    }
+    @Override public SProgressBar maxProgress(final long max) { this.maxProgress = max; return this; }
+    @Override public SProgressBar progress(final long progress) { this.progress = progress; return this; }
+    @Override public SProgressBar borderRadius(final RRunnable<Integer> borderRadius) { this.borderRadius = borderRadius; return this; }
+    @Override public SProgressBar background(final IColor bg) { this.bg = bg; return this; }
+    @Override public SProgressBar foreground(final IColor fg) { this.fg = fg; return this; }
+    @Override public SProgressBar grounds(final IColor bg, final IColor fg) { this.bg = bg; this.fg = fg; return this; }
+    @Override public SProgressBar update() { repaint(); return this; }
 }

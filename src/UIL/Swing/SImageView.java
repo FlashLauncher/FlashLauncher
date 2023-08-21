@@ -34,8 +34,8 @@ public class SImageView extends JComponent implements IImageView {
             iw = cw;
             ih = ch;
         } else {
-            iw = img.getWidth(this);
-            ih = img.getHeight(this);
+            iw = img.getWidth(null);
+            ih = img.getHeight(null);
             switch (ism) {
                 case OUTSIDE:
                 case INSIDE: {
@@ -54,13 +54,16 @@ public class SImageView extends JComponent implements IImageView {
             }
         }
 
-        int x = 0, y = 0;
+        final int x, y;
         if (iam == ImagePosMode.CENTER) {
             x = Math.round((cw - iw) / 2);
             y = Math.round((ch - ih) / 2);
+        } else {
+            x = 0;
+            y = 0;
         }
 
-        final Graphics2D g = (Graphics2D) graphics.create();
+        final Graphics2D g = (Graphics2D) (graphics instanceof Graphics2D ? graphics : graphics.create());
         g.setRenderingHints(SSwing.RH);
         g.drawImage(img, x, y, Math.round(iw), Math.round(ih), this);
         g.dispose();

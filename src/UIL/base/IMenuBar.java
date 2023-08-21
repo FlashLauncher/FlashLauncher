@@ -26,7 +26,6 @@ public interface IMenuBar extends IContainer {
     @Override IMenuBar pos(final int x, final int y);
     @Override IMenuBar visible(final boolean visible);
     @Override IMenuBar focus();
-    @Override default IMenuBar borderRadius(final int borderRadius) { return this; }
     @Override default IMenuBar background(final IColor bg) { return this; }
     @Override default IMenuBar foreground(final IColor fg) { return this; }
     @Override default IMenuBar grounds(final IColor bg, final IColor fg) { return background(bg).foreground(fg); }

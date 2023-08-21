@@ -20,7 +20,6 @@ public interface IScrollPane extends IContainer {
     @Override IScrollPane visible(final boolean visible);
     @Override IScrollPane focus();
     @Override default IScrollPane borderRadius(final RRunnable<Integer> borderRadius) { return this; }
-    @Override default IScrollPane borderRadius(final int borderRadius) { return this; }
     @Override default IScrollPane background(final IColor bg) { return this; }
     @Override default IScrollPane foreground(final IColor fg) { return this; }
     @Override default IScrollPane grounds(final IColor bg, final IColor fg) { return background(bg).foreground(fg); }

@@ -25,7 +25,6 @@ public interface IDialog extends IFrame {
     @Override IDialog pos(final int x, final int y);
     @Override IDialog visible(final boolean visible);
     @Override IDialog focus();
-    @Override default IDialog borderRadius(final int borderRadius) { return this; }
     @Override default IDialog background(final IColor bg) { return this; }
     @Override default IDialog foreground(final IColor fg) { return this; }
     @Override default IDialog grounds(final IColor bg, final IColor fg) { return background(bg).foreground(fg); }

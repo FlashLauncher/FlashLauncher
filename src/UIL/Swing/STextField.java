@@ -106,7 +106,7 @@ public class STextField extends JComponent implements ITextField {
 
             @Override public void mouseClicked(final MouseEvent e) {
                 final long c = System.currentTimeMillis();
-                if (c - l < 250 && text.length() > 0) {
+                if (c - l < 250 && !text.isEmpty()) {
                     setSelIndex(0);
                     setIndex(text.length());
                 }
@@ -172,7 +172,7 @@ public class STextField extends JComponent implements ITextField {
                     case KeyEvent.VK_BACK_SPACE:
                         if (si > -1) {
                             text = text.substring(0, Math.min(si, i)) + text.substring(Math.max(si, i));
-                            if (text.length() == 0) {
+                            if (text.isEmpty()) {
                                 cx = 0;
                                 ci = 0;
                                 csi = tsi = -1;
@@ -254,7 +254,7 @@ public class STextField extends JComponent implements ITextField {
                         }
                         break;
                     case KeyEvent.VK_A:
-                        if (e.isControlDown() && text.length() > 0) {
+                        if (e.isControlDown() && !text.isEmpty()) {
                             setSelIndex(0);
                             setIndex(text.length());
                         }
@@ -320,7 +320,7 @@ public class STextField extends JComponent implements ITextField {
 
     @Override
     protected void paintComponent(final Graphics graphics) {
-        final Graphics2D g = (Graphics2D) graphics.create();
+        final Graphics2D g = (Graphics2D) (graphics instanceof Graphics2D ? graphics : graphics.create());
         g.setRenderingHints(SSwing.RH);
 
         g.setColor((Color) bg.get());
@@ -333,7 +333,7 @@ public class STextField extends JComponent implements ITextField {
         g.setFont((Font) font.get());
         final FontMetrics metrics = g.getFontMetrics();
         final String t = text;
-        final boolean ht = t != null && t.length() > 0;
+        final boolean ht = t != null && !t.isEmpty();
         final int c = (getHeight() - metrics.getHeight()) / 2, ox = Math.round(cx), x = c + Math.round(ci) - ox, h = getHeight() - c;
         if (csi > -1) {
             g.setColor((Color) Theme.TEXT_SELECTION_COLOR.get());
@@ -349,7 +349,7 @@ public class STextField extends JComponent implements ITextField {
         } else {
             final Object ho = hint;
             final String hint = ho == null ? null : ho.toString();
-            if (hint != null && hint.length() > 0) {
+            if (hint != null && !hint.isEmpty()) {
                 g.setColor((Color) Theme.TEXT_HINT_COLOR.get());
                 g.drawString(hint, c, c + metrics.getLeading() + metrics.getAscent());
             }
@@ -421,12 +421,6 @@ public class STextField extends JComponent implements ITextField {
     @Override
     public STextField borderRadius(final RRunnable<Integer> borderRadius) {
         this.borderRadius = borderRadius;
-        return this;
-    }
-
-    @Override
-    public STextField borderRadius(final int borderRadius) {
-        this.borderRadius = () -> borderRadius;
         return this;
     }
 

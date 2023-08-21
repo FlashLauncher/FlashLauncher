@@ -28,7 +28,6 @@ public interface ITextField extends IText {
     @Override ITextField pos(final int x, final int y);
     @Override ITextField visible(final boolean visible);
     @Override ITextField focus();
-    @Override default ITextField borderRadius(final int borderRadius) { return this; }
     @Override default ITextField background(final IColor bg) { return this; }
     @Override default ITextField foreground(final IColor fg) { return this; }
     @Override default ITextField grounds(final IColor bg, final IColor fg) { return background(bg).foreground(fg); }

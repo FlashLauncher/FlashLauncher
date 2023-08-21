@@ -35,8 +35,6 @@ public class FSChooser {
     private final IText path, filename;
     private final int mhf = 252;
     private final int spw = 704;
-    private final int fw = spw - 8;
-    private final int cw = fw - 16;
 
     private final ArrayList<IButton> buttons = new ArrayList<>();
     private final ArrayList<File> files = new ArrayList<>();
@@ -46,7 +44,7 @@ public class FSChooser {
         int width = 720;
         dialog = UI.dialog(owner, title).resizable(false).size(width, height).center(owner)
                 .add(
-                        UI.panel().size(width, height).borderRadius(0)
+                        UI.panel().size(width, height).borderRadius(UI.ZERO)
                 ).add(
                         UI.panel().size(spw, 48).pos(8, 8)
                                 .add(
@@ -62,7 +60,7 @@ public class FSChooser {
                                 )
                 ).add(sp =
                         UI.scrollPane().size(spw, mhf).pos(8, 64).content(
-                                        fileContainer = UI.panel().borderRadius(0)
+                                        fileContainer = UI.panel().borderRadius(UI.ZERO)
                                 )
                 ).add(
                         UI.panel().size(spw, 48).pos(8, mhf + 72)
@@ -79,6 +77,7 @@ public class FSChooser {
         fileContainer.clear();
         buttons.clear();
         int h = 8;
+        final int fw = spw - 8, cw = spw - 24;
         if (current != null) {
             path.text(current.getAbsolutePath());
             final File[] l = current.listFiles();

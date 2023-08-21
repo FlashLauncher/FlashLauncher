@@ -24,7 +24,6 @@ public interface IFrame extends IContainer {
     @Override IFrame pos(final int x, final int y);
     @Override IFrame visible(final boolean visible);
     @Override IFrame focus();
-    @Override default IFrame borderRadius(final int borderRadius) { return this; }
     @Override default IFrame background(final IColor bg) { return this; }
     @Override default IFrame foreground(final IColor fg) { return this; }
     @Override default IFrame grounds(final IColor bg, final IColor fg) { return background(bg).foreground(fg); }

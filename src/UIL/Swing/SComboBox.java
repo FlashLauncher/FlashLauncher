@@ -9,7 +9,6 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.Area;
 import java.awt.geom.RoundRectangle2D;
-import java.util.ArrayList;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class SComboBox extends JComponent implements IComboBox {
@@ -30,7 +29,7 @@ public class SComboBox extends JComponent implements IComboBox {
             }
         }
     };
-    private final ArrayList<OnListListener> actions = new ArrayList<>();
+    private final ConcurrentLinkedQueue<OnListListener> actions = new ConcurrentLinkedQueue<>();
     private final ConcurrentLinkedQueue<CloseListListener> closeListListeners = new ConcurrentLinkedQueue<>();
 
     private RRunnable<Integer> borderRadius = Theme.BORDER_RADIUS, imageOffset = UI.ZERO, imageTextDist = imageOffset;
@@ -75,15 +74,6 @@ public class SComboBox extends JComponent implements IComboBox {
                 p.remove(CBP.this).update();
                 SComboBox.this.content = null;
                 animator.start();
-                /*final CloseListListener[] listeners;
-                synchronized (closeListListeners) { listeners = closeListListeners.toArray(new CloseListListener[0]); }
-
-                for (final CloseListListener l : listeners)
-                    try {
-                        l.run(SComboBox.this, CBP.this, l);
-                    } catch (final Throwable ex) {
-                        ex.printStackTrace();
-                    }*/
                 closeListListeners.removeIf(l -> l.run(SComboBox.this, CBP.this, l));
             }
         };
@@ -138,17 +128,14 @@ public class SComboBox extends JComponent implements IComboBox {
                     SComboBox.this.requestFocus();
             }
         });
-        IContainer c = null;
-        synchronized (actions) {
-            if (actions.isEmpty())
-                return;
-            IContainer cu;
-            for (final OnListListener al : actions)
-                if ((cu = al.run(SComboBox.this, sp)) != null)
-                    c = cu;
-            if (c == null)
-                return;
-        }
+        IContainer c = null, cu;
+        if (actions.isEmpty())
+            return;
+        for (final OnListListener al : actions)
+            if ((cu = al.run(SComboBox.this, sp)) != null)
+                c = cu;
+        if (c == null)
+            return;
         requestFocus();
         sp.p = c.add(sp).update();
         (content = sp).requestFocus();
@@ -157,7 +144,7 @@ public class SComboBox extends JComponent implements IComboBox {
 
     @Override
     protected void paintComponent(final Graphics graphics) {
-        final Graphics2D g = (Graphics2D) graphics.create();
+        final Graphics2D g = (Graphics2D) (graphics instanceof Graphics2D ? graphics : graphics.create());
         g.setRenderingHints(SSwing.RH);
         g.setFont((Font) font.get());
         final FontMetrics m = g.getFontMetrics();
@@ -203,111 +190,30 @@ public class SComboBox extends JComponent implements IComboBox {
 
         g.dispose();
     }
+
     @Override public int width() { return getWidth(); }
     @Override public int height() { return getHeight(); }
     @Override public boolean visible() { return isVisible(); }
     @Override public boolean isFocused() { return hasFocus(); }
-    @Override public int borderRadius() { return borderRadius.run(); }
-
-    @Override
-    public SComboBox image(final IImage image) {
-        img = image;
-        return this;
-    }
-
     @Override public String text() { return text.toString(); }
+    @Override public Object getComponent() { return this; }
 
-    @Override
-    public SComboBox text(final Object text) {
-        this.text = text;
-        return this;
-    }
-
-    @Override
-    public SComboBox font(final IFont font) {
-        this.font = font;
-        return this;
-    }
-
-    @Override
-    public SComboBox ha(final HAlign align) {
-        return this;
-    }
-
+    @Override public SComboBox image(final IImage image) { img = image; return this; }
+    @Override public SComboBox text(final Object text) { this.text = text; return this; }
+    @Override public SComboBox font(final IFont font) { this.font = font; return this; }
+    @Override public SComboBox ha(final HAlign align) { return this; }
     @Override public SComboBox size(final int width, final int height) { setSize(width, height); return this; }
     @Override public SComboBox pos(final int x, final int y) { setLocation(x, y); return this; }
     @Override public SComboBox visible(final boolean visible) { setVisible(visible); return this; }
     @Override public SComboBox focus() { requestFocus(); return this; }
-
-    @Override
-    public SComboBox borderRadius(final RRunnable<Integer> borderRadius) {
-        this.borderRadius = borderRadius;
-        return this;
-    }
-
-    @Override
-    public SComboBox imageTextDist(final int imageTextDist) {
-        this.imageTextDist = () -> imageTextDist;
-        return this;
-    }
-
-    @Override
-    public SComboBox borderRadius(final int borderRadius) {
-        this.borderRadius = () -> borderRadius;
-        return this;
-    }
-
-    @Override
-    public IComboBox imageOffset(final int imageOffset) {
-        this.imageOffset = () -> imageOffset;
-        return this;
-    }
-
-    @Override
-    public SComboBox background(final IColor bg) {
-        this.bg = bg;
-        return this;
-    }
-
-    @Override
-    public SComboBox foreground(final IColor fg) {
-        this.fg = fg;
-        return this;
-    }
-
-    @Override public SComboBox grounds(final IColor bg, final IColor fg) {
-        this.bg = bg;
-        this.fg = fg;
-        return this;
-    }
-
-    @Override
-    public SComboBox onList(final OnListListener listener) {
-        synchronized (actions) { actions.add(listener); }
-        return this;
-    }
-
-    @Override
-    public IComboBox onCloseList(final CloseListListener listener) {
-        //synchronized (closeListListeners) {
-        closeListListeners.add(listener);
-        //}
-        return this;
-    }
-
-    @Override
-    public IComboBox offCloseList(final CloseListListener listener) {
-        //synchronized (closeListListeners) {
-        closeListListeners.remove(listener);
-        //}
-        return this;
-    }
-
-    @Override
-    public SComboBox update() {
-        repaint();
-        return this;
-    }
-
-    @Override public Object getComponent() { return this; }
+    @Override public SComboBox borderRadius(final RRunnable<Integer> borderRadius) { this.borderRadius = borderRadius; return this; }
+    @Override public SComboBox imageTextDist(final int imageTextDist) { this.imageTextDist = () -> imageTextDist; return this; }
+    @Override public IComboBox imageOffset(final int imageOffset) { this.imageOffset = () -> imageOffset; return this; }
+    @Override public SComboBox background(final IColor bg) { this.bg = bg; return this; }
+    @Override public SComboBox foreground(final IColor fg) { this.fg = fg; return this; }
+    @Override public SComboBox grounds(final IColor bg, final IColor fg) { this.bg = bg; this.fg = fg; return this; }
+    @Override public SComboBox onList(final OnListListener listener) { actions.add(listener); return this; }
+    @Override public IComboBox onCloseList(final CloseListListener listener) { closeListListeners.add(listener); return this; }
+    @Override public IComboBox offCloseList(final CloseListListener listener) { closeListListeners.remove(listener); return this; }
+    @Override public SComboBox update() { repaint(); return this; }
 }

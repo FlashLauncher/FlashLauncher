@@ -25,7 +25,7 @@ public class SCheckBox extends JComponent implements ICheckBox {
 
     @Override
     protected void paintComponent(final Graphics graphics) {
-        final Graphics2D g = (Graphics2D) graphics.create();
+        final Graphics2D g = (Graphics2D) (graphics instanceof Graphics2D ? graphics : graphics.create());
         g.setRenderingHints(SSwing.RH);
 
         final RRunnable<Integer> borderRadius = br;
@@ -41,7 +41,7 @@ public class SCheckBox extends JComponent implements ICheckBox {
         final Object to = t;
         final String t = to == null ? null : to.toString();
 
-        if (t != null && t.length() > 0) {
+        if (t != null && !t.isEmpty()) {
             g.setFont((Font) f.get());
             final FontMetrics m = g.getFontMetrics();
             g.setColor((Color) fg.get());
@@ -52,11 +52,11 @@ public class SCheckBox extends JComponent implements ICheckBox {
     }
     @Override public int width() { return getWidth(); }
     @Override public int height() { return getHeight(); }
-    @Override public int borderRadius() { return br.run(); }
     @Override public boolean visible() { return isVisible(); }
     @Override public boolean isFocused() { return hasFocus(); }
     @Override public boolean checked() { return c; }
     @Override public String text() { return t.toString(); }
+    @Override public SCheckBox getComponent() { return this; }
 
     @Override public SCheckBox checked(final boolean checked) { c = checked; return this; }
     @Override public SCheckBox text(final Object text) { t = text; return this; }
@@ -67,12 +67,11 @@ public class SCheckBox extends JComponent implements ICheckBox {
     @Override public SCheckBox visible(final boolean visible) { setVisible(visible); return this; }
     @Override public SCheckBox focus() { requestFocus(); return this; }
     @Override public SCheckBox borderRadius(final RRunnable<Integer> borderRadius) { br = borderRadius; return this; }
-    @Override public SCheckBox borderRadius(final int borderRadius) { br = () -> borderRadius; return this; }
     @Override public SCheckBox background(final IColor bg) { this.bg = bg; return this; }
     @Override public SCheckBox foreground(final IColor fg) { this.fg = fg; return this; }
     @Override public SCheckBox backgroundAccent(final IColor color) { bga = color; return this; }
     @Override public SCheckBox foregroundAccent(final IColor color) { fga = color; return this; }
     @Override public SCheckBox grounds(final IColor bg, final IColor fg) { this.bg = bg; this.fg = fg; return this; }
     @Override public SCheckBox update() { repaint(); return this; }
-    @Override public SCheckBox getComponent() { return this; }
+
 }

@@ -31,7 +31,6 @@ public interface IToggleButton extends IButton {
     @Override IToggleButton visible(final boolean visible);
     @Override IToggleButton focus();
     @Override default IToggleButton borderRadius(final RRunnable<Integer> borderRadius) { return this; }
-    @Override default IToggleButton borderRadius(final int borderRadius) { return this; }
     @Override default IToggleButton background(final IColor background) { return this; }
     @Override default IToggleButton foreground(final IColor foreground) { return this; }
     @Override default IToggleButton grounds(final IColor background, final IColor foreground) { return background(background).foreground(foreground); }

@@ -9,7 +9,7 @@ import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.RoundRectangle2D;
-import java.util.ArrayList;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class SButton extends JButton implements IButton {
     private IImage image = null;
@@ -20,9 +20,9 @@ public class SButton extends JButton implements IButton {
     private HAlign ha = HAlign.CENTER;
     private Object text = null;
 
-    private RRunnable<Integer> borderRadius = Theme.BORDER_RADIUS, imageTextDist = () -> 0, imageOffset = () -> 0;
+    private RRunnable<Integer> borderRadius = Theme.BORDER_RADIUS, imageTextDist = UI.ZERO, imageOffset = UI.ZERO;
 
-    private final ArrayList<IButtonAction> actionListeners = new ArrayList<>();
+    private final ConcurrentLinkedQueue<IButtonAction> actionListeners = new ConcurrentLinkedQueue<>();
 
     public SButton() {
         setOpaque(false);
@@ -31,15 +31,8 @@ public class SButton extends JButton implements IButton {
             @Override
             public void keyPressed(final KeyEvent e) {
                 if (e.getKeyCode() == KeyEvent.VK_SPACE) {
-                    final IButtonAction[] actions;
-                    synchronized (actionListeners) {
-                        if (actionListeners.size() == 0)
-                            return;
-                        else
-                            actions = actionListeners.toArray(new IButtonAction[0]);
-                    }
-                    final SButtonKeyEvent evt = new SButtonKeyEvent(e);
-                    for (final IButtonAction a : actions)
+                    final SButtonKeyEvent evt = new SButtonKeyEvent();
+                    for (final IButtonAction a : actionListeners)
                         a.run(SButton.this, evt);
                 }
             }
@@ -47,15 +40,8 @@ public class SButton extends JButton implements IButton {
         addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(final MouseEvent e) {
-                final IButtonAction[] actions;
-                synchronized (actionListeners) {
-                    if (actionListeners.size() == 0)
-                        return;
-                    else
-                        actions = actionListeners.toArray(new IButtonAction[0]);
-                }
                 final SButtonMouseEvent evt = new SButtonMouseEvent(e);
-                for (final IButtonAction a : actions)
+                for (final IButtonAction a : actionListeners)
                     a.run(SButton.this, evt);
             }
         });
@@ -67,7 +53,7 @@ public class SButton extends JButton implements IButton {
 
     @Override
     protected void paintComponent(final Graphics graphics) {
-        final Graphics2D g = (Graphics2D) graphics.create();
+        final Graphics2D g = (Graphics2D) (graphics instanceof Graphics2D ? graphics : graphics.create());
         g.setRenderingHints(SSwing.RH);
         g.setFont((Font) font.get());
         final FontMetrics metrics = g.getFontMetrics();
@@ -86,7 +72,7 @@ public class SButton extends JButton implements IButton {
 
         g.setColor((Color) fg.get());
 
-        final boolean t = text.length() > 0;
+        final boolean t = !text.isEmpty();
         final HAlign ha = this.ha;
         final ImgAlign ia = align;
         final Image img;
@@ -124,120 +110,35 @@ public class SButton extends JButton implements IButton {
     @Override public int height() { return getHeight(); }
     @Override public boolean visible() { return isVisible(); }
     @Override public boolean isFocused() { return hasFocus(); }
+    @Override public String text() { return text.toString(); }
+    @Override public SButton getComponent() { return this; }
 
     @Override public SButton size(final int width, final int height) { setSize(width, height); return this; }
     @Override public SButton pos(final int x, final int y) { setLocation(x, y); return this; }
     @Override public SButton visible(final boolean visible) { setVisible(visible); return this; }
     @Override public SButton focus() { requestFocus(); return this; }
-
-    @Override
-    public SButton onAction(final IButtonAction runnable) {
-        synchronized (actionListeners) {
-            actionListeners.add(runnable);
-        }
-        return this;
-    }
-
-    @Override
-    public SButton borderRadius(final RRunnable<Integer> borderRadius) {
-        this.borderRadius = borderRadius;
-        return this;
-    }
-
-    @Override
-    public SButton borderRadius(final int borderRadius) {
-        this.borderRadius = () -> borderRadius;
-        return this;
-    }
-
-    @Override
-    public SButton imageTextDist(final int imageTextDist) {
-        this.imageTextDist = () -> imageTextDist;
-        return this;
-    }
-
-    @Override
-    public SButton imageAlign(final ImgAlign align) {
-        this.align = align;
-        return this;
-    }
-
-    @Override
-    public SButton imageOffset(final int imageOffset) {
-        this.imageOffset = () -> imageOffset;
-        return this;
-    }
-
-    @Override public SButton getComponent() { return this; }
-    @Override public String text() { return text.toString(); }
-
-    @Override
-    public SButton text(final Object text) {
-        this.text = text;
-        return this;
-    }
-
-    @Override
-    public SButton font(final IFont font) {
-        this.font = font;
-        return this;
-    }
-
-    @Override
-    public SButton ha(final HAlign align) {
-        ha = align;
-        return this;
-    }
-
-
-
-    @Override
-    public SButton background(final IColor bg) {
-        this.bg = bg;
-        return this;
-    }
-
-    @Override
-    public SButton foreground(final IColor color) {
-        fg = color;
-        return this;
-    }
-
-    @Override
-    public SButton grounds(final IColor bg, final IColor fg) {
-        this.bg = bg;
-        this.fg = fg;
-        return this;
-    }
-
-    @Override
-    public SButton image(final IImage image) {
-        this.image = image;
-        return this;
-    }
-
-    @Override
-    public SButton update() {
-        repaint();
-        return this;
-    }
+    @Override public SButton onAction(final IButtonAction runnable) { actionListeners.add(runnable); return this; }
+    @Override public SButton borderRadius(final RRunnable<Integer> borderRadius) { this.borderRadius = borderRadius; return this; }
+    @Override public SButton imageTextDist(final int imageTextDist) { this.imageTextDist = () -> imageTextDist; return this; }
+    @Override public SButton imageAlign(final ImgAlign align) { this.align = align; return this; }
+    @Override public SButton imageOffset(final int imageOffset) { this.imageOffset = () -> imageOffset; return this; }
+    @Override public SButton text(final Object text) { this.text = text; return this; }
+    @Override public SButton font(final IFont font) { this.font = font; return this; }
+    @Override public SButton ha(final HAlign align) { ha = align; return this; }
+    @Override public SButton background(final IColor bg) { this.bg = bg; return this; }
+    @Override public SButton foreground(final IColor color) { fg = color; return this; }
+    @Override public SButton grounds(final IColor bg, final IColor fg) { this.bg = bg; this.fg = fg; return this; }
+    @Override public SButton image(final IImage image) { this.image = image; return this; }
+    @Override public SButton update() { repaint(); return this; }
 
     @Override
     public void doClick() {
-        final IButtonAction[] al;
-        synchronized (actionListeners) {
-            if (actionListeners.size() == 0)
-                return;
-            al = actionListeners.toArray(new IButtonAction[0]);
-        }
-        for (final IButtonAction a : al)
+        for (final IButtonAction a : actionListeners)
             a.run(this, null);
     }
 
     private static class SButtonKeyEvent implements IButtonActionEvent {
-
-        private SButtonKeyEvent(final KeyEvent event) {
-        }
+        private SButtonKeyEvent() {}
 
         @Override public boolean isMouse() { return false; }
         @Override public int clickCount() { return 0; }
