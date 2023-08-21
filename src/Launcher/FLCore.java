@@ -337,7 +337,7 @@ public class FLCore {
             @Override
             public Meta[] find(final String query) {
                 synchronized (installed) {
-                    if (query.length() == 0)
+                    if (query.isEmpty())
                         return installed.toArray(new Meta[0]);
                     final ArrayList<Meta> l = new ArrayList<>();
                     for (final Meta m : installed)
@@ -426,7 +426,7 @@ public class FLCore {
                     HELP_ITEMS.add(new MBI(FlashLauncher.ID + ".launcher", FlashLauncher.ICON, FlashLauncher.NAME, (launcher, container) -> {
                         final int w = container.width() - 24;
                         container.add(
-                                UI.text("WIP")
+                                UI.text("WIP").size(w, 32).pos(8, 8)
                         );
                     }));
                 }
@@ -531,16 +531,7 @@ public class FLCore {
                                                 new Thread(() -> {
                                                     try {
                                                         while (true) {
-                                                            TaskGroup g = null;
-                                                            synchronized (s.rp.groups) {
-                                                                for (final TaskGroup g2 : s.rp.groups)
-                                                                    synchronized (g2) {
-                                                                        if (!g2.f) {
-                                                                            g = g2;
-                                                                            break;
-                                                                        }
-                                                                    }
-                                                            }
+                                                            final TaskGroup g = getUnfinishedGroup(s.rp.groups);
                                                             if (g != null)
                                                                 g.waitFinish();
                                                             else
@@ -707,22 +698,6 @@ public class FLCore {
                                 final IContainer c2 = UI.panel().size(c.width(), h).pos(0, c.height() - h).borderRadius(br);
                                 c.add(c2);
                                 update(l, c, c2);
-                            /*c.add(
-                                    UI.panel().size(c.width(), h).pos(0, c.height() - h).borderRadius(br)
-                                            .add(
-                                                    UI.comboBox().size(200, 32).pos(y, y).text("ghghgkhn").background(UI.PURPLE),
-                                                    UI.comboBox().size(200, 32).pos(y + 8 + 200, y).text("ghuigrjgfo").background(UI.PURPLE),
-                                                    UI.button(langPlay, ICON_PLAY).imageOffset(6).size(112, 32).pos(400 + y + 16, y).background(UI.PURPLE),
-                                                    UI.button(langHome, FSChooser.ICON_FOLDER).imageOffset(6).size(96, 32).pos(c.width() - y - 96, y).background(UI.PURPLE)
-                                            )
-                                    ,
-                                    UI.panel().size(c.width(), h).pos(0, c.height() - h * 2 - 8).borderRadius(br)
-                                            .add(
-                                                    UI.text("ggggg ufign ihfgugi nfgi gfk").ha(HAlign.LEFT).size(c.width() - (y2 + o) * 2, 18).pos(y2 + o, y2),
-                                                    UI.progressBar().progress(50).size(c.width() - (y2 + o) * 2, 4).pos(y2 + o, y2 + 18 + 8),
-                                                    UI.progressBar().progress(50).size(c.width() - (y2 + o) * 2, 4).pos(y2 + o, y2 + 18 + 8 + 8)
-                                            )
-                            );*/
                             }
                         }));
                         add(new MBI("profiles", ICON_PROFILES, null, (l, c) -> new Object() {
@@ -1792,8 +1767,8 @@ public class FLCore {
             }
         }).start();
 
-        startThread();
-        startThread();
+        for (int i = 0, l = Runtime.getRuntime().availableProcessors(); i < l; i++)
+            startThread();
 
         new Thread(() -> {
             try {
@@ -1808,7 +1783,7 @@ public class FLCore {
             } catch (final IOException ignored) {}
         }).start();
 
-        new FlashLauncher().menuBar.select(FlashLauncher.ID + ".profiles");
+        new FlashLauncher().menuBar.select(FlashLauncher.ID + ".play");
 
         final Runnable r = Core.onNotify(menus, () -> {
             synchronized (frames) {
@@ -1905,5 +1880,16 @@ public class FLCore {
             l.unlock();
             t.LRun();
         }
+    }
+
+    public static TaskGroup getUnfinishedGroup(final List<TaskGroup> groups) {
+        synchronized (groups) {
+            for (final TaskGroup g : groups)
+                synchronized (g) {
+                    if (!g.f)
+                        return g;
+                }
+        }
+        return null;
     }
 }

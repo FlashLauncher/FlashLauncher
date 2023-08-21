@@ -73,7 +73,7 @@ public class FlashLauncher {
                     menuBar.changed();
                     synchronized (FLCore.frames) {
                         FLCore.frames.remove(this);
-                        if (FLCore.frames.size() == 0)
+                        if (FLCore.frames.isEmpty())
                             FLCore.frames.notifyAll();
                     }
                     for (final FLListener l : FLCore.listeners)
@@ -113,8 +113,7 @@ public class FlashLauncher {
                         }
                     }
                 }
-            } catch (final InterruptedException ignored) {
-            }
+            } catch (final InterruptedException ignored) {}
             f.remove(r);
         }
         final int cw = width - 72, ch = height - 16, scw = cw - 168;
