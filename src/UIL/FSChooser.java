@@ -33,8 +33,7 @@ public class FSChooser {
     private final IScrollPane sp;
     private final IContainer fileContainer;
     private final IText path, filename;
-    private final int mhf = 252;
-    private final int spw = 704;
+    private final int mhf = 252, spw = 704;
 
     private final ArrayList<IButton> buttons = new ArrayList<>();
     private final ArrayList<File> files = new ArrayList<>();
@@ -77,7 +76,7 @@ public class FSChooser {
         fileContainer.clear();
         buttons.clear();
         int h = 8;
-        final int fw = spw - 8, cw = spw - 24;
+        final int fw = spw - 8, cw = spw - 24, tw = cw - 16;
         if (current != null) {
             path.text(current.getAbsolutePath());
             final File[] l = current.listFiles();
@@ -142,7 +141,6 @@ public class FSChooser {
             path.text("Computer");
             for (File child : File.listRoots()) {
                 final long t = child.getTotalSpace(), u = t - child.getFreeSpace();
-                int tw = cw - 16;
                 fileContainer.add(
                         UI.panel().size(cw, 56).pos(8, h)
                                 .add(
