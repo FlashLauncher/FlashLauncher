@@ -116,7 +116,7 @@ public class FlashLauncher {
             f.remove(r);
         }
         final int cw = width - 72, ch = height - 16, scw = cw - 168;
-        f.add(menuBar.addEnd(ID + ".help", ICON_HELP, null, () -> {
+        f.add(menuBar.addEnd("help", ICON_HELP, null, () -> {
             synchronized (this) {
                 if (content != null)
                     f.remove(content);
@@ -129,7 +129,7 @@ public class FlashLauncher {
                     sp.content(sc);
                     for (final FLMenuItemListener mbi : FLCore.HELP_ITEMS)
                         mb.add(mbi.id, mbi.icon, mbi.text, () -> mbi.onOpen(new FLMenuItemEvent(this, sc)));
-                    mb.select(ID + ".launcher");
+                    mb.select("launcher");
                     content.update();
                 });
                 menuBar.onChange(() -> {
@@ -137,7 +137,7 @@ public class FlashLauncher {
                     return true;
                 });
             }
-        }).addEnd(ID + ".settings", ICON_SETTINGS, null, () -> {
+        }).addEnd("settings", ICON_SETTINGS, null, () -> {
             synchronized (this) {
                 if (content != null)
                     f.remove(content);
@@ -150,7 +150,7 @@ public class FlashLauncher {
                     sp.content(sc);
                     for (final FLMenuItemListener mbi : FLCore.SETTINGS_ITEMS)
                         mb.add(mbi.id, mbi.icon, mbi.text, () -> mbi.onOpen(new FLMenuItemEvent(this, sc)));
-                    mb.select(ID + ".launcher");
+                    mb.select("launcher");
                     content.update();
                 });
                 menuBar.onChange(() -> {
