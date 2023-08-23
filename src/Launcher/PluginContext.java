@@ -20,6 +20,11 @@ public class PluginContext {
     private final ArrayList<IAccount> accounts = new ArrayList<>();
     private final ArrayList<IMaker<IProfile>> profileMakers = new ArrayList<>();
     private final ArrayList<IMaker<IAccount>> accountMakers = new ArrayList<>();
+    private final ArrayList<FLMenuItemListener>
+            menu_items = new ArrayList<>(),
+            settings_items = new ArrayList<>(),
+            help_items = new ArrayList<>()
+    ;
 
     private final FSRoot root;
 
@@ -137,6 +142,45 @@ public class PluginContext {
         }
     }
 
+    public final void addMenuItem(final FLMenuItemListener listener) {
+        synchronized (menu_items) {
+            menu_items.add(listener);
+        }
+        synchronized (o) {
+            if (enabled)
+                synchronized (FLCore.MENU_ITEMS) {
+                    FLCore.MENU_ITEMS.add(listener);
+                    FLCore.MENU_ITEMS.notifyAll();
+                }
+        }
+    }
+
+    public final void addSettingsItem(final FLMenuItemListener listener) {
+        synchronized (settings_items) {
+            settings_items.add(listener);
+        }
+        synchronized (o) {
+            if (enabled)
+                synchronized (FLCore.SETTINGS_ITEMS) {
+                    FLCore.SETTINGS_ITEMS.add(listener);
+                    FLCore.SETTINGS_ITEMS.notifyAll();
+                }
+        }
+    }
+
+    public final void addHelpItem(final FLMenuItemListener listener) {
+        synchronized (help_items) {
+            help_items.add(listener);
+        }
+        synchronized (o) {
+            if (enabled)
+                synchronized (FLCore.HELP_ITEMS) {
+                    FLCore.HELP_ITEMS.add(listener);
+                    FLCore.HELP_ITEMS.notifyAll();
+                }
+        }
+    }
+
     public final void addTaskGroup(final TaskGroup group) {
         synchronized (FLCore.groups) {
             FLCore.groups.add(group);
@@ -183,6 +227,24 @@ public class PluginContext {
                 }
                 FLCore.accountMakers.notifyAll();
             }
+            synchronized (FLCore.MENU_ITEMS) {
+                synchronized (menu_items) {
+                    FLCore.MENU_ITEMS.addAll(menu_items);
+                }
+                FLCore.MENU_ITEMS.notifyAll();
+            }
+            synchronized (FLCore.SETTINGS_ITEMS) {
+                synchronized (settings_items) {
+                    FLCore.SETTINGS_ITEMS.addAll(settings_items);
+                }
+                FLCore.SETTINGS_ITEMS.notifyAll();
+            }
+            synchronized (FLCore.HELP_ITEMS) {
+                synchronized (help_items) {
+                    FLCore.HELP_ITEMS.addAll(help_items);
+                }
+                FLCore.HELP_ITEMS.notifyAll();
+            }
         }
     }
 
@@ -218,6 +280,24 @@ public class PluginContext {
                     FLCore.accountMakers.removeAll(accountMakers);
                 }
                 FLCore.accountMakers.notifyAll();
+            }
+            synchronized (FLCore.MENU_ITEMS) {
+                synchronized (menu_items) {
+                    FLCore.MENU_ITEMS.removeAll(menu_items);
+                }
+                FLCore.MENU_ITEMS.notifyAll();
+            }
+            synchronized (FLCore.SETTINGS_ITEMS) {
+                synchronized (settings_items) {
+                    FLCore.SETTINGS_ITEMS.removeAll(settings_items);
+                }
+                FLCore.SETTINGS_ITEMS.notifyAll();
+            }
+            synchronized (FLCore.HELP_ITEMS) {
+                synchronized (help_items) {
+                    FLCore.HELP_ITEMS.removeAll(help_items);
+                }
+                FLCore.HELP_ITEMS.notifyAll();
             }
         }
     }

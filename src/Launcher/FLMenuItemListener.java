@@ -7,7 +7,7 @@ public abstract class FLMenuItemListener {
     public final IImage icon;
     public final Object text;
 
-    FLMenuItemListener(final String id, final IImage icon, final Object text) {
+    public FLMenuItemListener(final String id, final IImage icon, final Object text) {
         this.id = id;
         this.icon = icon;
         this.text = text;

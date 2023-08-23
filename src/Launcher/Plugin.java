@@ -28,6 +28,9 @@ public class Plugin {
     public boolean removeAccount(final IAccount account) { return context.removeAccount(account); }
     public void addAccountMaker(final IMaker<IAccount> account) { context.addAccountMaker(account); }
     public void addProfileMaker(final IMaker<IProfile> profile) { context.addProfileMaker(profile); }
+    public void addMenuItem(final FLMenuItemListener listener) { context.addMenuItem(listener); }
+    public void addSettingsItem(final FLMenuItemListener listener) { context.addSettingsItem(listener); }
+    public void addHelpItem(final FLMenuItemListener listener) { context.addHelpItem(listener); }
 
     public void addTaskGroup(final TaskGroup group) { context.addTaskGroup(group); }
 
