@@ -1610,7 +1610,7 @@ public class FLCore {
 
                 final String dl = g.getAsString("dependencies"), ol = g.getAsString("optional");
                 if (dl != null)
-                    for (final String d : dl.split("\\|")) {
+                    for (final String d : dl.split(";")) {
                         final int ii = d.indexOf(':');
                         if (ii == -1)
                             r.dependencies.put(d, "*");
@@ -1618,7 +1618,7 @@ public class FLCore {
                             r.dependencies.put(d.substring(0, ii), d.substring(ii + 1));
                     }
                 if (ol != null)
-                    for (final String d : ol.split("\\|")) {
+                    for (final String d : ol.split(";")) {
                         final int ii = d.indexOf(':');
                         if (ii == -1)
                             r.optional.put(d, "*");

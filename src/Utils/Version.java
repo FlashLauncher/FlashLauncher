@@ -6,13 +6,13 @@ public class Version {
     public Version(final String ver) { v = ver; }
 
     public final boolean isCompatibility(final String ver) {
-        if (ver == null || ver.length() == 0)
+        if (ver == null || ver.isEmpty())
             return true;
-        for (final String sv : ver.split("\\|"))
+        for (final String sv : ver.split(","))
             if (sv.startsWith("-")) {
                 if ((sv.length() == 1 || sv.equals("-*") || v.equals(sv.substring(1))))
                     return false;
-            } else if (sv.length() == 0 || sv.equals("*") || sv.equals(v))
+            } else if (sv.isEmpty() || sv.equals("*") || sv.equals(v))
                 return true;
         return true;
     }
