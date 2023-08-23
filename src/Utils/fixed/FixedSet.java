@@ -8,7 +8,7 @@ import java.util.Set;
 public class FixedSet<E> implements Set<E> {
     private final E[] a;
 
-    public FixedSet(E[] array) { a = array; }
+    public FixedSet(final E[] array) { a = array; }
 
     @Override public int size() { return a.length; }
     @Override public boolean isEmpty() { return a.length == 0; }

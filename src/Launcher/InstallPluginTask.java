@@ -61,7 +61,7 @@ public final class InstallPluginTask extends Task {
                 im.author = author;
                 im.sd = sd;
                 final String m = im.getMarket();
-                if (m != null && m.length() > 0)
+                if (m != null && !m.isEmpty())
                     cfg.put("market", m);
                 files.put("fl-plugin.ini", cfg.toString().getBytes(StandardCharsets.UTF_8));
             }
