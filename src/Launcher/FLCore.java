@@ -82,28 +82,10 @@ public class FLCore {
     static final ListMap<String, TaskGroup> iml = new ListMap<>();
 
     static TaskGroup loader = new TaskGroupAutoProgress(1);
-
-    interface IMenuBarRunnable {
-        void run(final FlashLauncher launcher, final IContainer container);
-    }
-
-    static final class MBI {
-        final String id;
-        final IImage icon;
-        final Object text;
-        final IMenuBarRunnable runnable;
-
-        private MBI(final String id, final IImage icon, final Object text, final IMenuBarRunnable runnable) {
-            this.id = id;
-            this.icon = icon;
-            this.text = text;
-            this.runnable = runnable;
-        }
-    }
-
     static final ConcurrentLinkedQueue<FLListener> listeners = new ConcurrentLinkedQueue<>();
-    static final ListMap<String, List<MBI>> menus = new ListMap<>();
-    static final ArrayList<MBI>
+
+    static final ArrayList<FLMenuItemListener>
+            MENU_ITEMS = new ArrayList<>(),
             SETTINGS_ITEMS = new ArrayList<>(),
             HELP_ITEMS = new ArrayList<>()
     ;
@@ -423,24 +405,23 @@ public class FLCore {
                     }
                 });
                 synchronized (HELP_ITEMS) {
-                    HELP_ITEMS.add(new MBI(FlashLauncher.ID + ".launcher", FlashLauncher.ICON, FlashLauncher.NAME, (launcher, container) -> {
-                        final int w = container.width() - 24;
-                        container.add(
-                                UI.text("WIP").size(w, 32).pos(8, 8)
-                        );
-                    }));
+                    HELP_ITEMS.add(new FLMenuItemListener("launcher", FlashLauncher.ICON, FlashLauncher.NAME) {
+                        @Override
+                        void onOpen(final FLMenuItemEvent e) {
+                            e.add(UI.text("WIP").size(e.width() - 24, 32).pos(8, 8));
+                        }
+                    });
                 }
                 synchronized (SETTINGS_ITEMS) {
-                    SETTINGS_ITEMS.add(new MBI(FlashLauncher.ID + ".launcher", FlashLauncher.ICON, FlashLauncher.NAME, (launcher, container) -> {
-                        final int w = container.width() - 24;
-                        container.add(
-                                UI.text("Thread count: " + Core.syncGetSize(threads)).ha(HAlign.LEFT).size(w, 18).pos(8, 8)
-                        );
-                    }));
+                    SETTINGS_ITEMS.add(new FLMenuItemListener("launcher", FlashLauncher.ICON, FlashLauncher.NAME) {
+                        @Override
+                        void onOpen(final FLMenuItemEvent e) {
+                            e.add(UI.text("Thread count: " + Core.syncGetSize(threads)).ha(HAlign.LEFT).size(e.width() - 24, 18).pos(8, 8));
+                        }
+                    });
                 }
-                synchronized (menus) {
-                    menus.put(FlashLauncher.ID, new ArrayList<MBI>() {{
-                        add(new MBI("play", ICON_PLAY, null, new IMenuBarRunnable() {
+                synchronized (MENU_ITEMS) {
+                    MENU_ITEMS.add(new FLMenuItemListener("play", ICON_PLAY, null) {
                             public void update(final FlashLauncher launcher, final IContainer cont, final IContainer c) {
                                 final PlayStatus status = Core.syncGet(statusList, launcher);
                                 c.clear();
@@ -694,273 +675,278 @@ public class FLCore {
                             }
 
                             @Override
-                            public void run(final FlashLauncher l, final IContainer c) {
-                                final IContainer c2 = UI.panel().size(c.width(), h).pos(0, c.height() - h).borderRadius(br);
-                                c.add(c2);
-                                update(l, c, c2);
+                            public void onOpen(final FLMenuItemEvent e) {
+                                final IContainer c2 = UI.panel().size(e.width(), h).pos(0, e.height() - h).borderRadius(br);
+                                e.add(c2);
+                                update(e.launcher, e.container, c2);
                             }
-                        }));
-                        add(new MBI("profiles", ICON_PROFILES, null, (l, c) -> new Object() {
-                            final IText title = UI.text().ha(HAlign.LEFT).size(c.width() - 56, 32).pos(48, 8);
-                            final IContainer tp = UI.panel().size(c.width(), 48).add(title);
+                    });
+                    MENU_ITEMS.add(new FLMenuItemListener("profiles", ICON_PROFILES, null) {
+                        @Override
+                        public void onOpen(final FLMenuItemEvent e) {
+                            new Object() {
+                                final IText title = UI.text().ha(HAlign.LEFT).size(e.width() - 56, 32).pos(48, 8);
+                                final IContainer tp = UI.panel().size(e.width(), 48).add(title);
 
-                            final IImageView icon = UI.imageView(ImagePosMode.CENTER, ImageSizeMode.SCALE).image(ICON_PROFILES).size(32, 32).pos(8, 8);
-                            final ContainerListBuilder
-                                    b = new ContainerListBuilder(UI.scrollPane().size(c.width(), c.height() - 56).pos(0, 56).content(UI.panel().borderRadius(UI.ZERO)), 150, 8)
-                            ;
+                                final IImageView icon = UI.imageView(ImagePosMode.CENTER, ImageSizeMode.SCALE).image(ICON_PROFILES).size(32, 32).pos(8, 8);
+                                final ContainerListBuilder b = new ContainerListBuilder(UI.scrollPane().size(e.width(), e.height() - 56).pos(0, 56).content(UI.panel().borderRadius(UI.ZERO)), 150, 8);
 
-                            final ConcurrentLinkedQueue<Runnable> cl = new ConcurrentLinkedQueue<>();
+                                final ConcurrentLinkedQueue<Runnable> cl = new ConcurrentLinkedQueue<>();
 
-                            final IButton
-                                    back = UI.button("<").size(32, 32).pos(8, 8).onAction((s, e) -> {
-                                        tp.remove(s);
-                                        mainPage();
-                                    }),
-                                    back2 = UI.button("<").size(32, 32).pos(8, 8).onAction((s, e) -> {
-                                        tp.remove(s);
+                                final IButton
+                                        back = UI.button("<").size(32, 32).pos(8, 8).onAction((s, evt) -> {
+                                    tp.remove(s);
+                                    mainPage();
+                                }),
+                                        back2 = UI.button("<").size(32, 32).pos(8, 8).onAction((s, evt) -> {
+                                            tp.remove(s);
+                                            for (final Runnable r : cl)
+                                                r.run();
+                                            cl.clear();
+                                            makers();
+                                        })
+                                                ;
+
+                                // List
+                                Runnable rpu = null;
+                                Runnable[] rl = null;
+
+                                void open(final IProfile i) {
+                                    if (rpu != null) {
+                                        Core.offNotifyLoop(rpu);
+                                        rpu = null;
+                                    }
+                                    if (rl != null) {
+                                        for (final Runnable plr : rl)
+                                            Core.offNotify(plr);
+                                        rl = null;
+                                    }
+
+                                    title.text(new Object() {
+                                        @Override
+                                        public String toString() {
+                                            return langProfiles + " > " + i;
+                                        }
+                                    });
+                                    final IContainer container = UI.panel().background(UI.TRANSPARENT).borderRadius(UI.ZERO).size(e.width(), e.height() - 56).pos(0, 56);
+                                    e.clear().add(tp.add(back), container);
+                                    i.open(new IEditorContext() {
+                                        final Object l = new Object();
+                                        boolean f = false;
+
+                                        @Override
+                                        public int width() {
+                                            return container.width();
+                                        }
+
+                                        @Override
+                                        public int height() {
+                                            return container.height();
+                                        }
+
+                                        @Override
+                                        public IEditorContext add(final IComponent component) {
+                                            container.add(component);
+                                            return this;
+                                        }
+
+                                        @Override
+                                        public IEditorContext add(final IComponent... components) {
+                                            container.add(components);
+                                            return this;
+                                        }
+
+                                        @Override
+                                        public IContainer getContainer() {
+                                            return container;
+                                        }
+
+                                        @Override
+                                        public void close() {
+                                            synchronized (l) {
+                                                if (f)
+                                                    return;
+                                                f = true;
+                                            }
+                                            tp.remove(back);
+                                            cl.clear();
+                                            mainPage();
+                                        }
+
+                                        @Override public boolean isClosed() { synchronized (l) { return f; } }
+
+                                        @Override
+                                        public void onClose(final Runnable runnable) {
+                                            synchronized (l) {
+                                                if (f)
+                                                    return;
+                                                cl.add(runnable);
+                                            }
+                                        }
+
+                                        {
+                                            cl.add(() -> f = true);
+                                        }
+                                    });
+                                    tp.update();
+                                    container.update();
+                                }
+
+                                void make(final IMaker<IProfile> m) {
+                                    if (rpu != null) {
+                                        Core.offNotifyLoop(rpu);
+                                        rpu = null;
+                                    }
+                                    if (rl != null) {
+                                        for (final Runnable plr : rl)
+                                            Core.offNotifyLoop(plr);
+                                        rl = null;
+                                    }
+
+                                    title.text(new Object() {
+                                        @Override
+                                        public String toString() {
+                                            return langProfiles + " > " + langAdd + " > " + m;
+                                        }
+                                    });
+                                    final IContainer container = UI.panel().background(UI.TRANSPARENT).borderRadius(UI.ZERO).size(e.width(), e.height() - 56).pos(0, 56);
+                                    e.clear().add(tp.add(back2), container);
+                                    m.make(new IMakerContext<IProfile>() {
+                                        final Object l = new Object();
+                                        boolean f = false;
+
+                                        @Override
+                                        public IContainer getContainer() {
+                                            return container;
+                                        }
+
+                                        @Override
+                                        public IProfile end(final IProfile result) {
+                                            synchronized (l) {
+                                                if (f)
+                                                    return result;
+                                                f = true;
+                                            }
+                                            cl.clear();
+                                            tp.remove(back2);
+                                            if (result == null)
+                                                makers();
+                                            else
+                                                open(result);
+                                            return result;
+                                        }
+
+                                        @Override public boolean isFinished() { synchronized (l) { return f; } }
+
+                                        @Override
+                                        public void onCancel(final Runnable runnable) {
+                                            synchronized (l) {
+                                                if (f)
+                                                    return;
+                                                cl.add(runnable);
+                                            }
+                                        }
+
+                                        {
+                                            cl.add(() -> f = true);
+                                        }
+                                    });
+                                    tp.update();
+                                    container.update();
+                                }
+
+                                void makers() {
+                                    title.text(langProfileMakers);
+                                    e.clear().add(tp.add(back), b);
+                                    tp.update();
+
+                                    if (rpu != null)
+                                        Core.offNotifyLoop(rpu);
+                                    rpu = Core.onNotifyLoop(profileMakers, () -> {
+                                        if (rl != null)
+                                            for (final Runnable plr : rl)
+                                                Core.offNotify(plr);
+                                        rl = new Runnable[profileMakers.size()];
+                                        b.clear();
+                                        int index = 0;
+                                        for (final IMaker<IProfile> i : profileMakers) {
+                                            final IButton btn = UI.button(i, i.getIcon()).imageAlign(ImgAlign.TOP).imageOffset(24);
+                                            rl[index++] = Core.onNotify(i, b::update);
+                                            b.add(btn.onAction((s, e) -> {
+                                                tp.remove(back);
+                                                make(i);
+                                            }));
+                                        }
+                                        b.update();
+                                    });
+                                }
+
+                                void mainPage() {
+                                    title.text(langProfiles);
+                                    e.clear().add(tp.add(icon), b);
+                                    tp.update();
+
+                                    if (rpu != null)
+                                        Core.offNotifyLoop(rpu);
+                                    rpu = Core.onNotifyLoop(profiles, () -> {
+                                        if (rl != null)
+                                            for (final Runnable plr : rl)
+                                                Core.offNotify(plr);
+                                        rl = new Runnable[profiles.size()];
+                                        b.clear();
+                                        int index = 0;
+                                        for (final IProfile i : profiles) {
+                                            final IButton btn = UI.button(i, i.getIcon()).imageAlign(ImgAlign.TOP).imageOffset(24);
+                                            rl[index++] = Core.onNotify(i, b::update);
+                                            b.add(btn.onAction((s, e) -> {
+                                                tp.remove(icon);
+                                                open(i);
+                                            }));
+                                        }
+                                        b.add(UI.button(langAdd, ICON_ADD).imageAlign(ImgAlign.TOP).imageOffset(24).onAction((s, e) -> {
+                                            tp.remove(icon);
+                                            makers();
+                                        })).update();
+                                    });
+                                }
+
+                                {
+                                    e.launcher.menuBar.onChange(() -> {
+                                        if (rpu != null)
+                                            Core.offNotifyLoop(rpu);
+                                        if (rl != null)
+                                            for (final Runnable plr : rl)
+                                                Core.offNotify(plr);
                                         for (final Runnable r : cl)
                                             r.run();
                                         cl.clear();
-                                        makers();
-                                    })
-                            ;
-
-                            // List
-                            Runnable rpu = null;
-                            Runnable[] rl = null;
-
-                            void open(final IProfile i) {
-                                if (rpu != null) {
-                                    Core.offNotifyLoop(rpu);
-                                    rpu = null;
+                                        return true;
+                                    });
+                                    mainPage();
                                 }
-                                if (rl != null) {
-                                    for (final Runnable plr : rl)
-                                        Core.offNotify(plr);
-                                    rl = null;
-                                }
-
-                                title.text(new Object() {
-                                    @Override
-                                    public String toString() {
-                                        return langProfiles + " > " + i;
-                                    }
-                                });
-                                final IContainer container = UI.panel().background(UI.TRANSPARENT).borderRadius(UI.ZERO).size(c.width(), c.height() - 56).pos(0, 56);
-                                c.clear().add(tp.add(back), container);
-                                i.open(new IEditorContext() {
-                                    final Object l = new Object();
-                                    boolean f = false;
-
-                                    @Override
-                                    public int width() {
-                                        return container.width();
-                                    }
-
-                                    @Override
-                                    public int height() {
-                                        return container.height();
-                                    }
-
-                                    @Override
-                                    public IEditorContext add(final IComponent component) {
-                                        container.add(component);
-                                        return this;
-                                    }
-
-                                    @Override
-                                    public IEditorContext add(final IComponent... components) {
-                                        container.add(components);
-                                        return this;
-                                    }
-
-                                    @Override
-                                    public IContainer getContainer() {
-                                        return container;
-                                    }
-
-                                    @Override
-                                    public void close() {
-                                        synchronized (l) {
-                                            if (f)
-                                                return;
-                                            f = true;
-                                        }
-                                        tp.remove(back);
-                                        cl.clear();
-                                        mainPage();
-                                    }
-
-                                    @Override public boolean isClosed() { synchronized (l) { return f; } }
-
-                                    @Override
-                                    public void onClose(final Runnable runnable) {
-                                        synchronized (l) {
-                                            if (f)
-                                                return;
-                                            cl.add(runnable);
-                                        }
-                                    }
-
-                                    {
-                                        cl.add(() -> f = true);
-                                    }
-                                });
-                                tp.update();
-                                container.update();
-                            }
-
-                            void make(final IMaker<IProfile> m) {
-                                if (rpu != null) {
-                                    Core.offNotifyLoop(rpu);
-                                    rpu = null;
-                                }
-                                if (rl != null) {
-                                    for (final Runnable plr : rl)
-                                        Core.offNotifyLoop(plr);
-                                    rl = null;
-                                }
-
-                                title.text(new Object() {
-                                    @Override
-                                    public String toString() {
-                                        return langProfiles + " > " + langAdd + " > " + m;
-                                    }
-                                });
-                                final IContainer container = UI.panel().background(UI.TRANSPARENT).borderRadius(UI.ZERO).size(c.width(), c.height() - 56).pos(0, 56);
-                                c.clear().add(tp.add(back2), container);
-                                m.make(new IMakerContext<IProfile>() {
-                                    final Object l = new Object();
-                                    boolean f = false;
-
-                                    @Override
-                                    public IContainer getContainer() {
-                                        return container;
-                                    }
-
-                                    @Override
-                                    public IProfile end(final IProfile result) {
-                                        synchronized (l) {
-                                            if (f)
-                                                return result;
-                                            f = true;
-                                        }
-                                        cl.clear();
-                                        tp.remove(back2);
-                                        if (result == null)
-                                            makers();
-                                        else
-                                            open(result);
-                                        return result;
-                                    }
-
-                                    @Override public boolean isFinished() { synchronized (l) { return f; } }
-
-                                    @Override
-                                    public void onCancel(final Runnable runnable) {
-                                        synchronized (l) {
-                                            if (f)
-                                                return;
-                                            cl.add(runnable);
-                                        }
-                                    }
-
-                                    {
-                                        cl.add(() -> f = true);
-                                    }
-                                });
-                                tp.update();
-                                container.update();
-                            }
-
-                            void makers() {
-                                title.text(langProfileMakers);
-                                c.clear().add(tp.add(back), b);
-                                tp.update();
-
-                                if (rpu != null)
-                                    Core.offNotifyLoop(rpu);
-                                rpu = Core.onNotifyLoop(profileMakers, () -> {
-                                    if (rl != null)
-                                        for (final Runnable plr : rl)
-                                            Core.offNotify(plr);
-                                    rl = new Runnable[profileMakers.size()];
-                                    b.clear();
-                                    int index = 0;
-                                    for (final IMaker<IProfile> i : profileMakers) {
-                                        final IButton btn = UI.button(i, i.getIcon()).imageAlign(ImgAlign.TOP).imageOffset(24);
-                                        rl[index++] = Core.onNotify(i, b::update);
-                                        b.add(btn.onAction((s, e) -> {
-                                            tp.remove(back);
-                                            make(i);
-                                        }));
-                                    }
-                                    b.update();
-                                });
-                            }
-
-                            void mainPage() {
-                                title.text(langProfiles);
-                                c.clear().add(tp.add(icon), b);
-                                tp.update();
-
-                                if (rpu != null)
-                                    Core.offNotifyLoop(rpu);
-                                rpu = Core.onNotifyLoop(profiles, () -> {
-                                    if (rl != null)
-                                        for (final Runnable plr : rl)
-                                            Core.offNotify(plr);
-                                    rl = new Runnable[profiles.size()];
-                                    b.clear();
-                                    int index = 0;
-                                    for (final IProfile i : profiles) {
-                                        final IButton btn = UI.button(i, i.getIcon()).imageAlign(ImgAlign.TOP).imageOffset(24);
-                                        rl[index++] = Core.onNotify(i, b::update);
-                                        b.add(btn.onAction((s, e) -> {
-                                            tp.remove(icon);
-                                            open(i);
-                                        }));
-                                    }
-                                    b.add(UI.button(langAdd, ICON_ADD).imageAlign(ImgAlign.TOP).imageOffset(24).onAction((s, e) -> {
-                                        tp.remove(icon);
-                                        makers();
-                                    })).update();
-                                });
-                            }
-
-                            {
-                                l.menuBar.onChange(() -> {
-                                    if (rpu != null)
-                                        Core.offNotifyLoop(rpu);
-                                    if (rl != null)
-                                        for (final Runnable plr : rl)
-                                            Core.offNotify(plr);
-                                    for (final Runnable r : cl)
-                                        r.run();
-                                    cl.clear();
-                                    return true;
-                                });
-                                mainPage();
-                            }
-                        }));
-                        add(new MBI("market", ICON_MARKET, null, (l, c) -> {
+                            };
+                        }
+                    });
+                    MENU_ITEMS.add(new FLMenuItemListener("market", ICON_MARKET, null) {
+                        @Override
+                        public void onOpen(final FLMenuItemEvent e) {
                             final LangItem all = Lang.get("market.all"), mixed = Lang.get("market.mixed");
 
                             final IComboBox filter = UI.comboBox().text(all).imageOffset(4).size(160, 32).pos(0, 0);
                             final ContainerListBuilder ilb = new ContainerListBuilder(
                                     UI.scrollPane()
                                             .content(UI.panel().borderRadius(UI.ZERO))
-                                            .size(c.width(), c.height() - 80)
+                                            .size(e.width(), e.height() - 80)
                                             .pos(0, 40),
                                     //c.width() / 2 - 16,
-                                    c.width() - 16,
+                                    e.width() - 16,
                                     120, 8);
-                            final ITextField findField = UI.textField("").hint(Lang.get("market.hint")).size(c.width() - 208, 32).pos(168, 0);
+                            final ITextField findField = UI.textField("").hint(Lang.get("market.hint")).size(e.width() - 208, 32).pos(168, 0);
 
                             final IText cg;
                             final IProgressBar pb2;
                             final int cgw = 128;
-                            c.add(UI.panel().size(cgw, 32).pos(c.width() - cgw, c.height() - 32).add(
+                            e.add(UI.panel().size(cgw, 32).pos(e.width() - cgw, e.height() - 32).add(
                                     cg = UI.text().size(32, 32),
                                     pb2 = UI.progressBar().size(cgw - 32 - 13, 6).pos(32, 13)
                             ));
@@ -972,7 +958,8 @@ public class FLCore {
                             final Runnable1arg<Runnable1arg> sr = (sr1) -> {
                                 final String q = findField.text();
                                 //ilb.clear().childSize(c.width() / 2 - 16, ilb.getChildHeight());
-                                ilb.clear().childSize(c.width() - 16, ilb.getChildHeight());
+                                //ilb.clear().childSize(c.width() - 16, ilb.getChildHeight());
+                                ilb.clear().childSize(e.width() - 24, ilb.getChildHeight());
 
                                 final Market[] ml;
                                 synchronized (mle) {
@@ -1009,7 +996,7 @@ public class FLCore {
                                         break;
                                     }
                                 }*/
-                                int tw = ilb.getChildWidth() - Meta.ICON_SIZE - 72, sdw = ilb.getChildWidth() - 16;
+                                final int tw = ilb.getChildWidth() - Meta.ICON_SIZE - 72, sdw = ilb.getChildWidth() - 16;
 
                                 for (final Map.Entry<String, ArrayList<FixedEntry<Market, Meta>>> emm : mel.entrySet()) {
                                     final String id = emm.getKey();
@@ -1019,26 +1006,28 @@ public class FLCore {
                                     final IText name = UI.text().ha(HAlign.LEFT).size(tw, 20).pos(Meta.ICON_SIZE + 16, 8);
                                     final IImage icon = me.getIcon();
                                     final IImageView iconView = icon == null ? null : UI.imageView(ImagePosMode.CENTER, ImageSizeMode.SCALE).image(me.getIcon()).size(Meta.ICON_SIZE, Meta.ICON_SIZE).pos(8, 8);
-                                    final IContainer ic = UI.panel()
-                                            .add(
-                                                    name.text(new Object() {
-                                                        final Object n = me.getName(), v = me.getVersion();
+                                    final IContainer ic = UI.panel().add(
+                                            name.text(new Object() {
+                                                final Object n = me.getName(), v = me.getVersion();
 
-                                                        @Override public String toString() { return n + " (" + v + ")"; }
-                                                    }),
-                                                    UI.text(me.getAuthor()).foreground(Theme.AUTHOR_FOREGROUND_COLOR).ha(HAlign.LEFT).size(tw, 16).pos(Meta.ICON_SIZE + 16, 30),
+                                                @Override
+                                                public String toString() {
+                                                    return n + " (" + v + ")";
+                                                }
+                                            }),
+                                            UI.text(me.getAuthor()).foreground(Theme.AUTHOR_FOREGROUND_COLOR).ha(HAlign.LEFT).size(tw, 16).pos(Meta.ICON_SIZE + 16, 30),
 
-                                                    UI.text(me.getShortDescription()).ha(HAlign.LEFT).size(sdw, ilb.getChildHeight() - Meta.ICON_SIZE - 24).pos(8, Meta.ICON_SIZE + 16),
+                                            UI.text(me.getShortDescription()).ha(HAlign.LEFT).size(sdw, ilb.getChildHeight() - Meta.ICON_SIZE - 24).pos(8, Meta.ICON_SIZE + 16),
 
-                                                    UI.button().borderRadius(UI.ZERO).background(UI.TRANSPARENT).size(ilb.getChildWidth(), ilb.getChildHeight()).onAction((self, event) -> {
-                                                        final IComponent[] cl = c.childs();
-                                                        c.clear().add(
-                                                                UI.panel().size(c.width(), 128).add(
-                                                                        UI.button("<").size(32, 32).pos(8, 8).onAction((self2, event1) -> c.clear().add(cl).update())
-                                                                )
-                                                        ).update();
-                                                    })
-                                            );
+                                            UI.button().borderRadius(UI.ZERO).background(UI.TRANSPARENT).size(ilb.getChildWidth(), ilb.getChildHeight()).onAction((self, event) -> {
+                                                final IComponent[] cl = e.childs();
+                                                e.clear().add(
+                                                        UI.panel().size(e.width(), 128).add(
+                                                                UI.button("<").size(32, 32).pos(8, 8).onAction((self2, event1) -> e.clear().add(cl).update())
+                                                        )
+                                                ).update();
+                                            })
+                                    );
 
                                     if (iconView != null) {
                                         ic.add(iconView);
@@ -1059,7 +1048,7 @@ public class FLCore {
                                                     }));
                                                 }
                                         } else
-                                                listeners.add(Core.onNotifyLoop(icon, iconView::update));
+                                            listeners.add(Core.onNotifyLoop(icon, iconView::update));
                                     }
 
                                     final Object[] cats = me.getCategories();
@@ -1136,8 +1125,8 @@ public class FLCore {
                                         else
                                             ic.add(
                                                     UI.comboBox().grounds(Theme.CATEGORIES_BACKGROUND_COLOR, Theme.CATEGORIES_FOREGROUND_COLOR).imageOffset(4).size(40, 20).pos(ilb.getChildWidth() - 48, 8).onList((self, cont) -> {
-                                                        cont.size(c.width(), c.height());
-                                                        return c;
+                                                        cont.size(e.width(), e.height());
+                                                        return e.container;
                                                     }),
                                                     UI.button(i.getKey().getIcon()).imageOffset(2).size(20, 20).pos(ilb.getChildWidth() - 48, 8).background(UI.TRANSPARENT)
                                             );
@@ -1155,7 +1144,7 @@ public class FLCore {
                             };
 
                             final Runnable glr;
-                            final Runnable[] ul = new Runnable[] { null };
+                            final Runnable[] ul = new Runnable[]{null};
                             Core.onNotifyLoop(groups, glr = () -> {
                                 final int countGroups = groups.size();
                                 cg.text(countGroups).update();
@@ -1177,7 +1166,7 @@ public class FLCore {
                                     }
                                 }
                             });
-                            l.menuBar.onChange(() -> {
+                            e.launcher.menuBar.onChange(() -> {
                                 synchronized (sr) {
                                     srr.set(false);
                                     for (final Runnable lr : listeners)
@@ -1190,13 +1179,13 @@ public class FLCore {
                                 return true;
                             });
 
-                            c.add(ilb.update(),
+                            e.add(ilb.update(),
                                     filter.onList((self, container) -> {
-                                        container.size(c.width(), c.height() - 40).pos(0, 40);
+                                        container.size(e.width(), e.height() - 40).pos(0, 40);
                                         final ContainerListBuilder
                                                 clb = new ContainerListBuilder(
                                                 UI.scrollPane()
-                                                        .size(c.width() - 158, container.height())
+                                                        .size(e.width() - 158, container.height())
                                                         .borderRadius(UI.ZERO)
                                                         .content(UI.panel().borderRadius(UI.ZERO)),
                                                 150, 8),
@@ -1204,83 +1193,83 @@ public class FLCore {
                                                         UI.scrollPane()
                                                                 .borderRadius(UI.ZERO)
                                                                 .size(158, container.height())
-                                                                .pos(c.width() - 158, 0)
+                                                                .pos(e.width() - 158, 0)
                                                                 .content(UI.panel().borderRadius(UI.ZERO)),
                                                         134, 32, 8);
 
                                         final Runnable
                                                 rc = Core.onNotifyLoop(markets, () -> {
-                                                    clb2.clear();
-                                                    final Market[] ml;
-                                                    synchronized (mle) {
-                                                        if (mle.isEmpty())
-                                                            synchronized (markets) {
-                                                                ml = markets.toArray(new Market[0]);
-                                                            }
-                                                        else
-                                                            ml = mle.toArray(new Market[0]);
+                                            clb2.clear();
+                                            final Market[] ml;
+                                            synchronized (mle) {
+                                                if (mle.isEmpty())
+                                                    synchronized (markets) {
+                                                        ml = markets.toArray(new Market[0]);
                                                     }
-                                                    for (final Market m : ml)
-                                                        if (!m.cl.isEmpty()) {
-                                                            if (m.getIcon() == null)
-                                                                clb2.add(UI.text(m.getName()).ha(HAlign.LEFT));
-                                                            else
-                                                                clb2.add(
-                                                                        UI.panel().add(
-                                                                                UI.imageView(ImagePosMode.CENTER, ImageSizeMode.SCALE).image(m.getIcon()).size(24, 24).pos(4, 4),
-                                                                                UI.text(m.getName()).size(94, 24).pos(32, 4).ha(HAlign.LEFT)
-                                                                        )
-                                                                );
-                                                            for (final Object cat : m.getCategories())
-                                                                clb2.add(UI.toggleButton(cat, null, false).onChange((s, n) -> {
-                                                                    synchronized (sr) {
-                                                                        if (srr.get())
-                                                                            sr.run(sr);
-                                                                    }
-                                                                }));
-                                                        }
-                                                    clb2.update();
+                                                else
+                                                    ml = mle.toArray(new Market[0]);
+                                            }
+                                            for (final Market m : ml)
+                                                if (!m.cl.isEmpty()) {
+                                                    if (m.getIcon() == null)
+                                                        clb2.add(UI.text(m.getName()).ha(HAlign.LEFT));
+                                                    else
+                                                        clb2.add(
+                                                                UI.panel().add(
+                                                                        UI.imageView(ImagePosMode.CENTER, ImageSizeMode.SCALE).image(m.getIcon()).size(24, 24).pos(4, 4),
+                                                                        UI.text(m.getName()).size(94, 24).pos(32, 4).ha(HAlign.LEFT)
+                                                                )
+                                                        );
+                                                    for (final Object cat : m.getCategories())
+                                                        clb2.add(UI.toggleButton(cat, null, false).onChange((s, n) -> {
+                                                            synchronized (sr) {
+                                                                if (srr.get())
+                                                                    sr.run(sr);
+                                                            }
+                                                        }));
+                                                }
+                                            clb2.update();
                                         }),
                                                 r = Core.onNotifyLoop(markets, () -> {
-                                            clb.clear();
-                                            synchronized (mle) {
-                                                for (final Market m : markets)
-                                                    clb.add(UI.toggleButton(m.getName(), m.getIcon(), mle.contains(m)).imageAlign(ImgAlign.TOP).imageOffset(16).onChange((self1, newValue) -> {
-                                                        synchronized (mle) {
-                                                            if (newValue) {
-                                                                mle.add(m);
-                                                                final int mleS = mle.size();
-                                                                if (mleS > 1)
-                                                                    if (mleS == Core.syncGetSize(markets))
-                                                                        filter.text(all).image(null).update();
-                                                                    else
-                                                                        filter.text(mixed).image(null).update();
-                                                                else
-                                                                    filter.text(m.getName()).image(m.getIcon()).update();
-                                                            } else {
-                                                                mle.remove(m);
-                                                                final int mleS = mle.size();
-                                                                if (mleS > 1)
-                                                                    if (mleS == Core.syncGetSize(markets))
-                                                                        filter.text(all).image(null).update();
-                                                                    else
-                                                                        filter.text(mixed).image(null).update();
-                                                                else if (mleS == 1) {
-                                                                    final Market m2 = mle.get(0);
-                                                                    filter.text(m2.getName()).image(m2.getIcon()).update();
-                                                                } else
-                                                                    filter.text(all).image(null).update();
-                                                            }
-                                                        }
-                                                        rc.run();
-                                                        synchronized (sr) {
-                                                            if (srr.get())
-                                                                sr.run(sr);
-                                                        }
-                                                    }));
-                                            }
-                                            clb.update();
-                                        });
+                                                    clb.clear();
+                                                    synchronized (mle) {
+                                                        for (final Market m : markets)
+                                                            clb.add(UI.toggleButton(m.getName(), m.getIcon(), mle.contains(m)).imageAlign(ImgAlign.TOP).imageOffset(16).onChange((self1, newValue) -> {
+                                                                synchronized (mle) {
+                                                                    if (newValue) {
+                                                                        mle.add(m);
+                                                                        final int mleS = mle.size();
+                                                                        if (mleS > 1)
+                                                                            if (mleS == Core.syncGetSize(markets))
+                                                                                filter.text(all).image(null).update();
+                                                                            else
+                                                                                filter.text(mixed).image(null).update();
+                                                                        else
+                                                                            filter.text(m.getName()).image(m.getIcon()).update();
+                                                                    } else {
+                                                                        mle.remove(m);
+                                                                        final int mleS = mle.size();
+                                                                        if (mleS > 1)
+                                                                            if (mleS == Core.syncGetSize(markets))
+                                                                                filter.text(all).image(null).update();
+                                                                            else
+                                                                                filter.text(mixed).image(null).update();
+                                                                        else if (mleS == 1) {
+                                                                            final Market m2 = mle.get(0);
+                                                                            filter.text(m2.getName()).image(m2.getIcon()).update();
+                                                                        } else
+                                                                            filter.text(all).image(null).update();
+                                                                    }
+                                                                }
+                                                                rc.run();
+                                                                synchronized (sr) {
+                                                                    if (srr.get())
+                                                                        sr.run(sr);
+                                                                }
+                                                            }));
+                                                    }
+                                                    clb.update();
+                                                });
 
                                         self.onCloseList((selfObject, container1, selfListener) -> {
                                             self.offCloseList(selfListener);
@@ -1307,7 +1296,7 @@ public class FLCore {
                                         );*/
 
                                         container.background(UI.TRANSPARENT).add(clb, clb2.update());
-                                        return c;
+                                        return e.container;
                                     }),
                                     findField.onAction(self -> {
                                         synchronized (sr) {
@@ -1315,257 +1304,271 @@ public class FLCore {
                                                 sr.run(sr);
                                         }
                                     }),
-                                    UI.button(ICON_FIND).imageOffset(4).size(32, 32).pos(c.width() - 32, 0).onAction((self, event) -> {
+                                    UI.button(ICON_FIND).imageOffset(4).size(32, 32).pos(e.width() - 32, 0).onAction((self, event) -> {
                                         synchronized (sr) {
                                             if (srr.get())
                                                 sr.run(sr);
                                         }
                                     })
                             );
-                        }));
-                        add(new MBI("accounts", ICON_ACCOUNTS, null, (l, c) -> new Object() {
-                            final IText title = UI.text().ha(HAlign.LEFT).size(c.width() - 56, 32).pos(48, 8);
-                            final IContainer tp = UI.panel().size(c.width(), 48).add(title);
+                        }
+                    });
+                    MENU_ITEMS.add(new FLMenuItemListener("accounts", ICON_ACCOUNTS, null) {
+                        @Override
+                        public void onOpen(final FLMenuItemEvent e) {
+                            new Object() {
+                                final IText title = UI.text().ha(HAlign.LEFT).size(e.width() - 56, 32).pos(48, 8);
+                                final IContainer tp = UI.panel().size(e.width(), 48).add(title);
 
-                            final IImageView icon = UI.imageView(ImagePosMode.CENTER, ImageSizeMode.SCALE).image(ICON_ACCOUNTS).size(32, 32).pos(8, 8);
-                            final ContainerListBuilder b = new ContainerListBuilder(UI.scrollPane().size(c.width(), c.height() - 56).pos(0, 56).content(UI.panel().borderRadius(UI.ZERO)), 150, 8);
+                                final IImageView icon = UI.imageView(ImagePosMode.CENTER, ImageSizeMode.SCALE).image(ICON_ACCOUNTS).size(32, 32).pos(8, 8);
+                                final ContainerListBuilder b = new ContainerListBuilder(UI.scrollPane().size(e.width(), e.height() - 56).pos(0, 56).content(UI.panel().borderRadius(UI.ZERO)), 150, 8);
 
-                            final ConcurrentLinkedQueue<Runnable> cl = new ConcurrentLinkedQueue<>();
+                                final ConcurrentLinkedQueue<Runnable> cl = new ConcurrentLinkedQueue<>();
 
-                            final IButton
-                                    back = UI.button("<").size(32, 32).pos(8, 8).onAction((s, e) -> {
-                                        tp.remove(s);
-                                        mainPage();
-                                    }),
-                                    back2 = UI.button("<").size(32, 32).pos(8, 8).onAction((s, e) -> {
-                                        tp.remove(s);
+                                final IButton
+                                        back = UI.button("<").size(32, 32).pos(8, 8).onAction((s, evt) -> {
+                                    tp.remove(s);
+                                    mainPage();
+                                }),
+                                        back2 = UI.button("<").size(32, 32).pos(8, 8).onAction((s, evt) -> {
+                                            tp.remove(s);
+                                            for (final Runnable r : cl)
+                                                r.run();
+                                            cl.clear();
+                                            makers();
+                                        });
+
+                                // List
+                                Runnable rpu = null;
+                                Runnable[] rl = null;
+
+                                void open(final IAccount i) {
+                                    if (rpu != null) {
+                                        Core.offNotifyLoop(rpu);
+                                        rpu = null;
+                                    }
+                                    if (rl != null) {
+                                        for (final Runnable plr : rl)
+                                            Core.offNotify(plr);
+                                        rl = null;
+                                    }
+
+                                    title.text(new Object() {
+                                        @Override
+                                        public String toString() {
+                                            return langAccounts + " > " + i;
+                                        }
+                                    });
+                                    final IContainer container = UI.panel().background(UI.TRANSPARENT).borderRadius(UI.ZERO).size(e.width(), e.height() - 56).pos(0, 56);
+                                    e.clear().add(tp.add(back), container);
+                                    i.open(new IEditorContext() {
+                                        final Object l = new Object();
+                                        boolean f = false;
+
+                                        @Override
+                                        public int width() {
+                                            return container.width();
+                                        }
+
+                                        @Override
+                                        public int height() {
+                                            return container.height();
+                                        }
+
+                                        @Override
+                                        public IEditorContext add(final IComponent component) {
+                                            container.add(component);
+                                            return this;
+                                        }
+
+                                        @Override
+                                        public IEditorContext add(final IComponent... components) {
+                                            container.add(components);
+                                            return this;
+                                        }
+
+                                        @Override
+                                        public IContainer getContainer() {
+                                            return container;
+                                        }
+
+                                        @Override
+                                        public void close() {
+                                            synchronized (l) {
+                                                if (f)
+                                                    return;
+                                                f = true;
+                                            }
+                                            tp.remove(back);
+                                            cl.clear();
+                                            mainPage();
+                                        }
+
+                                        @Override
+                                        public boolean isClosed() {
+                                            synchronized (l) {
+                                                return f;
+                                            }
+                                        }
+
+                                        @Override
+                                        public void onClose(final Runnable runnable) {
+                                            synchronized (l) {
+                                                if (f)
+                                                    return;
+                                                cl.add(runnable);
+                                            }
+                                        }
+
+                                        {
+                                            cl.add(() -> f = true);
+                                        }
+                                    });
+                                    tp.update();
+                                    container.update();
+                                }
+
+                                void make(final IMaker<IAccount> m) {
+                                    if (rpu != null) {
+                                        Core.offNotifyLoop(rpu);
+                                        rpu = null;
+                                    }
+                                    if (rl != null) {
+                                        for (final Runnable plr : rl)
+                                            Core.offNotifyLoop(plr);
+                                        rl = null;
+                                    }
+
+                                    title.text(new Object() {
+                                        @Override
+                                        public String toString() {
+                                            return langAccounts + " > " + langAdd + " > " + m;
+                                        }
+                                    });
+                                    final IContainer container = UI.panel().background(UI.TRANSPARENT).borderRadius(UI.ZERO).size(e.width(), e.height() - 56).pos(0, 56);
+                                    e.clear().add(tp.add(back2), container);
+                                    m.make(new IMakerContext<IAccount>() {
+                                        final Object l = new Object();
+                                        boolean f = false;
+
+                                        @Override
+                                        public IContainer getContainer() {
+                                            return container;
+                                        }
+
+                                        @Override
+                                        public IAccount end(final IAccount result) {
+                                            synchronized (l) {
+                                                if (f)
+                                                    return result;
+                                                f = true;
+                                            }
+                                            cl.clear();
+                                            tp.remove(back2);
+                                            if (result == null)
+                                                makers();
+                                            else
+                                                open(result);
+                                            return result;
+                                        }
+
+                                        @Override
+                                        public boolean isFinished() {
+                                            synchronized (l) {
+                                                return f;
+                                            }
+                                        }
+
+                                        @Override
+                                        public void onCancel(final Runnable runnable) {
+                                            synchronized (l) {
+                                                if (f)
+                                                    return;
+                                                cl.add(runnable);
+                                            }
+                                        }
+
+                                        {
+                                            cl.add(() -> f = true);
+                                        }
+                                    });
+                                    tp.update();
+                                    container.update();
+                                }
+
+                                void makers() {
+                                    title.text(langAccountMakers);
+                                    e.clear().add(tp.add(back), b);
+                                    tp.update();
+
+                                    if (rpu != null)
+                                        Core.offNotifyLoop(rpu);
+                                    rpu = Core.onNotifyLoop(accountMakers, () -> {
+                                        if (rl != null)
+                                            for (final Runnable plr : rl)
+                                                Core.offNotify(plr);
+                                        rl = new Runnable[accountMakers.size()];
+                                        b.clear();
+                                        int index = 0;
+                                        for (final IMaker<IAccount> i : accountMakers) {
+                                            final IButton btn = UI.button(i, i.getIcon()).imageAlign(ImgAlign.TOP).imageOffset(24);
+                                            rl[index++] = Core.onNotify(i, b::update);
+                                            b.add(btn.onAction((s, e) -> {
+                                                tp.remove(back);
+                                                make(i);
+                                            }));
+                                        }
+                                        b.update();
+                                    });
+                                }
+
+                                void mainPage() {
+                                    title.text(langProfiles);
+                                    e.clear().add(tp.add(icon), b);
+                                    tp.update();
+
+                                    if (rpu != null)
+                                        Core.offNotifyLoop(rpu);
+                                    rpu = Core.onNotifyLoop(accounts, () -> {
+                                        if (rl != null)
+                                            for (final Runnable plr : rl)
+                                                Core.offNotify(plr);
+                                        rl = new Runnable[accounts.size()];
+                                        b.clear();
+                                        int index = 0;
+                                        for (final IAccount i : accounts) {
+                                            final IButton btn = UI.button(i, i.getIcon()).imageAlign(ImgAlign.TOP).imageOffset(24);
+                                            rl[index++] = Core.onNotify(i, b::update);
+                                            b.add(btn.onAction((s, e) -> {
+                                                tp.remove(icon);
+                                                open(i);
+                                            }));
+                                        }
+                                        b.add(UI.button(langAdd, ICON_ADD).imageAlign(ImgAlign.TOP).imageOffset(24).onAction((s, e) -> {
+                                            tp.remove(icon);
+                                            makers();
+                                        })).update();
+                                    });
+                                }
+
+                                {
+                                    e.launcher.menuBar.onChange(() -> {
+                                        if (rpu != null)
+                                            Core.offNotifyLoop(rpu);
+                                        if (rl != null)
+                                            for (final Runnable plr : rl)
+                                                Core.offNotify(plr);
                                         for (final Runnable r : cl)
                                             r.run();
                                         cl.clear();
-                                        makers();
-                                    })
-                            ;
-
-                            // List
-                            Runnable rpu = null;
-                            Runnable[] rl = null;
-
-                            void open(final IAccount i) {
-                                if (rpu != null) {
-                                    Core.offNotifyLoop(rpu);
-                                    rpu = null;
+                                        return true;
+                                    });
+                                    mainPage();
                                 }
-                                if (rl != null) {
-                                    for (final Runnable plr : rl)
-                                        Core.offNotify(plr);
-                                    rl = null;
-                                }
-
-                                title.text(new Object() {
-                                    @Override
-                                    public String toString() {
-                                        return langAccounts + " > " + i;
-                                    }
-                                });
-                                final IContainer container = UI.panel().background(UI.TRANSPARENT).borderRadius(UI.ZERO).size(c.width(), c.height() - 56).pos(0, 56);
-                                c.clear().add(tp.add(back), container);
-                                i.open(new IEditorContext() {
-                                    final Object l = new Object();
-                                    boolean f = false;
-
-                                    @Override
-                                    public int width() {
-                                        return container.width();
-                                    }
-
-                                    @Override
-                                    public int height() {
-                                        return container.height();
-                                    }
-
-                                    @Override
-                                    public IEditorContext add(final IComponent component) {
-                                        container.add(component);
-                                        return this;
-                                    }
-
-                                    @Override
-                                    public IEditorContext add(final IComponent... components) {
-                                        container.add(components);
-                                        return this;
-                                    }
-
-                                    @Override
-                                    public IContainer getContainer() {
-                                        return container;
-                                    }
-
-                                    @Override
-                                    public void close() {
-                                        synchronized (l) {
-                                            if (f)
-                                                return;
-                                            f = true;
-                                        }
-                                        tp.remove(back);
-                                        cl.clear();
-                                        mainPage();
-                                    }
-
-                                    @Override public boolean isClosed() { synchronized (l) { return f; } }
-
-                                    @Override
-                                    public void onClose(final Runnable runnable) {
-                                        synchronized (l) {
-                                            if (f)
-                                                return;
-                                            cl.add(runnable);
-                                        }
-                                    }
-
-                                    {
-                                        cl.add(() -> f = true);
-                                    }
-                                });
-                                tp.update();
-                                container.update();
-                            }
-
-                            void make(final IMaker<IAccount> m) {
-                                if (rpu != null) {
-                                    Core.offNotifyLoop(rpu);
-                                    rpu = null;
-                                }
-                                if (rl != null) {
-                                    for (final Runnable plr : rl)
-                                        Core.offNotifyLoop(plr);
-                                    rl = null;
-                                }
-
-                                title.text(new Object() {
-                                    @Override
-                                    public String toString() {
-                                        return langAccounts + " > " + langAdd + " > " + m;
-                                    }
-                                });
-                                final IContainer container = UI.panel().background(UI.TRANSPARENT).borderRadius(UI.ZERO).size(c.width(), c.height() - 56).pos(0, 56);
-                                c.clear().add(tp.add(back2), container);
-                                m.make(new IMakerContext<IAccount>() {
-                                    final Object l = new Object();
-                                    boolean f = false;
-
-                                    @Override
-                                    public IContainer getContainer() {
-                                        return container;
-                                    }
-
-                                    @Override
-                                    public IAccount end(final IAccount result) {
-                                        synchronized (l) {
-                                            if (f)
-                                                return result;
-                                            f = true;
-                                        }
-                                        cl.clear();
-                                        tp.remove(back2);
-                                        if (result == null)
-                                            makers();
-                                        else
-                                            open(result);
-                                        return result;
-                                    }
-
-                                    @Override public boolean isFinished() { synchronized (l) { return f; } }
-
-                                    @Override
-                                    public void onCancel(final Runnable runnable) {
-                                        synchronized (l) {
-                                            if (f)
-                                                return;
-                                            cl.add(runnable);
-                                        }
-                                    }
-
-                                    {
-                                        cl.add(() -> f = true);
-                                    }
-                                });
-                                tp.update();
-                                container.update();
-                            }
-
-                            void makers() {
-                                title.text(langAccountMakers);
-                                c.clear().add(tp.add(back), b);
-                                tp.update();
-
-                                if (rpu != null)
-                                    Core.offNotifyLoop(rpu);
-                                rpu = Core.onNotifyLoop(accountMakers, () -> {
-                                    if (rl != null)
-                                        for (final Runnable plr : rl)
-                                            Core.offNotify(plr);
-                                    rl = new Runnable[accountMakers.size()];
-                                    b.clear();
-                                    int index = 0;
-                                    for (final IMaker<IAccount> i : accountMakers) {
-                                        final IButton btn = UI.button(i, i.getIcon()).imageAlign(ImgAlign.TOP).imageOffset(24);
-                                        rl[index++] = Core.onNotify(i, b::update);
-                                        b.add(btn.onAction((s, e) -> {
-                                            tp.remove(back);
-                                            make(i);
-                                        }));
-                                    }
-                                    b.update();
-                                });
-                            }
-
-                            void mainPage() {
-                                title.text(langProfiles);
-                                c.clear().add(tp.add(icon), b);
-                                tp.update();
-
-                                if (rpu != null)
-                                    Core.offNotifyLoop(rpu);
-                                rpu = Core.onNotifyLoop(accounts, () -> {
-                                    if (rl != null)
-                                        for (final Runnable plr : rl)
-                                            Core.offNotify(plr);
-                                    rl = new Runnable[accounts.size()];
-                                    b.clear();
-                                    int index = 0;
-                                    for (final IAccount i : accounts) {
-                                        final IButton btn = UI.button(i, i.getIcon()).imageAlign(ImgAlign.TOP).imageOffset(24);
-                                        rl[index++] = Core.onNotify(i, b::update);
-                                        b.add(btn.onAction((s, e) -> {
-                                            tp.remove(icon);
-                                            open(i);
-                                        }));
-                                    }
-                                    b.add(UI.button(langAdd, ICON_ADD).imageAlign(ImgAlign.TOP).imageOffset(24).onAction((s, e) -> {
-                                        tp.remove(icon);
-                                        makers();
-                                    })).update();
-                                });
-                            }
-
-                            {
-                                l.menuBar.onChange(() -> {
-                                    if (rpu != null)
-                                        Core.offNotifyLoop(rpu);
-                                    if (rl != null)
-                                        for (final Runnable plr : rl)
-                                            Core.offNotify(plr);
-                                    for (final Runnable r : cl)
-                                        r.run();
-                                    cl.clear();
-                                    return true;
-                                });
-                                mainPage();
-                            }
-                        }));
-                    }});
-                    menus.notify();
+                            };
+                        }
+                    });
+                    MENU_ITEMS.notify();
                 }
             }
         });
@@ -1748,6 +1751,7 @@ public class FLCore {
                     if (!cml.isEmpty())
                         m.checkForUpdates(cml.toArray(new InstalledMeta[0]));
                 }
+                System.gc();
             }
         });
 
@@ -1776,16 +1780,16 @@ public class FLCore {
                     final Socket socket = server.accept();
                     new Thread(() -> {
                         try (final Socket s = socket) {
-                            new FlashLauncher().menuBar.select(FlashLauncher.ID + ".play");
+                            new FlashLauncher().menuBar.select("play");
                         } catch (final IOException ignored) {}
                     }).start();
                 }
             } catch (final IOException ignored) {}
         }).start();
 
-        new FlashLauncher().menuBar.select(FlashLauncher.ID + ".play");
+        new FlashLauncher().menuBar.select("play");
 
-        final Runnable r = Core.onNotify(menus, () -> {
+        final Runnable r = Core.onNotify(MENU_ITEMS, () -> {
             synchronized (frames) {
                 for (final FlashLauncher f : frames)
                     f.updateMenuBar();
