@@ -407,7 +407,7 @@ public class FLCore {
                 synchronized (HELP_ITEMS) {
                     HELP_ITEMS.add(new FLMenuItemListener("launcher", FlashLauncher.ICON, FlashLauncher.NAME) {
                         @Override
-                        void onOpen(final FLMenuItemEvent e) {
+                        public void onOpen(final FLMenuItemEvent e) {
                             e.add(UI.text("WIP").size(e.width() - 24, 32).pos(8, 8));
                         }
                     });
@@ -415,7 +415,7 @@ public class FLCore {
                 synchronized (SETTINGS_ITEMS) {
                     SETTINGS_ITEMS.add(new FLMenuItemListener("launcher", FlashLauncher.ICON, FlashLauncher.NAME) {
                         @Override
-                        void onOpen(final FLMenuItemEvent e) {
+                        public void onOpen(final FLMenuItemEvent e) {
                             e.add(UI.text("Thread count: " + Core.syncGetSize(threads)).ha(HAlign.LEFT).size(e.width() - 24, 18).pos(8, 8));
                         }
                     });
@@ -1614,6 +1614,8 @@ public class FLCore {
                 final String dl = g.getAsString("dependencies"), ol = g.getAsString("optional");
                 if (dl != null)
                     for (final String d : dl.split(";")) {
+                        if (d.isEmpty())
+                            continue;
                         final int ii = d.indexOf(':');
                         if (ii == -1)
                             r.dependencies.put(d, "*");
@@ -1622,6 +1624,8 @@ public class FLCore {
                     }
                 if (ol != null)
                     for (final String d : ol.split(";")) {
+                        if (d.isEmpty())
+                            continue;
                         final int ii = d.indexOf(':');
                         if (ii == -1)
                             r.optional.put(d, "*");

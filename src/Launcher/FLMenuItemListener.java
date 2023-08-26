@@ -13,5 +13,5 @@ public abstract class FLMenuItemListener {
         this.text = text;
     }
 
-    abstract void onOpen(final FLMenuItemEvent event);
+    public abstract void onOpen(final FLMenuItemEvent event);
 }
