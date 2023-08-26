@@ -1523,7 +1523,7 @@ public class FLCore {
                                 }
 
                                 void mainPage() {
-                                    title.text(langProfiles);
+                                    title.text(langAccounts);
                                     e.clear().add(tp.add(icon), b);
                                     tp.update();
 
