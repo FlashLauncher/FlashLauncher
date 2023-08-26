@@ -34,6 +34,34 @@ public class PluginContext {
     }
 
     public final IImage getIcon() { return ip.getIcon(); }
+    public final Plugin getPlugin() { return plugin; }
+    public final FSRoot getPluginRoot() { return root; }
+    public final File getPluginData() { return ip.data; }
+    public final File getPluginCache() { return ip.cache; }
+
+    public final PluginContext getContext(final String id) {
+        synchronized (FLCore.installed) {
+            for (final FLCore.InstalledMeta ip : FLCore.installed)
+                if (ip.getID().equals(id))
+                    if (ip instanceof FLCore.InstalledPlugin && ((FLCore.InstalledPlugin) ip).enabled)
+                        return ((FLCore.InstalledPlugin) ip).context;
+                    else
+                        return null;
+        }
+        return null;
+    }
+
+    public final PluginContext getConnectedContext(final String id) {
+        synchronized (ip.c) {
+            for (final FLCore.InstalledPlugin ip : ip.connected)
+                if (ip.getID().equals(id))
+                    if (ip.enabled)
+                        return ip.context;
+                    else
+                        return null;
+        }
+        return null;
+    }
 
     public final Market addMarket(final Market market) {
         synchronized (markets) {
@@ -187,10 +215,6 @@ public class PluginContext {
             FLCore.groups.notifyAll();
         }
     }
-
-    public final FSRoot getPluginRoot() { return root; }
-    public final File getPluginData() { return ip.data; }
-    public final File getPluginCache() { return ip.cache; }
 
     final void onEnable() {
         synchronized (o) {
