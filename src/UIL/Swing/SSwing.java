@@ -17,12 +17,14 @@ public class SSwing extends UI {
             ANIMATION = DELTA / 1000
     ;
 
+    public static final int MULTIPLIER = 16;
+
     public static final RenderingHints RH = new RenderingHints(new FixedMap<>(
             new Key[]    { KEY_ANTIALIASING  , KEY_TEXT_ANTIALIASING  , KEY_RENDERING        },
             new Object[] { VALUE_ANTIALIAS_ON, VALUE_TEXT_ANTIALIAS_ON, VALUE_RENDER_QUALITY }
     ));
 
-    public static final int MULTIPLIER = 16;
+    private static int fc = 0;
 
     private static final Thread updater = new Thread(() -> {
         try {
@@ -30,12 +32,17 @@ public class SSwing extends UI {
             while (true) {
                 synchronized (SFPSTimer.timers) {
                     if (SFPSTimer.timers.isEmpty()) {
+                        System.gc();
+                        fc = 0;
                         SFPSTimer.timers.wait();
                         continue;
                     }
                     for (final SFPSTimer t : SFPSTimer.timers)
                         t.run();
-                    System.gc();
+                    if (++fc == 119) {
+                        fc = 0;
+                        System.gc();
+                    }
                 }
                 l2 = System.currentTimeMillis();
                 final float d = SSwing.DELTA - (l2 - l1);
