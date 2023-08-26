@@ -9,13 +9,17 @@ import java.awt.*;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 
+import static java.awt.RenderingHints.*;
+
 public class SSwing extends UI {
-    public static final float DELTA = 1000f / 60,
-                              ANIMATION = DELTA / 1000;
+    public static final float
+            DELTA = 1000f / 60,
+            ANIMATION = DELTA / 1000
+    ;
 
     public static final RenderingHints RH = new RenderingHints(new FixedMap<>(
-            new RenderingHints.Key[]{RenderingHints.KEY_ANTIALIASING, RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.KEY_RENDERING},
-            new Object[]{RenderingHints.VALUE_ANTIALIAS_ON, RenderingHints.VALUE_TEXT_ANTIALIAS_ON, RenderingHints.VALUE_RENDER_QUALITY}
+            new Key[]    { KEY_ANTIALIASING  , KEY_TEXT_ANTIALIASING  , KEY_RENDERING        },
+            new Object[] { VALUE_ANTIALIAS_ON, VALUE_TEXT_ANTIALIAS_ON, VALUE_RENDER_QUALITY }
     ));
 
     public static final int MULTIPLIER = 16;
@@ -31,6 +35,7 @@ public class SSwing extends UI {
                     }
                     for (final SFPSTimer t : SFPSTimer.timers)
                         t.run();
+                    System.gc();
                 }
                 l2 = System.currentTimeMillis();
                 final float d = SSwing.DELTA - (l2 - l1);
@@ -46,7 +51,7 @@ public class SSwing extends UI {
 
     @Override
     public boolean isFontExists(final String fontName) {
-        for (String fn : GraphicsEnvironment.getLocalGraphicsEnvironment().getAvailableFontFamilyNames())
+        for (final String fn : GraphicsEnvironment.getLocalGraphicsEnvironment().getAvailableFontFamilyNames())
             if (fn.equals(fontName))
                 return true;
         return false;
@@ -87,7 +92,6 @@ public class SSwing extends UI {
     @Override public IScrollPane newScrollPane() { return new SScrollPane(); }
     @Override public IMenuBar newMenuBar() { return new SMenuBar(); }
     @Override public IImageView newImageView(final ImagePosMode posMode, final ImageSizeMode sizeMode) { return new SImageView(posMode, sizeMode); }
-
     @Override public void invoke(final Runnable action) { SwingUtilities.invokeLater(action); }
 
     @Override
@@ -99,8 +103,5 @@ public class SSwing extends UI {
         }
     }
 
-    @Override
-    public void dispose() {
-        updater.interrupt();
-    }
+    @Override public void dispose() { updater.interrupt(); }
 }
