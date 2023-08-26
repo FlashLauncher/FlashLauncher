@@ -18,53 +18,54 @@ public class Plugin {
         context.plugin = this;
     }
 
-    public final PluginContext getContext() { return context; }
-    public IImage getIcon() { return ip.getIcon(); }
-    public Market addMarket(final Market market) { return context.addMarket(market); }
-    public boolean removeMarket(final Market market) { return context.removeMarket(market); }
-    public IProfile addProfile(final IProfile profile) { return context.addProfile(profile); }
-    public boolean removeProfile(final IProfile profile) { return context.removeProfile(profile); }
-    public IAccount addAccount(final IAccount account) { return context.addAccount(account); }
-    public boolean removeAccount(final IAccount account) { return context.removeAccount(account); }
-    public void addAccountMaker(final IMaker<IAccount> account) { context.addAccountMaker(account); }
-    public void addProfileMaker(final IMaker<IProfile> profile) { context.addProfileMaker(profile); }
-    public void addMenuItem(final FLMenuItemListener listener) { context.addMenuItem(listener); }
-    public void addSettingsItem(final FLMenuItemListener listener) { context.addSettingsItem(listener); }
-    public void addHelpItem(final FLMenuItemListener listener) { context.addHelpItem(listener); }
-
-    public void addTaskGroup(final TaskGroup group) { context.addTaskGroup(group); }
-
     public FSRoot getPluginRoot() { return context.getPluginRoot(); }
     public File getPluginData() { return context.getPluginData(); }
     public File getPluginCache() { return context.getPluginCache(); }
+    public final PluginContext getContext() { return context; }
+    public PluginContext getContext(final String id) { return context.getContext(id); }
+    public PluginContext getConnectedContext(final String id) { return context.getConnectedContext(id); }
+    public IImage getIcon() { return ip.getIcon(); }
+    protected Market addMarket(final Market market) { return context.addMarket(market); }
+    protected boolean removeMarket(final Market market) { return context.removeMarket(market); }
+    protected IProfile addProfile(final IProfile profile) { return context.addProfile(profile); }
+    protected boolean removeProfile(final IProfile profile) { return context.removeProfile(profile); }
+    protected IAccount addAccount(final IAccount account) { return context.addAccount(account); }
+    protected boolean removeAccount(final IAccount account) { return context.removeAccount(account); }
+    protected void addAccountMaker(final IMaker<IAccount> account) { context.addAccountMaker(account); }
+    protected void addProfileMaker(final IMaker<IProfile> profile) { context.addProfileMaker(profile); }
+    protected void addMenuItem(final FLMenuItemListener listener) { context.addMenuItem(listener); }
+    protected void addSettingsItem(final FLMenuItemListener listener) { context.addSettingsItem(listener); }
+    protected void addHelpItem(final FLMenuItemListener listener) { context.addHelpItem(listener); }
+
+    protected void addTaskGroup(final TaskGroup group) { context.addTaskGroup(group); }
 
     /**
      * Called when the plugin is enabled.
      */
-    public void onEnable() {}
+    protected void onEnable() {}
 
     /**
      * Called when the plugin is disabled.
      */
-    public void onDisable() {}
+    protected void onDisable() {}
 
     /**
      * Called when the child plugin is enabled (before init plugin).
      */
-    public void onPreEnableChild(final PluginContext childContext) {}
+    protected void onPreEnableChild(final PluginContext childContext) {}
 
     /**
      * Called when the child plugin is enabled (after init plugin class or skipped init plugin class).
      */
-    public void onEnableChild(final PluginContext childContext) {}
+    protected void onEnableChild(final PluginContext childContext) {}
 
     /**
      * Called when the child plugin is disabled.
      */
-    public void onPreDisableChild(final PluginContext childContext) {}
+    protected void onPreDisableChild(final PluginContext childContext) {}
 
     /**
      * Called when the child plugin is disabled.
      */
-    public void onDisableChild(final PluginContext childContext) {}
+    protected void onDisableChild(final PluginContext childContext) {}
 }
