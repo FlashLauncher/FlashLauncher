@@ -695,17 +695,16 @@ public class FLCore {
 
                                 final IButton
                                         back = UI.button("<").size(32, 32).pos(8, 8).onAction((s, evt) -> {
-                                    tp.remove(s);
-                                    mainPage();
-                                }),
-                                        back2 = UI.button("<").size(32, 32).pos(8, 8).onAction((s, evt) -> {
+                                            tp.remove(s);
+                                            mainPage();
+                                        }), back2 = UI.button("<").size(32, 32).pos(8, 8).onAction((s, evt) -> {
                                             tp.remove(s);
                                             for (final Runnable r : cl)
                                                 r.run();
                                             cl.clear();
                                             makers();
                                         })
-                                                ;
+                                ;
 
                                 // List
                                 Runnable rpu = null;
@@ -734,15 +733,8 @@ public class FLCore {
                                         final Object l = new Object();
                                         boolean f = false;
 
-                                        @Override
-                                        public int width() {
-                                            return container.width();
-                                        }
-
-                                        @Override
-                                        public int height() {
-                                            return container.height();
-                                        }
+                                        @Override public int width() { return container.width(); }
+                                        @Override public int height() { return container.height(); }
 
                                         @Override
                                         public IEditorContext add(final IComponent component) {
