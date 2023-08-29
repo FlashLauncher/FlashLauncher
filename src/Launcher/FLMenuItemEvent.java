@@ -2,14 +2,17 @@ package Launcher;
 
 import UIL.base.IComponent;
 import UIL.base.IContainer;
+import UIL.base.IImage;
 
 public class FLMenuItemEvent {
     public final FlashLauncher launcher;
     public final IContainer container;
+    public final IImage icon;
 
-    FLMenuItemEvent(final FlashLauncher l, final IContainer c) {
+    FLMenuItemEvent(final FlashLauncher l, final IContainer c, final IImage icon) {
         launcher = l;
         container = c;
+        this.icon = icon;
     }
 
     public int width() { return container.width(); }

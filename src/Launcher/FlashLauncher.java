@@ -128,7 +128,7 @@ public class FlashLauncher {
                     mb.clearTop();
                     sp.content(sc);
                     for (final FLMenuItemListener mbi : FLCore.HELP_ITEMS)
-                        mb.add(mbi.id, mbi.icon, mbi.text, () -> mbi.onOpen(new FLMenuItemEvent(this, sc)));
+                        mb.add(mbi.id, mbi.icon, mbi.text, () -> mbi.onOpen(new FLMenuItemEvent(this, sc, mbi.icon)));
                     mb.select("launcher");
                     content.update();
                 });
@@ -149,7 +149,7 @@ public class FlashLauncher {
                     mb.clearTop();
                     sp.content(sc);
                     for (final FLMenuItemListener mbi : FLCore.SETTINGS_ITEMS)
-                        mb.add(mbi.id, mbi.icon, mbi.text, () -> mbi.onOpen(new FLMenuItemEvent(this, sc)));
+                        mb.add(mbi.id, mbi.icon, mbi.text, () -> mbi.onOpen(new FLMenuItemEvent(this, sc, mbi.icon)));
                     mb.select("launcher");
                     content.update();
                 });
@@ -175,7 +175,7 @@ public class FlashLauncher {
                             f.remove(content);
                         f.add(content = UI.panel().background(UI.TRANSPARENT).borderRadius(UI.ZERO).size(w, h).pos(64, 8));
                     }
-                    mbi.onOpen(new FLMenuItemEvent(this, content));
+                    mbi.onOpen(new FLMenuItemEvent(this, content, mbi.icon));
                     f.update();
                 });
         }
