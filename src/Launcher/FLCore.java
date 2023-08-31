@@ -289,6 +289,11 @@ public class FLCore {
             return;
         }
 
+        if(!UI.check()) {
+            System.err.println("Can't create window.");
+            System.exit(1);
+            return;
+        }
         UI.initColors();
 
         try {

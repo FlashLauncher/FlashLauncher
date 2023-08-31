@@ -12,6 +12,8 @@ import java.util.List;
 import java.util.Map;
 
 public abstract class UI {
+    public abstract boolean isRunnable();
+
     public enum FontStyle {
         PLAIN,
         BOLD,
@@ -55,6 +57,8 @@ public abstract class UI {
 
 
     public static UI UI;
+
+    public static boolean check() { return UI.isRunnable(); }
 
     public static IColor color(final int r, final int g, final int b, final int a) { return UI.newColor(r, g, b, a); }
     public static IColor color(final int r, final int g, final int b) { return UI.newColor(r, g, b); }

@@ -53,6 +53,8 @@ public class SSwing extends UI {
         } catch (final InterruptedException ignored) {}
     }) {{ start(); }};
 
+    @Override public boolean isRunnable() { return !GraphicsEnvironment.isHeadless(); }
+
     @Override public IColor newColor(final int r, final int g, final int b, final int a) { return new SColor(r, g, b, a); }
     @Override public IColor newColor(final int r, final int g, final int b) { return new SColor(r, g, b); }
 
