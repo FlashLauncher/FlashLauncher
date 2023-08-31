@@ -21,6 +21,27 @@ public class Core {
             URI_CHARS = CHARS_EN_LOW + CHARS_EN_UP + CHARS_NUMS + ":/?#[]@!$&'()*+,;=-._~%"
     ;
 
+    public static final boolean
+            IS_WINDOWS,
+            IS_WINDOWS_10,
+            IS_LINUX,
+            IS_MACOS
+    ;
+
+    static {
+        final String osn = System.getProperty("os.name").toLowerCase();
+        IS_WINDOWS = osn.contains("win");
+        if (IS_WINDOWS) {
+            IS_WINDOWS_10 = osn.contains("10");
+            IS_LINUX = false;
+            IS_MACOS = false;
+        } else {
+            IS_WINDOWS_10 = false;
+            IS_LINUX = osn.contains("nix") || osn.contains("nux") || osn.contains("aix");
+            IS_MACOS = !IS_LINUX && osn.contains("mac");
+        }
+    }
+
     public static String encodeURI(final String url) throws UnsupportedEncodingException {
         StringBuilder b = new StringBuilder();
         for (final char ch : url.replaceAll(" ", "%20").toCharArray())
