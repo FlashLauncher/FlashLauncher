@@ -1,7 +1,7 @@
 package UIL.Swing;
 
 import UIL.base.*;
-import Utils.Runnable1arg;
+import Utils.Runnable1a;
 
 import javax.swing.*;
 import java.awt.*;
@@ -100,7 +100,7 @@ public class SDialog implements IDialog {
     }
 
     @Override
-    public SDialog onClose(final Runnable1arg<IFrame> listener) {
+    public SDialog onClose(final Runnable1a<IFrame> listener) {
         d.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(final WindowEvent windowEvent) {

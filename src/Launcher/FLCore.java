@@ -952,7 +952,7 @@ public class FLCore {
 
                             final AtomicBoolean srr = new AtomicBoolean(true);
                             final ArrayList<Runnable> listeners = new ArrayList<>();
-                            final Runnable1arg<Runnable1arg> sr = (sr1) -> {
+                            final Runnable1a<Runnable1a> sr = (sr1) -> {
                                 final String q = findField.text();
                                 //ilb.clear().childSize(c.width() / 2 - 16, ilb.getChildHeight());
                                 //ilb.clear().childSize(c.width() - 16, ilb.getChildHeight());

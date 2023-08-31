@@ -1,6 +1,6 @@
 package UIL.base;
 
-import Utils.Runnable1arg;
+import Utils.Runnable1a;
 
 public interface IFrame extends IContainer {
     IFrame icon(final IImage icon);
@@ -9,7 +9,7 @@ public interface IFrame extends IContainer {
     IFrame pack();
     IFrame center(final IComponent component);
 
-    IFrame onClose(final Runnable1arg<IFrame> listener);
+    IFrame onClose(final Runnable1a<IFrame> listener);
 
     default IFrame dispose() { return this; }
 

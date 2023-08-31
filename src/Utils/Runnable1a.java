@@ -1,5 +1,5 @@
 package Utils;
 
-public interface Runnable1arg<T> {
+public interface Runnable1a<T> {
     void run(final T arg);
 }

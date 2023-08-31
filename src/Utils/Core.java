@@ -300,7 +300,7 @@ public class Core {
         return listener;
     }
 
-    public static Runnable onNotifyLoop(final Object object, final Runnable1arg<Runnable> listener) {
+    public static Runnable onNotifyLoop(final Object object, final Runnable1a<Runnable> listener) {
         return onNotifyLoop(object, new Runnable() {
             @Override
             public void run() {
