@@ -444,7 +444,7 @@ public class FLCore {
                                                     return null;
                                                 final IImage ic = i.getIcon();
                                                 return ic == null ? null : ic.getImage();
-                                            }).imageOffset(2).size(200, 32).pos(y, y).onList((self, container) -> {
+                                            }).imageOffset(4).size(200, 32).pos(y, y).onList((self, container) -> {
                                                 container.background(UI.TRANSPARENT).size(cont.width(), cont.height() - h - 8).pos(0, 0);
                                                 final ContainerListBuilder clb = new ContainerListBuilder(UI.scrollPane().size(container.width(), container.height()).content(UI.panel().size(container.width(), container.height())), 150, 8);
                                                 container.add(clb);
@@ -481,7 +481,7 @@ public class FLCore {
                                                     return null;
                                                 final IImage ic = i.getIcon();
                                                 return ic == null ? null : ic.getImage();
-                                            }).imageOffset(2).size(200, 32).pos(y + 8 + 200, y).onList((self, container) -> {
+                                            }).imageOffset(4).size(200, 32).pos(y + 8 + 200, y).onList((self, container) -> {
                                                 container.background(UI.TRANSPARENT).size(cont.width(), cont.height() - h - 8).pos(0, 0);
                                                 final ContainerListBuilder clb = new ContainerListBuilder(UI.scrollPane().size(container.width(), container.height()).content(UI.panel().size(container.width(), container.height())), 150, 8);
                                                 container.add(clb);
@@ -503,7 +503,7 @@ public class FLCore {
                                             UI.button(langPlay, ICON_PLAY).imageOffset(6).size(112, 32).pos(400 + y + 16, y).onAction((self, event) -> {
                                                 final IAccount acc = launcher.account;
                                                 final IProfile pro = launcher.profile;
-                                                if (acc ==null || pro == null || !acc.isCompatible(pro) || !pro.isCompatible(acc))
+                                                if (acc == null || pro == null || !acc.isCompatible(pro) || !pro.isCompatible(acc))
                                                     return;
                                                 final PlayStatus s = new PlayStatus(new RunProc(launcher, acc, pro));
                                                 pro.preLaunch(s.rp);
