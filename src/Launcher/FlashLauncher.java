@@ -52,7 +52,7 @@ public class FlashLauncher {
         ICON_HELP = h;
     }
 
-    private final IFrame f;
+    final IFrame frame;
     final IMenuBar menuBar = UI.menuBar().size(48, height - 16).pos(8, 8);
     private IContainer content = null;
 
@@ -63,7 +63,7 @@ public class FlashLauncher {
         synchronized (FLCore.frames) {
             FLCore.frames.add(this);
         }
-        f = UI.frame(NAME)
+        frame = UI.frame(NAME)
                 .icon(ICON)
                 .resizable(false)
                 .size(width, height)
@@ -86,11 +86,11 @@ public class FlashLauncher {
             final IContainer r = UI.panel().size(128, 160).add(UI.loader().size(96, 96).pos(16, 16));
             final IText s = UI.text().size(112, 40).pos(8, 116);
             final IProgressBar p = UI.progressBar().size(128, 4).pos(0, 156);
-            f.add(r.add(s, p).pos((width - r.width()) / 2, (height - r.height()) / 2));
+            frame.add(r.add(s, p).pos((width - r.width()) / 2, (height - r.height()) / 2));
             try {
                 final TaskGroup l = FLCore.loader;
                 if (l != null) {
-                    f.update();
+                    frame.update();
                     synchronized (l.po) {
                         while (!l.f) {
                             Task st = null;
@@ -113,16 +113,16 @@ public class FlashLauncher {
                     }
                 }
             } catch (final InterruptedException ignored) {}
-            f.remove(r);
+            frame.remove(r);
         }
         final int cw = width - 72, ch = height - 16, scw = cw - 168;
-        f.add(menuBar.addEnd("help", ICON_HELP, null, () -> {
+        frame.add(menuBar.addEnd("help", ICON_HELP, null, () -> {
             synchronized (this) {
                 if (content != null)
-                    f.remove(content);
+                    frame.remove(content);
                 final IMenuBar mb = UI.menuBar().size(160, ch);
                 final IScrollPane sp = UI.scrollPane().size(scw, ch).pos(168, 0);
-                f.add(content = UI.panel().add(mb, sp).background(UI.TRANSPARENT).borderRadius(UI.ZERO).size(cw, ch).pos(64, 8)).update();
+                frame.add(content = UI.panel().add(mb, sp).background(UI.TRANSPARENT).borderRadius(UI.ZERO).size(cw, ch).pos(64, 8)).update();
                 final Runnable r = Core.onNotifyLoop(FLCore.HELP_ITEMS, () -> {
                     final IContainer sc = UI.panel().size(scw, ch).pos(168, 0);
                     mb.clearTop();
@@ -149,10 +149,10 @@ public class FlashLauncher {
         }).addEnd("settings", ICON_SETTINGS, null, () -> {
             synchronized (this) {
                 if (content != null)
-                    f.remove(content);
+                    frame.remove(content);
                 final IMenuBar mb = UI.menuBar().size(160, ch);
                 final IScrollPane sp = UI.scrollPane().size(scw, ch).pos(168, 0);
-                f.add(content = UI.panel().add(mb, sp).background(UI.TRANSPARENT).borderRadius(UI.ZERO).size(cw, ch).pos(64, 8)).update();
+                frame.add(content = UI.panel().add(mb, sp).background(UI.TRANSPARENT).borderRadius(UI.ZERO).size(cw, ch).pos(64, 8)).update();
                 final Runnable r = Core.onNotifyLoop(FLCore.SETTINGS_ITEMS, () -> {
                     final IContainer sc = UI.panel().size(scw, ch).pos(168, 0);
                     mb.clearTop();
@@ -190,8 +190,8 @@ public class FlashLauncher {
                 menuBar.add(mbi.id, mbi.icon, () -> {
                     synchronized (this) {
                         if (content != null)
-                            f.remove(content);
-                        f.add(content = UI.panel().background(UI.TRANSPARENT).borderRadius(UI.ZERO).size(w, h).pos(64, 8));
+                            frame.remove(content);
+                        frame.add(content = UI.panel().background(UI.TRANSPARENT).borderRadius(UI.ZERO).size(w, h).pos(64, 8));
                     }
                     final FLMenuItemEvent e = new FLMenuItemEvent(this, content, mbi.icon);
                     mbi.onOpen(e);
@@ -201,7 +201,7 @@ public class FlashLauncher {
                         }
                         return true;
                     });
-                    f.update();
+                    frame.update();
                 });
         }
         menuBar.update();
