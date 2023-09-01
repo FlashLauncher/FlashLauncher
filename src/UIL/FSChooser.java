@@ -115,6 +115,11 @@ public class FSChooser {
                                 continue m;
                         final IButton btn;
                         fileContainer.add(btn = UI.button(child.getName(), ICON_FILE).imageOffset(3).ha(HAlign.LEFT).size(cw, 24).pos(8, h).onAction((s, e) -> {
+                            if (e.isMouse() && e.clickCount() == 2) {
+                                isSuccess = true;
+                                dialog.visible(false);
+                                return;
+                            }
                             for (final IButton b : buttons)
                                 b.background(UI.TRANSPARENT);
                             buttons.clear();
