@@ -29,6 +29,7 @@ public class FLMenuItemEvent {
 
     public FLMenuItemEvent add(final IComponent... components) { container.add(components); return this; }
     public FLMenuItemEvent add(final IComponent component) { container.add(component); return this; }
+    public FLMenuItemEvent remove(final IComponent component) { container.remove(component); return this; }
     public FLMenuItemEvent clear() { container.clear(); return this; }
     public FLMenuItemEvent update() { container.update(); return this; }
 
