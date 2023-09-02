@@ -1855,7 +1855,7 @@ public class FLCore {
         final ObjLocker l = new ObjLocker(groups);
         Task t = null;
         l.lock();
-        final int s = groups.size(), i = groupIndex;
+        final int s = groups.size(), i = s > groupIndex ? groupIndex : 0;
         for (; groupIndex < s; groupIndex++) {
             final TaskGroup g = groups.get(groupIndex);
             final Task st = g.lockAny();
@@ -1864,9 +1864,8 @@ public class FLCore {
                 break;
             }
         }
-        if (t == null && s > 0) {
-            groupIndex = 0;
-            for (; groupIndex < i; groupIndex++) {
+        if (t == null && s > 0)
+            for (groupIndex = 0; groupIndex < i; groupIndex++) {
                 final TaskGroup g = groups.get(groupIndex);
                 final Task st = g.lockAny();
                 if (st != null) {
@@ -1874,7 +1873,6 @@ public class FLCore {
                     break;
                 }
             }
-        }
         if (t == null) {
             if (w == null)
                 l.waitNotify();
