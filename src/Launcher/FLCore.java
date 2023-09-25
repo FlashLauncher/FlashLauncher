@@ -1013,9 +1013,7 @@ public class FLCore {
                                                 }
                                             }),
                                             UI.text(me.getAuthor()).foreground(Theme.AUTHOR_FOREGROUND_COLOR).ha(HAlign.LEFT).size(tw, 16).pos(Meta.ICON_SIZE + 16, 30),
-
                                             UI.text(me.getShortDescription()).ha(HAlign.LEFT).size(sdw, ilb.getChildHeight() - Meta.ICON_SIZE - 24).pos(8, Meta.ICON_SIZE + 16),
-
                                             UI.button().borderRadius(UI.ZERO).background(UI.TRANSPARENT).size(ilb.getChildWidth(), ilb.getChildHeight()).onAction((self, event) -> {
                                                 final IComponent[] cl = e.childs();
                                                 e.clear().add(
@@ -1350,27 +1348,15 @@ public class FLCore {
                                         rl = null;
                                     }
 
-                                    title.text(new Object() {
-                                        @Override
-                                        public String toString() {
-                                            return langAccounts + " > " + i;
-                                        }
-                                    });
+                                    title.text(new Object() { @Override public String toString() { return langAccounts + " > " + i; } });
                                     final IContainer container = UI.panel().background(UI.TRANSPARENT).borderRadius(UI.ZERO).size(e.width(), e.height() - 56).pos(0, 56);
                                     e.clear().add(tp.add(back), container);
                                     i.open(new IEditorContext() {
                                         final Object l = new Object();
                                         boolean f = false;
 
-                                        @Override
-                                        public int width() {
-                                            return container.width();
-                                        }
-
-                                        @Override
-                                        public int height() {
-                                            return container.height();
-                                        }
+                                        @Override public int width() { return container.width(); }
+                                        @Override public int height() { return container.height(); }
 
                                         @Override
                                         public IEditorContext add(final IComponent component) {

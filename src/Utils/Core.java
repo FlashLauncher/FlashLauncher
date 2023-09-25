@@ -255,14 +255,14 @@ public class Core {
             t.interrupt();
     }
 
-    private static final ListMap<Object, FixedEntry<Thread, ArrayList<Runnable>>> waiterList = new ListMap<>();
+    private static final ListMap<Object, FixedEntry<Thread, List<Runnable>>> waiterList = new ListMap<>();
     public static Runnable onNotifyLoop(final Object object, final Runnable listener) {
         if (listener == null)
             return null;
         synchronized (waiterList) {
-            final FixedEntry<Thread, ArrayList<Runnable>> l = waiterList.get(object);
+            final FixedEntry<Thread, List<Runnable>> l = waiterList.get(object);
             if (l == null) {
-                final ArrayList<Runnable> rl = new ArrayList<>();
+                final List<Runnable> rl = new ArrayList<>();
                 rl.add(listener);
                 waiterList.put(object, new FixedEntry<>(
                         new Thread(() -> {
@@ -313,8 +313,8 @@ public class Core {
         if (listener == null)
             return;
         synchronized (waiterList) {
-            for (final Map.Entry<Object, FixedEntry<Thread, ArrayList<Runnable>>> e : waiterList.entrySet()) {
-                final ArrayList<Runnable> l = e.getValue().getValue();
+            for (final Map.Entry<Object, FixedEntry<Thread, List<Runnable>>> e : waiterList.entrySet()) {
+                final List<Runnable> l = e.getValue().getValue();
                 synchronized (l) {
                     if (l.contains(listener)) {
                         if (l.size() > 1)
