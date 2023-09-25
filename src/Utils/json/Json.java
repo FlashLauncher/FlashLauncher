@@ -226,7 +226,9 @@ public abstract class Json extends Reader implements AutoCloseable {
                             case ',': case ']': case '}': case '{': case '[': case '"':
                                 p = ch2;
                             case ' ': case '\t': case '\r': case '\n':
-                                return new JsonElement(num.indexOf(".") != -1 ? Double.parseDouble(num.toString()) : Integer.parseInt(num.toString()));
+                                if (num.indexOf(".") == -1)
+                                    return new JsonElement(Integer.parseInt(num.toString()));
+                                return new JsonElement(Double.parseDouble(num.toString()));
                             case 'f': case 'F':
                                 return new JsonElement(Float.parseFloat(num.toString()));
                             case 'b': case 'B':
