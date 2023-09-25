@@ -163,17 +163,25 @@ public class FS {
     public static String relative(final File main, final File other) {
         final File[] mp = parents(main);
         final File[] op = parents(other);
+        final int min = Math.min(mp.length, op.length);
 
         int i = 0;
-        for (; i < mp.length && i < op.length; i++)
-            if (!mp[i].getPath().equals(op[i].getPath())) {
-                if (i == 0) return other.getAbsolutePath();
+        for (; i < min; i++)
+            if (!mp[i].equals(op[i])) {
+                if (i == 0)
+                    return other.getAbsolutePath();
                 break;
             }
-        final int s = mp.length - i;
-        final StringBuilder b = new StringBuilder(i == 1 ? "/" : s > 1 ? String.join("", Collections.nCopies(s, "../")) : "./");
-        for (; i < op.length; i++) b.append(op[i].getName()).append("/");
-        return b.toString();
+        final StringBuilder r = new StringBuilder();
+        r.append(String.join("/", Collections.nCopies(mp.length - i, "..")));
+        if (i < op.length) {
+            if (r.length() > 0)
+                r.append("/");
+            r.append(op[i].getName());
+            for (i++; i < op.length; i++)
+                r.append('/').append(op[i].getName());
+        }
+        return r.toString();
     }
 
     public static boolean clearDir(final File dir) {
