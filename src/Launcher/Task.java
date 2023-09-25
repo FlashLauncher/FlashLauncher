@@ -57,6 +57,8 @@ public abstract class Task {
             }
         } catch (final Throwable ex) {
             ex.printStackTrace();
+            ex.fillInStackTrace();
+            ex.printStackTrace();
             synchronized (po) {
                 l = false;
                 po.notifyAll();
