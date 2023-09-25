@@ -7,10 +7,7 @@ import UIL.base.*;
 import Utils.*;
 import Utils.fixed.FixedEntry;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
@@ -21,7 +18,23 @@ public class FLCore {
     public static final File LAUNCHER_DIR = Core.getPath(FLCore.class);
     public static final IImage ICON_PLAY, ICON_PROFILES, ICON_MARKET, ICON_ACCOUNTS, ICON_FIND, ICON_INSTALL, ICON_UPDATE, ICON_DELETE, ICON_ADD;
 
+    static final IniGroup config;
+
     static {
+        IniGroup g = null;
+        final File cf = new File(Core.getPath(FLCore.class), "config.ini");
+        if (cf.exists() && cf.isFile())
+            try {
+                g = new IniGroup(new String(FS.OS.readFully(cf.getAbsolutePath()), StandardCharsets.UTF_8), false);
+                if (!g.has("plugins") || !(g.get("plugins") instanceof IniGroup))
+                    g.newGroup("plugins");
+            } catch (final IOException exception) {
+                exception.printStackTrace();
+            }
+        config = g == null ? new IniGroup() {{
+            newGroup("plugins");
+        }} : g;
+
         UI.UI = new SSwing();
         IImage ip = null, ip2 = null, im = null, ia = null, ifi = null, ii = null, iu = null, id = null, a = null;
         try {
@@ -299,7 +312,19 @@ public class FLCore {
         try {
             Theme.current = Theme.parse(new IniGroup(new String(FS.ROOT.readFully(FlashLauncher.ID + "://themes/dark.ini"), StandardCharsets.UTF_8), false));
 
-            final String l = Locale.getDefault().toString();
+            String l = Locale.getDefault().toString();
+
+            if (config.get("lang") instanceof String)
+                l = config.getAsString("lang");
+            else {
+                config.put("lang", l);
+                try (final FileOutputStream fos = new FileOutputStream(new File(Core.getPath(FLCore.class), "config.ini"))) {
+                    fos.write(config.toString().getBytes(StandardCharsets.UTF_8));
+                } catch (final IOException ex) {
+                    ex.printStackTrace();
+                }
+            }
+
             final boolean fle = FS.ROOT.exists(FlashLauncher.ID + "://langs/" + l + ".ini"), ule = FS.ROOT.exists("ui-lib://langs/" + l + ".ini");
             if (fle || ule)
                 lang = l;
@@ -1066,7 +1091,9 @@ public class FLCore {
                                         final InstalledMeta im = getById(id);
                                         if (im != null)
                                             if (ml.length == 1 && !me.getVersion().equals(im.ver) && !me.getVersion().equals(im.getVersion())) {
-                                                ic.add(UI.button(ICON_UPDATE).imageOffset(2).grounds(Theme.CATEGORIES_BACKGROUND_COLOR, Theme.CATEGORIES_FOREGROUND_COLOR).size(40, 20).pos(ilb.getChildWidth() - 48, 8).onAction((self, event) -> {
+                                                ic.add(UI.button(ICON_UPDATE).imageOffset(2)
+                                                        .grounds(Theme.CATEGORIES_BACKGROUND_COLOR, Theme.CATEGORIES_FOREGROUND_COLOR)
+                                                        .size(40, 20).pos(ilb.getChildWidth() - 48, 8).onAction((self, event) -> {
                                                     final TaskGroup gr = i.getValue().install();
                                                     if (gr == null)
                                                         return;
@@ -1079,6 +1106,14 @@ public class FLCore {
                                                     synchronized (groups) {
                                                         groups.add(gr);
                                                         groups.notifyAll();
+                                                    }
+                                                    synchronized (config) {
+                                                        config.getAsGroup("plugins").put(id, i.getKey().getID());
+                                                        try (final FileOutputStream fos = new FileOutputStream(new File(Core.getPath(FLCore.class), "config.ini"))) {
+                                                            fos.write(config.toString().getBytes(StandardCharsets.UTF_8));
+                                                        } catch (final IOException ex) {
+                                                            ex.printStackTrace();
+                                                        }
                                                     }
                                                 }));
                                                 name.text(new Object() {
@@ -1102,10 +1137,36 @@ public class FLCore {
                                                             }
                                                         });
                                                 } else
-                                                    ic.add(UI.button(ICON_DELETE).imageOffset(2).grounds(Theme.CATEGORIES_BACKGROUND_COLOR, Theme.CATEGORIES_FOREGROUND_COLOR).size(40, 20).pos(ilb.getChildWidth() - 48, 8));
+                                                    ic.add(UI.button(ICON_DELETE).imageOffset(2)
+                                                            .grounds(Theme.CATEGORIES_BACKGROUND_COLOR, Theme.CATEGORIES_FOREGROUND_COLOR)
+                                                            .size(40, 20).pos(ilb.getChildWidth() - 48, 8).onAction((self, event) -> {
+                                                                System.out.println("Delete");
+                                                                synchronized (installed) {
+                                                                    installed.remove(im);
+                                                                }
+                                                                if (im instanceof InstalledPlugin) {
+                                                                    final InstalledPlugin ip = (InstalledPlugin) im;
+                                                                    synchronized (ip.c) {
+                                                                        ip.disable();
+                                                                        ip.file.delete();
+                                                                    }
+                                                                }
+                                                                synchronized (groups) {
+                                                                    groups.notifyAll();
+                                                                }
+                                                                synchronized (config) {
+                                                                    config.getAsGroup("plugins").remove(im.getID());
+                                                                    try (final FileOutputStream fos = new FileOutputStream(new File(Core.getPath(FLCore.class), "config.ini"))) {
+                                                                        fos.write(config.toString().getBytes(StandardCharsets.UTF_8));
+                                                                    } catch (final IOException ex) {
+                                                                        ex.printStackTrace();
+                                                                    }
+                                                                }
+                                                            }));
                                             }
                                         else if (emm.getValue().size() == 1)
-                                            ic.add(UI.button(ml.length == 1 ? ICON_INSTALL : i.getKey().getIcon()).imageOffset(2).grounds(Theme.CATEGORIES_BACKGROUND_COLOR, Theme.CATEGORIES_FOREGROUND_COLOR).size(40, 20).pos(ilb.getChildWidth() - 48, 8).onAction((self, event) -> {
+                                            ic.add(UI.button(ml.length == 1 ? ICON_INSTALL : i.getKey().getIcon()).imageOffset(2).grounds(Theme.CATEGORIES_BACKGROUND_COLOR, Theme.CATEGORIES_FOREGROUND_COLOR)
+                                                    .size(40, 20).pos(ilb.getChildWidth() - 48, 8).onAction((self, event) -> {
                                                 final TaskGroup gr = i.getValue().install();
                                                 synchronized (iml) {
                                                     if (iml.containsKey(me.getID()))
@@ -1115,6 +1176,14 @@ public class FLCore {
                                                 synchronized (groups) {
                                                     groups.add(gr);
                                                     groups.notifyAll();
+                                                }
+                                                synchronized (config) {
+                                                    config.getAsGroup("plugins").put(me.getID(), i.getKey().getID());
+                                                    try (final FileOutputStream fos = new FileOutputStream(new File(Core.getPath(FLCore.class), "config.ini"))) {
+                                                        fos.write(config.toString().getBytes(StandardCharsets.UTF_8));
+                                                    } catch (final IOException ex) {
+                                                        ex.printStackTrace();
+                                                    }
                                                 }
                                             }));
                                         else
@@ -1322,10 +1391,9 @@ public class FLCore {
 
                                 final IButton
                                         back = UI.button("<").size(32, 32).pos(8, 8).onAction((s, evt) -> {
-                                    tp.remove(s);
-                                    mainPage();
-                                }),
-                                        back2 = UI.button("<").size(32, 32).pos(8, 8).onAction((s, evt) -> {
+                                            tp.remove(s);
+                                            mainPage();
+                                        }), back2 = UI.button("<").size(32, 32).pos(8, 8).onAction((s, evt) -> {
                                             tp.remove(s);
                                             for (final Runnable r : cl)
                                                 r.run();
