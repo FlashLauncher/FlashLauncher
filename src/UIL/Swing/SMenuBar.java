@@ -266,6 +266,7 @@ public class SMenuBar extends JPanel implements IMenuBar {
         }
         for (final SButton b : l)
             super.remove(b);
+        y = 0;
         return this;
     }
 
