@@ -16,16 +16,16 @@ public class IniGroup {
         for (final String line : data.replaceAll("\r", "").split("\n")) {
             if (line.startsWith("[") && (i = line.indexOf("]")) > -1) {
                 final String l = Core.removeStart(line.substring(1, i), " ", "\t");
-                if (l.length() == 0) {
+                if (l.isEmpty()) {
                     c = this;
                     continue;
                 }
                 if (allowNSubGroups) {
                     final String[] sl = l.split("\\.");
-                    if (sl[0].length() != 0)
+                    if (!sl[0].isEmpty())
                         c = this;
                     for (final String s : sl)
-                        if (s.length() == 0)
+                        if (s.isEmpty())
                             c = c.newGroup(s);
                     continue;
                 }
@@ -65,6 +65,7 @@ public class IniGroup {
     public int getAsInt(final String k) { return Integer.parseInt(getAsString(k)); }
     public float getAsFloat(final String k) { return Float.parseFloat(getAsString(k)); }
     public void put(final String k, final String v) { values.put(k, v); }
+    public void remove(final String k) { values.remove(k); }
 
     @Override
     public String toString() {
@@ -78,7 +79,7 @@ public class IniGroup {
         for (final Map.Entry<String, Object> e : el) {
             final Object v = e.getValue();
             final Set<Map.Entry<String, Object>> l;
-            if (!(v instanceof IniGroup) || (l = ((IniGroup) v).values.entrySet()).size() == 0)
+            if (!(v instanceof IniGroup) || (l = ((IniGroup) v).values.entrySet()).isEmpty())
                 continue;
             boolean add = true;
             for (final Map.Entry<String, Object> en : l)
