@@ -411,7 +411,8 @@ public class FLCore {
 
             @Override
             public void run() {
-                final LangItem langPlay = Lang.get("launcher.play"), langHome = Lang.get("launcher.home"), langAdd = Lang.get("launcher.add"), langProfiles = Lang.get("profiles.name"), langAccounts = Lang.get("accounts.name");
+                final LangItem langPlay = Lang.get("launcher.play"), langHome = Lang.get("launcher.home"),
+                        langAdd = Lang.get("launcher.add"), langProfiles = Lang.get("profiles.name"), langAccounts = Lang.get("accounts.name");
                 final Object
                         langProfileMakers = new Object() {
                             @Override
@@ -471,7 +472,9 @@ public class FLCore {
                                                 return ic == null ? null : ic.getImage();
                                             }).imageOffset(4).size(200, 32).pos(y, y).onList((self, container) -> {
                                                 container.background(UI.TRANSPARENT).size(cont.width(), cont.height() - h - 8).pos(0, 0);
-                                                final ContainerListBuilder clb = new ContainerListBuilder(UI.scrollPane().size(container.width(), container.height()).content(UI.panel().size(container.width(), container.height())), 150, 8);
+                                                final ContainerListBuilder clb = new ContainerListBuilder(UI.scrollPane()
+                                                                .size(container.width(), container.height()).content(UI.panel().size(container.width(), container.height())),
+                                                        150, 8);
                                                 container.add(clb);
                                                 final Runnable r = Core.onNotifyLoop(accounts, () -> {
                                                     clb.clear();
@@ -508,7 +511,10 @@ public class FLCore {
                                                 return ic == null ? null : ic.getImage();
                                             }).imageOffset(4).size(200, 32).pos(y + 8 + 200, y).onList((self, container) -> {
                                                 container.background(UI.TRANSPARENT).size(cont.width(), cont.height() - h - 8).pos(0, 0);
-                                                final ContainerListBuilder clb = new ContainerListBuilder(UI.scrollPane().size(container.width(), container.height()).content(UI.panel().size(container.width(), container.height())), 150, 8);
+                                                final ContainerListBuilder clb = new ContainerListBuilder(
+                                                        UI.scrollPane().size(container.width(), container.height())
+                                                                .content(UI.panel().size(container.width(), container.height())),
+                                                        150, 8);
                                                 container.add(clb);
                                                 final Runnable r = Core.onNotifyLoop(profiles, () -> {
                                                     clb.clear();
@@ -719,7 +725,8 @@ public class FLCore {
                                 final IContainer tp = UI.panel().size(e.width(), 48).add(title);
 
                                 final IImageView icon = UI.imageView(ImagePosMode.CENTER, ImageSizeMode.SCALE).image(ICON_PROFILES).size(32, 32).pos(8, 8);
-                                final ContainerListBuilder b = new ContainerListBuilder(UI.scrollPane().size(e.width(), e.height() - 56).pos(0, 56).content(UI.panel().borderRadius(UI.ZERO)), 150, 8);
+                                final ContainerListBuilder b = new ContainerListBuilder(UI.scrollPane()
+                                        .size(e.width(), e.height() - 56).pos(0, 56).content(UI.panel().borderRadius(UI.ZERO)), 150, 8);
 
                                 final ConcurrentLinkedQueue<Runnable> cl = new ConcurrentLinkedQueue<>();
 
@@ -1188,7 +1195,8 @@ public class FLCore {
                                             }));
                                         else
                                             ic.add(
-                                                    UI.comboBox().grounds(Theme.CATEGORIES_BACKGROUND_COLOR, Theme.CATEGORIES_FOREGROUND_COLOR).imageOffset(4).size(40, 20).pos(ilb.getChildWidth() - 48, 8).onList((self, cont) -> {
+                                                    UI.comboBox().grounds(Theme.CATEGORIES_BACKGROUND_COLOR, Theme.CATEGORIES_FOREGROUND_COLOR).imageOffset(4)
+                                                            .size(40, 20).pos(ilb.getChildWidth() - 48, 8).onList((self, cont) -> {
                                                         cont.size(e.width(), e.height());
                                                         return e.container;
                                                     }),
@@ -1385,7 +1393,9 @@ public class FLCore {
                                 final IContainer tp = UI.panel().size(e.width(), 48).add(title);
 
                                 final IImageView icon = UI.imageView(ImagePosMode.CENTER, ImageSizeMode.SCALE).image(ICON_ACCOUNTS).size(32, 32).pos(8, 8);
-                                final ContainerListBuilder b = new ContainerListBuilder(UI.scrollPane().size(e.width(), e.height() - 56).pos(0, 56).content(UI.panel().borderRadius(UI.ZERO)), 150, 8);
+                                final ContainerListBuilder b = new ContainerListBuilder(UI.scrollPane()
+                                        .size(e.width(), e.height() - 56).pos(0, 56).content(UI.panel().borderRadius(UI.ZERO)),
+                                        150, 8);
 
                                 final ConcurrentLinkedQueue<Runnable> cl = new ConcurrentLinkedQueue<>();
 
