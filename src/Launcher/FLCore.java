@@ -1690,10 +1690,16 @@ public class FLCore {
                         if (d.isEmpty())
                             continue;
                         final int ii = d.indexOf(':');
-                        if (ii == -1)
+                        if (ii == -1) {
+                            if (d.equals(FlashLauncher.ID))
+                                continue;
                             r.dependencies.put(d, "*");
-                        else
-                            r.dependencies.put(d.substring(0, ii), d.substring(ii + 1));
+                        } else {
+                            final String id = d.substring(0, ii), ver = d.substring(ii + 1);
+                            if (id.equals(FlashLauncher.ID) && FlashLauncher.VERSION.isCompatibility(ver))
+                                continue;
+                            r.dependencies.put(id, ver);
+                        }
                     }
                 if (ol != null)
                     for (final String d : ol.split(";")) {
