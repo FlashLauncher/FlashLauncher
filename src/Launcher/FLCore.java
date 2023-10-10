@@ -289,6 +289,17 @@ public class FLCore {
         return null;
     }
 
+    public static boolean bindTaskGroup(final String id, final TaskGroup group) {
+        if (id == null || id.isEmpty() || group == null)
+            return false;
+        synchronized (iml) {
+            if (iml.containsKey(id))
+                return false;
+            iml.put(id, group);
+            return true;
+        }
+    }
+
     public static void main(final String[] args) {
         try {
             server = new ServerSocket() {{
@@ -1108,14 +1119,9 @@ public class FLCore {
                                                         .grounds(Theme.CATEGORIES_BACKGROUND_COLOR, Theme.CATEGORIES_FOREGROUND_COLOR)
                                                         .size(40, 20).pos(ilb.getChildWidth() - 48, 8).onAction((self, event) -> {
                                                     final TaskGroup gr = i.getValue().install();
-                                                    if (gr == null)
+                                                    if (!bindTaskGroup(me.getID(), gr))
                                                         return;
 
-                                                    synchronized (iml) {
-                                                        if (iml.containsKey(me.getID()))
-                                                            return;
-                                                        iml.put(me.getID(), gr);
-                                                    }
                                                     synchronized (groups) {
                                                         groups.add(gr);
                                                         groups.notifyAll();
@@ -1181,11 +1187,8 @@ public class FLCore {
                                             ic.add(UI.button(ml.length == 1 ? ICON_INSTALL : i.getKey().getIcon()).imageOffset(2).grounds(Theme.CATEGORIES_BACKGROUND_COLOR, Theme.CATEGORIES_FOREGROUND_COLOR)
                                                     .size(40, 20).pos(ilb.getChildWidth() - 48, 8).onAction((self, event) -> {
                                                 final TaskGroup gr = i.getValue().install();
-                                                synchronized (iml) {
-                                                    if (iml.containsKey(me.getID()))
-                                                        return;
-                                                    iml.put(me.getID(), gr);
-                                                }
+                                                if (!bindTaskGroup(me.getID(), gr))
+                                                    return;
                                                 synchronized (groups) {
                                                     groups.add(gr);
                                                     groups.notifyAll();
