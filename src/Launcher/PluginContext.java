@@ -51,6 +51,18 @@ public class PluginContext {
         return null;
     }
 
+    public final Plugin getPlugin(final String id) {
+        synchronized (FLCore.installed) {
+            for (final FLCore.InstalledMeta ip : FLCore.installed)
+                if (ip.getID().equals(id))
+                    if (ip instanceof FLCore.InstalledPlugin && ((FLCore.InstalledPlugin) ip).enabled)
+                        return ((FLCore.InstalledPlugin) ip).plugin;
+                    else
+                        return null;
+        }
+        return null;
+    }
+
     public final PluginContext getConnectedContext(final String id) {
         synchronized (ip.c) {
             for (final FLCore.InstalledPlugin ip : ip.connected)
