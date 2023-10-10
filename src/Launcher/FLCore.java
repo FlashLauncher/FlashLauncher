@@ -8,6 +8,7 @@ import Utils.*;
 import Utils.fixed.FixedEntry;
 
 import java.io.*;
+import java.lang.reflect.InvocationTargetException;
 import java.net.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
@@ -217,7 +218,8 @@ public class FLCore {
                         if (plugin != null)
                             plugin.onEnable();
                     } catch (final Throwable ex) {
-                        ex.printStackTrace();
+                        (ex instanceof InvocationTargetException ?
+                            ((InvocationTargetException) ex).getTargetException() : ex).printStackTrace();
                     }
 
                     for (final InstalledPlugin ip : connected)
@@ -369,7 +371,11 @@ public class FLCore {
             final LangItem[] cl = new LangItem[] { Lang.get("categories.launcher") };
 
             @Override public Version getVersion() { return FlashLauncher.VERSION; }
-            @Override public String getMarket() { return ""; }
+            @Override public String getMarket() {
+                synchronized (config) {
+                    return config.getAsGroup("plugins").getAsString(FlashLauncher.ID);
+                }
+            }
             @Override public IImage getIcon() { return FlashLauncher.ICON; }
             @Override public Object[] getCategories() { return cl; }
 
@@ -1661,7 +1667,10 @@ public class FLCore {
                 r.ver = new Version(verStr);
                 r.f = path;
                 r.main = g.has("main") ? g.getAsString("main") : null;
-                r.market = g.has("market") ? g.getAsString("market") : null;
+                //r.market = g.has("market") ? g.getAsString("market") : null;
+                synchronized (config) {
+                    r.market = config.getAsGroup("plugins").getAsString(r.id);
+                }
 
                 try {
                     if (root.exists("icon.png"))
