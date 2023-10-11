@@ -1160,7 +1160,6 @@ public class FLCore {
                                                     ic.add(UI.button(ICON_DELETE).imageOffset(2)
                                                             .grounds(Theme.CATEGORIES_BACKGROUND_COLOR, Theme.CATEGORIES_FOREGROUND_COLOR)
                                                             .size(40, 20).pos(ilb.getChildWidth() - 48, 8).onAction((self, event) -> {
-                                                                System.out.println("Delete");
                                                                 synchronized (installed) {
                                                                     installed.remove(im);
                                                                 }
