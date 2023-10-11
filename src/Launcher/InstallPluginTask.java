@@ -1,5 +1,7 @@
 package Launcher;
 
+import UIL.UI;
+import UIL.base.IImage;
 import Utils.*;
 
 import java.io.ByteArrayInputStream;
@@ -35,7 +37,20 @@ public final class InstallPluginTask extends Task {
         FLCore.InstalledPlugin im = null;
         try {
             final IniGroup cfg = new IniGroup(new String(files.get("fl-plugin.ini"), StandardCharsets.UTF_8), false);
-            final String id = cfg.getAsString("id"), name = cfg.getAsString("name"), verStr = cfg.getAsString("version"), author = cfg.getAsString("author"), sd = cfg.getAsString("shortDescription");
+            final String id = cfg.getAsString("id"), name = cfg.getAsString("name"), verStr = cfg.getAsString("version"), author = cfg.getAsString("author"), sd = cfg.getAsString("shortDescription"),
+                    main = cfg.getAsString("main");
+
+            IImage icon = null;
+
+            try {
+                byte[] d = files.get("icon.png");
+                if (d == null)
+                    d = files.get("icon.jpg");
+                if (d != null)
+                    icon = UI.image(d);
+            } catch (final Exception ex) {
+                ex.printStackTrace();
+            }
 
             synchronized (FLCore.installed) {
                 for (final FLCore.InstalledMeta me : FLCore.installed)
@@ -60,6 +75,8 @@ public final class InstallPluginTask extends Task {
                 im.n = name;
                 im.author = author;
                 im.sd = sd;
+                im.icon = icon;
+                im.main = main;
                 final String m = im.getMarket();
                 if (m != null && !m.isEmpty())
                     cfg.put("market", m);
@@ -99,6 +116,10 @@ public final class InstallPluginTask extends Task {
                             fos.write(e.getValue(), 0, e.getValue().length);
                         }
                     }
+
+            if (im.root != null)
+                FS.removeRoot(im.root);
+            FS.addRoot(im.root = FS.newFS(im.file));
 
             if (!id.equals(FlashLauncher.ID))
                 synchronized (im.c) {
