@@ -33,7 +33,11 @@ public class ObjLocker {
                                     lo.wait();
                                 }
                     }
-                } catch (final InterruptedException ignored) {}
+                } catch (final Throwable ex) {
+                    if (ex instanceof InterruptedException)
+                        return;
+                    ex.printStackTrace();
+                }
             }, "ObjectLocker of " + o.getClass().getName() + " - " + o) {{
                 setPriority(MIN_PRIORITY);
                 start();
