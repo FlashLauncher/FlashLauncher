@@ -122,6 +122,7 @@ public class FLCore {
         Plugin plugin = null;
         ClassLoader cl = null;
         String main = null;
+        IImage icon = null;
         private IniGroup lang = null;
         final ArrayList<InstalledPlugin> childs = new ArrayList<>(), connected = new ArrayList<>();
         final ListMap<String, String> dl = new ListMap<>(), ol = new ListMap<>();
@@ -134,7 +135,7 @@ public class FLCore {
             cache = new File(LAUNCHER_DIR, "plugins_cache/" + id);
         }
 
-        @Override public IImage getIcon() { return null; }
+        @Override public IImage getIcon() { return icon; }
         @Override public Object getName() { return n; }
         @Override public Object getShortDescription() { return sd; }
 
@@ -1785,10 +1786,6 @@ public class FLCore {
                     synchronized (installed) {
                         for (final pi p : loaded.values())
                             installed.add(new InstalledPlugin(p.id, p.name, p.ver, p.author, p.sd) {
-                                private final IImage icon;
-
-                                @Override public IImage getIcon() { return icon; }
-
                                 {
                                     icon = p.icon;
                                     root = p.root;
