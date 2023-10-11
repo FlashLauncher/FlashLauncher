@@ -59,7 +59,7 @@ public class IniGroup {
 
     public String getAsString(final String k) {
         final Object o = get(k);
-        return o != null ? o.toString() : null;
+        return o == null ? null : o.toString();
     }
 
     public int getAsInt(final String k) { return Integer.parseInt(getAsString(k)); }
