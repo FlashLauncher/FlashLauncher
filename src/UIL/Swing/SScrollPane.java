@@ -1,7 +1,6 @@
 package UIL.Swing;
 
 import UIL.Theme;
-import UIL.UI;
 import UIL.base.IColor;
 import UIL.base.IComponent;
 import UIL.base.IContainer;
@@ -10,14 +9,13 @@ import Utils.RRunnable;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.geom.Area;
 import java.awt.geom.RoundRectangle2D;
-import java.awt.image.BufferedImage;
 
 public class SScrollPane extends JPanel implements IScrollPane {
     IContainer content = null;
     private RRunnable<Integer> borderRadius = Theme.BORDER_RADIUS;
     private IColor bg = Theme.BACKGROUND_COLOR, fg = Theme.FOREGROUND_COLOR;
-    private BufferedImage bi = null;
 
     private int sx = 0, sy = 0;
 
@@ -37,64 +35,53 @@ public class SScrollPane extends JPanel implements IScrollPane {
 
     @Override
     protected void paintChildren(final Graphics graphics) {
-        final Graphics2D g = graphics instanceof Graphics2D ? (Graphics2D) graphics : (Graphics2D) graphics.create();
-        g.setRenderingHints(SSwing.RH);
+        final SGraphics2D g = graphics instanceof SGraphics2D ? (SGraphics2D) graphics :
+                new SGraphics2D((Graphics2D) (graphics instanceof Graphics2D ? graphics : graphics.create()));
+
+        final int br = borderRadius.run(), w = getWidth(), h = getHeight(), sx = this.sx, sy = this.sy;
+        final Area a = new Area(br > 0 ? new RoundRectangle2D.Double(0, 0, w, h, br, br) : new Rectangle(0, 0, w, h));
+        g.setClip(a);
 
         final IContainer c = content;
-        final int br = borderRadius.run(), chw, chh;
-
-        if (br > 0)
-            g.setClip(new RoundRectangle2D.Double(0, 0, getWidth(), getHeight(), br, br));
-
         if (c != null) {
-            c.pos(sx, sy);
-            chw = c.width();
-            chh = c.height();
-
+            int cw = c.width(), ch = c.height(), rw = w, rh = h;
             boolean vs = false, hs = false;
-            int cw = getWidth(), ch = getHeight();
-            if (chh > ch) {
+
+            if (ch > rh) {
                 vs = true;
-                cw -= 8;
+                rw -= 8;
             }
-            if (chw > cw) {
+            if (cw > rw) {
                 hs = true;
-                ch -= 8;
-                if (!vs && chh > ch) {
+                rh -= 8;
+                if (!vs && ch > rh) {
                     vs = true;
-                    cw -= 8;
+                    rw -= 8;
                 }
             }
-
-            final BufferedImage img;
-            if (bi == null || bi.getWidth() != cw || bi.getHeight() != ch)
-                bi = img = g.getDeviceConfiguration().createCompatibleImage(cw, ch, Transparency.TRANSLUCENT);
-            else
-                img = bi;
-
-            final Graphics2D g2 = (Graphics2D) img.getGraphics();
-            g2.setBackground((Color) UI.TRANSPARENT);
-            g2.clearRect(0, 0, cw, ch);
-            super.paintChildren(g2);
-            g2.dispose();
-
-            g.drawImage(img, 0, 0, null);
 
             if (vs || hs) {
                 g.setColor((Color) bg.get());
-                if (vs) g.fillRect(cw, 0, 8, ch);
-                if (hs) g.fillRect(0, ch, cw, 8);
+                if (vs) g.fillRect(rw, 0, 8, rh);
+                if (hs) g.fillRect(0, rh, rw, 8);
 
                 g.setColor((Color) fg.get());
                 if (vs) {
-                    final int h = Math.max(32, Math.round(1f * ch / content.height() * ch));
-                    g.fillRect(cw, Math.round((float) (ch - h) / (content.height() - getHeight()) * (-sy)), 8, h);
+                    final int sh = Math.max(32, Math.round(1f * rh / content.height() * rh));
+                    g.fillRect(cw, Math.round((float) (rh - sh) / (content.height() - getHeight()) * (-sy)), 8, sh);
                 }
                 if (hs) {
-                    final int w = Math.max(32, Math.round(1f * cw / content.width() * cw));
-                    g.fillRect(Math.round((float) (cw - w) / (content.width() - getWidth()) * (-sx)), ch, w, 8);
+                    final int sw = Math.max(32, Math.round(1f * rw / content.width() * rw));
+                    g.fillRect(Math.round((float) (rw - sw) / (content.width() - getWidth()) * (-sx)), rh, sw, 8);
                 }
             }
+
+            a.intersect(new Area(new Rectangle(0, 0, rw, rh)));
+            g.setClip(a);
+            g.translate(sx, sy);
+            final Graphics2D sg = new SGraphics2D(g);
+            super.paintChildren(sg);
+            sg.dispose();
         }
 
         g.dispose();
@@ -185,10 +172,13 @@ public class SScrollPane extends JPanel implements IScrollPane {
         this.fg = fg;
         return this;
     }
+
     @Override public SScrollPane update() {
         sx = Math.min(Math.max(sx, getWidth() - content.width()), 0);
         sy = Math.min(Math.max(sy, getHeight() - content.height()), 0);
         repaint();
         return this;
     }
+
+    @Override public Component[] getComponents() { return ((JComponent) content).getComponents(); }
 }

@@ -9,12 +9,9 @@ import Utils.RRunnable;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.geom.RoundRectangle2D;
-import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
 public class SPanel extends JPanel implements IContainer {
-    private BufferedImage bi = null;
-
     private RRunnable<Integer> borderRadius = Theme.BORDER_RADIUS;
     private IColor bg = Theme.BACKGROUND_COLOR;
 
@@ -24,7 +21,7 @@ public class SPanel extends JPanel implements IContainer {
 
     @Override
     protected void paintChildren(final Graphics graphics) {
-        final Graphics2D g = (Graphics2D) (graphics instanceof Graphics2D ? graphics : graphics.create());
+        final Graphics2D g = new SGraphics2D((Graphics2D) (graphics instanceof Graphics2D ? graphics : graphics.create()));
         g.setRenderingHints(SSwing.RH);
 
         final int br = borderRadius.run(), cw = getWidth(), ch = getHeight();
@@ -34,17 +31,7 @@ public class SPanel extends JPanel implements IContainer {
         g.setColor((Color) bg.get());
         g.fillRect(0, 0, cw, ch);
 
-        final BufferedImage img;
-        if (bi == null || bi.getWidth() != cw || bi.getHeight() != ch)
-            bi = img = g.getDeviceConfiguration().createCompatibleImage(cw, ch, Transparency.TRANSLUCENT);
-        else
-            img = bi;
-        final Graphics2D g2 = img.createGraphics();
-        g2.setBackground((Color) UI.TRANSPARENT);
-        g2.clearRect(0, 0, cw, ch);
-        super.paintChildren(g2);
-        g2.dispose();
-        g.drawImage(img, 0, 0, null);
+        super.paintChildren(g);
 
         g.dispose();
     }
@@ -112,6 +99,9 @@ public class SPanel extends JPanel implements IContainer {
 
     @Override
     public SPanel update() {
+        final boolean o = bg.alpha() == 255 && borderRadius.run() <= 0;
+        if (isOpaque() != o)
+            setOpaque(o);
         repaint();
         return this;
     }
