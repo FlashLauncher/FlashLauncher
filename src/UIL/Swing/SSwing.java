@@ -24,7 +24,7 @@ public class SSwing extends UI {
             new Object[] { VALUE_ANTIALIAS_ON, VALUE_TEXT_ANTIALIAS_ON, VALUE_RENDER_QUALITY }
     ));
 
-    private static int fc = 0;
+    private static int callGCEvery = -1, fc = 0;
 
     private static final Thread updater = new Thread(() -> {
         try {
@@ -39,7 +39,7 @@ public class SSwing extends UI {
                     }
                     for (final SFPSTimer t : SFPSTimer.timers)
                         t.run();
-                    if (++fc == 119) {
+                    if (callGCEvery > -1 && ++fc >= callGCEvery) {
                         fc = 0;
                         System.gc();
                     }
