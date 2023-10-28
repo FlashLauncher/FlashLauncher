@@ -14,5 +14,6 @@ public class SColor extends Color implements IColor {
     public SColor(final float r, final float g, final float b, final float a) { super(r, g, b, a); }
     public SColor(final ColorSpace colorSpace, final float[] components, final float alpha) { super(colorSpace, components, alpha); }
 
+    @Override public int alpha() { return super.getAlpha(); }
     @Override public SColor get() { return this; }
 }

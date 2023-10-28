@@ -2,13 +2,19 @@ package UIL;
 
 import UIL.base.IColor;
 import UIL.base.IFont;
+import UIL.base.RColor;
 import Utils.Core;
 import Utils.IniGroup;
 import Utils.RRunnable;
 
 public class Theme {
     // DEFAULT
-    private int borderRadius;
+    private int
+            borderRadius,
+
+            // ProgressBar
+            pbBorderRadius;
+
     private IColor
             backgroundColor,
             backgroundAccentColor,
@@ -18,40 +24,39 @@ public class Theme {
             textHintColor,
             authorForegroundColor,
             categoriesBackgroundColor,
-            categoriesForegroundColor;
+            categoriesForegroundColor,
+
+            // FSChooser
+            fscForeground;
     private IFont font;
-
-    // ProgressBar
-    private int pbBorderRadius;
-
-    // FSChooser
-    private IColor fscForeground;
 
     public static Theme current = null;
 
+    public static final RRunnable<Integer>
+            BORDER_RADIUS = () -> current.borderRadius,
+
+    // Progress Bar
+    PB_BORDER_RADIUS = () -> current.pbBorderRadius > -1 ? current.pbBorderRadius : current.borderRadius;
+
     // DEFAULT
-    public static final IColor
-            BACKGROUND_COLOR = () -> current.backgroundColor.get(),
-            BACKGROUND_ACCENT_COLOR = () -> current.backgroundAccentColor == null ? current.backgroundColor.get() : current.backgroundAccentColor.get(),
-            FOREGROUND_COLOR = () -> current.foregroundColor.get(),
-            FOREGROUND_ACCENT_COLOR = () -> current.foregroundAccentColor == null ? current.foregroundColor.get() : current.foregroundAccentColor.get(),
-            TEXT_SELECTION_COLOR = () -> current.textSelectionColor.get(),
-            TEXT_HINT_COLOR = () -> current.textHintColor.get(),
-            AUTHOR_FOREGROUND_COLOR = () -> current.authorForegroundColor == null ? current.foregroundColor.get() : current.authorForegroundColor.get(),
-            CATEGORIES_BACKGROUND_COLOR = () -> current.categoriesBackgroundColor == null ? current.backgroundColor.get() : current.categoriesBackgroundColor.get(),
-            CATEGORIES_FOREGROUND_COLOR = () -> current.categoriesForegroundColor == null ? current.foregroundColor.get() : current.categoriesForegroundColor.get();
+    public static final RColor
+            BACKGROUND_COLOR = () -> current.backgroundColor,
+            BACKGROUND_ACCENT_COLOR = () -> current.backgroundAccentColor == null ? current.backgroundColor : current.backgroundAccentColor,
+            FOREGROUND_COLOR = () -> current.foregroundColor,
+            FOREGROUND_ACCENT_COLOR = () -> current.foregroundAccentColor == null ? current.foregroundColor : current.foregroundAccentColor,
+            TEXT_SELECTION_COLOR = () -> current.textSelectionColor,
+            TEXT_HINT_COLOR = () -> current.textHintColor,
+            AUTHOR_FOREGROUND_COLOR = () -> current.authorForegroundColor == null ? current.foregroundColor : current.authorForegroundColor,
+            CATEGORIES_BACKGROUND_COLOR = () -> current.categoriesBackgroundColor == null ? current.backgroundColor : current.categoriesBackgroundColor,
+            CATEGORIES_FOREGROUND_COLOR = () -> current.categoriesForegroundColor == null ? current.foregroundColor : current.categoriesForegroundColor,
+
+            // FSChooser
+            FSC_FOREGROUND = () -> current.fscForeground == null ? current.foregroundColor : current.fscForeground;
 
     public static final IFont FONT = new IFont() {
         @Override public String getName() { return current.font.getName(); }
         @Override public Object get() { return current.font.get(); }
     };
-    public static final RRunnable<Integer> BORDER_RADIUS = () -> current.borderRadius;
-
-    // ProgressBar
-    public static final RRunnable<Integer> PB_BORDER_RADIUS = () -> current.pbBorderRadius > -1 ? current.pbBorderRadius : current.borderRadius;
-
-    // FSChooser
-    public static final IColor FSC_FOREGROUND = () -> current.fscForeground == null ? current.foregroundColor.get() : current.fscForeground.get();
 
     public static Theme parse(final IniGroup ini) {
         final Theme t = new Theme();
