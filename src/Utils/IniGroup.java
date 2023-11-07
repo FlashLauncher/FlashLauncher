@@ -64,6 +64,15 @@ public class IniGroup {
 
     public int getAsInt(final String k) { return Integer.parseInt(getAsString(k)); }
     public float getAsFloat(final String k) { return Float.parseFloat(getAsString(k)); }
+    public boolean getAsBool(final String k) { return Boolean.parseBoolean(k); }
+    public boolean getAsBool(final String k, final boolean defValue) {
+        String v = getAsString(k);
+        if (v == null)
+            return defValue;
+        v = v.toLowerCase();
+        return v.equals("1") || v.equals("true") || (!v.equals("0") && !v.equals("false") && defValue);
+    }
+
     public void put(final String k, final String v) { values.put(k, v); }
     public void remove(final String k) { values.remove(k); }
 
