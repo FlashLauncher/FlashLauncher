@@ -7,11 +7,13 @@ import UIL.base.*;
 import Utils.*;
 import Utils.fixed.FixedEntry;
 
+import java.awt.*;
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.net.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -118,11 +120,13 @@ public class FLCore {
         FSRoot root = null;
         Object n, sd;
         final Object c = new Object();
+        Object[] cats = null;
         PluginContext context = null;
         Plugin plugin = null;
         ClassLoader cl = null;
         String main = null;
         IImage icon = null;
+        boolean smoothIcon = true;
         private IniGroup lang = null;
         final ArrayList<InstalledPlugin> childs = new ArrayList<>(), connected = new ArrayList<>();
         final ListMap<String, String> dl = new ListMap<>(), ol = new ListMap<>();
@@ -136,8 +140,10 @@ public class FLCore {
         }
 
         @Override public IImage getIcon() { return icon; }
+        @Override public boolean smoothIcon() { return smoothIcon; }
         @Override public Object getName() { return n; }
         @Override public Object getShortDescription() { return sd; }
+        @Override public Object[] getCategories() { return cats; }
 
         public void enable() {
             synchronized (c) {
@@ -301,11 +307,28 @@ public class FLCore {
         }
     }
 
+    public static boolean bindMeta(final InstalledMeta meta) {
+        final String id = meta.getID();
+        synchronized (installed) {
+            for (final InstalledMeta m : installed)
+                if (id.equals(m.getID()))
+                    return false;
+            installed.add(meta);
+            return true;
+        }
+    }
+
+    public static void unbindMeta(final InstalledMeta meta) {
+        synchronized (installed) {
+            installed.remove(meta);
+        }
+    }
+
+
     public static void main(final String[] args) {
         try {
-            server = new ServerSocket() {{
-                bind(new InetSocketAddress("127.0.0.1", PORT));
-            }};
+            server = new ServerSocket();
+            server.bind(new InetSocketAddress("127.0.0.1", PORT));
         } catch (final Throwable ignored) {
             UI.UI.dispose();
             try (final Socket s = new Socket("127.0.0.1", PORT)) {
@@ -416,6 +439,11 @@ public class FLCore {
                     ex.printStackTrace();
                 }
             }
+
+            @Override
+            public String toString() {
+                return "Loading classes ...";
+            }
         });
 
         loader.addTask(new Task() {
@@ -488,7 +516,8 @@ public class FLCore {
                                                     return null;
                                                 final IImage ic = i.getIcon();
                                                 return ic == null ? null : ic.getImage();
-                                            }).imageOffset(4).size(200, 32).pos(y, y).onList((self, container) -> {
+                                            }).imageOffset(4).size(200, 32).pos(y, y).onList(le -> {
+                                                final IContainer container = le.getContainer();
                                                 container.background(UI.TRANSPARENT).size(cont.width(), cont.height() - h - 8).pos(0, 0);
                                                 final ContainerListBuilder clb = new ContainerListBuilder(UI.scrollPane()
                                                                 .size(container.width(), container.height()).content(UI.panel().size(container.width(), container.height())),
@@ -499,7 +528,7 @@ public class FLCore {
                                                     for (final IAccount i : accounts)
                                                         clb.add(UI.button(i, i.getIcon()).imageAlign(ImgAlign.TOP).imageOffset(20).onAction((s, e) -> {
                                                             launcher.account = i;
-                                                            self.focus();
+                                                            le.close();
                                                         }));
                                                     clb.update();
                                                 });
@@ -507,7 +536,7 @@ public class FLCore {
                                                     Core.offNotifyLoop(r);
                                                     return true;
                                                 };
-                                                self.onCloseList((selfObject, container12, selfListener) -> {
+                                                le.getSelf().onCloseList(ignored -> {
                                                     Core.offNotifyLoop(r);
                                                     launcher.menuBar.offChange(r1);
                                                     return true;
@@ -527,7 +556,8 @@ public class FLCore {
                                                     return null;
                                                 final IImage ic = i.getIcon();
                                                 return ic == null ? null : ic.getImage();
-                                            }).imageOffset(4).size(200, 32).pos(y + 8 + 200, y).onList((self, container) -> {
+                                            }).imageOffset(4).size(200, 32).pos(y + 8 + 200, y).onList(le -> {
+                                                final IContainer container = le.getContainer();
                                                 container.background(UI.TRANSPARENT).size(cont.width(), cont.height() - h - 8).pos(0, 0);
                                                 final ContainerListBuilder clb = new ContainerListBuilder(
                                                         UI.scrollPane().size(container.width(), container.height())
@@ -539,11 +569,11 @@ public class FLCore {
                                                     for (final IProfile i : profiles)
                                                         clb.add(UI.button(i, i.getIcon()).imageAlign(ImgAlign.TOP).imageOffset(20).onAction((s, e) -> {
                                                             launcher.profile = i;
-                                                            self.focus();
+                                                            le.close();
                                                         }));
                                                     clb.update();
                                                 });
-                                                self.onCloseList((selfObject, container12, selfListener) -> {
+                                                le.getSelf().onCloseList(ignored -> {
                                                     Core.offNotifyLoop(r);
                                                     return true;
                                                 });
@@ -574,6 +604,7 @@ public class FLCore {
                                                         }
                                                         synchronized (s.rp.groups) {
                                                             s.rp.groups.clear();
+                                                            s.rp.generalObjects.clear();
                                                         }
                                                         System.gc();
                                                         if (s.rp.arguments.isEmpty()) {
@@ -625,7 +656,8 @@ public class FLCore {
                                     ).update();
                                 else if (status.process == null) {
                                     final IText st = UI.text();
-                                    c.add(st.ha(HAlign.LEFT).size(c.width() - (y2 + o) * 2, 18).pos(y2 + o, y2)).update();
+                                    status.rp.statusWidth = c.width() - (y2 + o) * 2;
+                                    c.add(st.ha(HAlign.LEFT).size(status.rp.statusWidth, 18).pos(y2 + o, y2)).update();
                                     final int w = st.width();
                                     new Thread() {
                                         private IProgressBar[] pbl = new IProgressBar[0];
@@ -782,7 +814,7 @@ public class FLCore {
                                             return langProfiles + " > " + i;
                                         }
                                     });
-                                    final IContainer container = UI.panel().background(UI.TRANSPARENT).borderRadius(UI.ZERO).size(e.width(), e.height() - 56).pos(0, 56);
+                                    final IContainer container = UI.panel().size(e.width(), e.height() - 56).pos(0, 56);
                                     e.clear().add(tp.add(back), container);
                                     i.open(new IEditorContext() {
                                         final Object l = new Object();
@@ -862,10 +894,7 @@ public class FLCore {
                                         final Object l = new Object();
                                         boolean f = false;
 
-                                        @Override
-                                        public IContainer getContainer() {
-                                            return container;
-                                        }
+                                        @Override public IContainer getContainer() { return container; }
 
                                         @Override
                                         public IProfile end(final IProfile result) {
@@ -1075,7 +1104,7 @@ public class FLCore {
                                     );
 
                                     if (iconView != null) {
-                                        ic.add(iconView);
+                                        ic.add(iconView.smooth(me.smoothIcon()));
                                         if (icon instanceof ChangeableImage) {
                                             if (icon instanceof LoadingImage)
                                                 if (!((LoadingImage) icon).isFinished()) {
@@ -1205,8 +1234,8 @@ public class FLCore {
                                         else
                                             ic.add(
                                                     UI.comboBox().grounds(Theme.CATEGORIES_BACKGROUND_COLOR, Theme.CATEGORIES_FOREGROUND_COLOR).imageOffset(4)
-                                                            .size(40, 20).pos(ilb.getChildWidth() - 48, 8).onList((self, cont) -> {
-                                                        cont.size(e.width(), e.height());
+                                                            .size(40, 20).pos(ilb.getChildWidth() - 48, 8).onList(le -> {
+                                                        le.getContainer().size(e.width(), e.height());
                                                         return e.container;
                                                     }),
                                                     UI.button(i.getKey().getIcon()).imageOffset(2).size(20, 20).pos(ilb.getChildWidth() - 48, 8).background(UI.TRANSPARENT)
@@ -1261,8 +1290,9 @@ public class FLCore {
                             });
 
                             e.add(ilb.update(),
-                                    filter.onList((self, container) -> {
-                                        container.size(e.width(), e.height() - 40).pos(0, 40);
+                                    filter.onList(le -> {
+                                        final IComboBox self = le.getSelf();
+                                        final IContainer container = le.getContainer().size(e.width(), e.height() - 40).pos(0, 40);
                                         final ContainerListBuilder
                                                 clb = new ContainerListBuilder(
                                                 UI.scrollPane()
@@ -1280,37 +1310,37 @@ public class FLCore {
 
                                         final Runnable
                                                 rc = Core.onNotifyLoop(markets, () -> {
-                                            clb2.clear();
-                                            final Market[] ml;
-                                            synchronized (mle) {
-                                                if (mle.isEmpty())
-                                                    synchronized (markets) {
-                                                        ml = markets.toArray(new Market[0]);
-                                                    }
-                                                else
-                                                    ml = mle.toArray(new Market[0]);
-                                            }
-                                            for (final Market m : ml)
-                                                if (!m.cl.isEmpty()) {
-                                                    if (m.getIcon() == null)
-                                                        clb2.add(UI.text(m.getName()).ha(HAlign.LEFT));
-                                                    else
-                                                        clb2.add(
-                                                                UI.panel().add(
-                                                                        UI.imageView(ImagePosMode.CENTER, ImageSizeMode.SCALE).image(m.getIcon()).size(24, 24).pos(4, 4),
-                                                                        UI.text(m.getName()).size(94, 24).pos(32, 4).ha(HAlign.LEFT)
-                                                                )
-                                                        );
-                                                    for (final Object cat : m.getCategories())
-                                                        clb2.add(UI.toggleButton(cat, null, false).onChange((s, n) -> {
-                                                            synchronized (sr) {
-                                                                if (srr.get())
-                                                                    sr.run(sr);
+                                                    clb2.clear();
+                                                    final Market[] ml;
+                                                    synchronized (mle) {
+                                                        if (mle.isEmpty())
+                                                            synchronized (markets) {
+                                                                ml = markets.toArray(new Market[0]);
                                                             }
-                                                        }));
-                                                }
-                                            clb2.update();
-                                        }),
+                                                        else
+                                                            ml = mle.toArray(new Market[0]);
+                                                    }
+                                                    for (final Market m : ml)
+                                                        if (!m.cl.isEmpty()) {
+                                                            if (m.getIcon() == null)
+                                                                clb2.add(UI.text(m.getName()).ha(HAlign.LEFT));
+                                                            else
+                                                                clb2.add(
+                                                                        UI.panel().add(
+                                                                                UI.imageView(ImagePosMode.CENTER, ImageSizeMode.SCALE).image(m.getIcon()).size(24, 24).pos(4, 4),
+                                                                                UI.text(m.getName()).size(94, 24).pos(32, 4).ha(HAlign.LEFT)
+                                                                        )
+                                                                );
+                                                            for (final Object cat : m.getCategories())
+                                                                clb2.add(UI.toggleButton(cat, null, false).onChange((s, n) -> {
+                                                                    synchronized (sr) {
+                                                                        if (srr.get())
+                                                                            sr.run(sr);
+                                                                    }
+                                                                }));
+                                                        }
+                                                    clb2.update();
+                                                }),
                                                 r = Core.onNotifyLoop(markets, () -> {
                                                     clb.clear();
                                                     synchronized (mle) {
@@ -1352,8 +1382,8 @@ public class FLCore {
                                                     clb.update();
                                                 });
 
-                                        self.onCloseList((selfObject, container1, selfListener) -> {
-                                            self.offCloseList(selfListener);
+                                        self.onCloseList(le1 -> {
+                                            self.offCloseList(le1.getSelfListener());
                                             Core.offNotifyLoop(r);
                                             return true;
                                         });
@@ -1641,6 +1671,11 @@ public class FLCore {
                     MENU_ITEMS.notify();
                 }
             }
+
+            @Override
+            public String toString() {
+                return "Loading FlashLauncher";
+            }
         });
 
         loader.addTask(new Task() {
@@ -1649,6 +1684,8 @@ public class FLCore {
                 Object name;
                 Version ver;
                 IImage icon = null;
+                boolean smoothIcon = true;
+                Object[] cats;
                 File f;
                 FSRoot root;
 
@@ -1669,8 +1706,14 @@ public class FLCore {
                     return null;
                 r.ver = new Version(verStr);
                 r.f = path;
+                final String cs = g.getAsString("categories");
+                final ArrayList<LangItem> cl = new ArrayList<>();
+                if (cs != null)
+                    for (final String cat : cs.split("\\|"))
+                        if (!cat.replaceAll(" ", "").replaceAll("\t", "").isEmpty())
+                            cl.add(Lang.get("categories." + cat));
+                r.cats = cl.toArray();
                 r.main = g.has("main") ? g.getAsString("main") : null;
-                //r.market = g.has("market") ? g.getAsString("market") : null;
                 synchronized (config) {
                     r.market = config.getAsGroup("plugins").getAsString(r.id);
                 }
@@ -1680,6 +1723,8 @@ public class FLCore {
                         r.icon = UI.image(root.readFully("icon.png"));
                     else if (root.exists("icon.jpg"))
                         r.icon = UI.image(root.readFully("icon.jpg"));
+                    if (r.icon != null)
+                        r.smoothIcon = g.getAsBool("smooth-icon", true);
                 } catch (final Exception ex) {
                     ex.printStackTrace();
                 }
@@ -1787,8 +1832,10 @@ public class FLCore {
                             installed.add(new InstalledPlugin(p.id, p.name, p.ver, p.author, p.sd) {
                                 {
                                     icon = p.icon;
+                                    smoothIcon = p.smoothIcon;
                                     root = p.root;
                                     file = p.f;
+                                    cats = p.cats;
                                     main = p.main;
                                     market = p.market;
 
@@ -1801,6 +1848,11 @@ public class FLCore {
                     ex.printStackTrace();
                 }
             }
+
+            @Override
+            public String toString() {
+                return "Loading plugins ...";
+            }
         });
 
         loader.addTask(new Task() {
@@ -1811,6 +1863,11 @@ public class FLCore {
                         if (im instanceof InstalledPlugin)
                             ((InstalledPlugin) im).enable();
                 }
+            }
+
+            @Override
+            public String toString() {
+                return "Enabling plugins ...";
             }
         });
 
@@ -1831,6 +1888,11 @@ public class FLCore {
                         m.checkForUpdates(cml.toArray(new InstalledMeta[0]));
                 }
                 System.gc();
+            }
+
+            @Override
+            public String toString() {
+                return "Checking for updates ...";
             }
         });
 
@@ -1905,7 +1967,10 @@ public class FLCore {
 
     private static void startThread() {
         synchronized (threads) {
-            threads.add(new Thread(FLCore::threadRun) {{ setPriority(MAX_PRIORITY); start(); }});
+            final Thread t = new Thread(FLCore::threadRun, "Task Runner");
+            t.setPriority(Thread.MAX_PRIORITY);
+            threads.add(t);
+            t.start();
         }
     }
 
