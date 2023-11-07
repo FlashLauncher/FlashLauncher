@@ -58,48 +58,13 @@ public class ContainerListBuilder implements IContainer {
         return this;
     }
 
-    @Override
-    public ContainerListBuilder remove(final IComponent component) {
-        sp.remove(component);
-        return this;
-    }
-
-    @Override
-    public IComponent[] childs() {
-        return sp.childs();
-    }
-
-    @Override
-    public ContainerListBuilder clear() {
-        sp.clear();
-        x = y = o;
-        return this;
-    }
-
-    @Override
-    public ContainerListBuilder size(final int width, final int height) {
-        sp.size(width, height);
-        return this;
-    }
-
-    @Override
-    public ContainerListBuilder pos(final int x, final int y) {
-        sp.pos(x, y);
-        return this;
-    }
-
-    @Override
-    public ContainerListBuilder visible(final boolean visible) {
-        sp.visible(visible);
-        return this;
-    }
-
-    @Override
-    public ContainerListBuilder focus() {
-        sp.focus();
-        return this;
-    }
-
+    @Override public ContainerListBuilder remove(final IComponent component) { sp.remove(component); return this; }
+    @Override public IComponent[] childs() { return sp.childs(); }
+    @Override public ContainerListBuilder clear() { sp.clear(); x = y = o; return this; }
+    @Override public ContainerListBuilder size(final int width, final int height) { sp.size(width, height); return this; }
+    @Override public ContainerListBuilder pos(final int x, final int y) { sp.pos(x, y); return this; }
+    @Override public ContainerListBuilder visible(final boolean visible) { sp.visible(visible); return this; }
+    @Override public ContainerListBuilder focus() { sp.focus(); return this; }
     public void y(final int newY) { y = newY; }
 
     @Override
