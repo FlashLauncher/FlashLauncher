@@ -2,6 +2,7 @@ package Utils.json;
 
 import Utils.ListMap;
 
+import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
@@ -46,6 +47,8 @@ public class JsonDict extends JsonElement {
 
     public boolean has(final String key) { return elements.containsKey(key); }
     public JsonElement get(final String key) { return elements.get(key); }
+    public Collection<JsonElement> values() { return elements.values(); }
+    public Set<Map.Entry<String, JsonElement>> entrySet() { return elements.entrySet(); }
 
     public JsonDict getAsDict(final String key) { return get(key).getAsDict(); }
     public JsonList getAsList(final String key) { return get(key).getAsList(); }
@@ -53,6 +56,10 @@ public class JsonDict extends JsonElement {
     public int getAsInt(final String key) { return get(key).getAsInt(); }
     public float getAsFloat(final String key) { return get(key).getAsFloat(); }
     public boolean getAsBool(final String key) { return get(key).getAsBool(); }
+    public boolean getAsBool(final String key, final boolean defaultValue) {
+        final JsonElement e = get(key);
+        return e != null && e.get() instanceof Boolean ? (boolean) e.get() : defaultValue;
+    }
 
     public String getAsStringOrDefault(final String key, final String value) {
         final JsonElement v = get(key);
