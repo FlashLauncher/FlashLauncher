@@ -20,6 +20,7 @@ public abstract class Meta {
     public TaskGroup install() { return null; }
 
     public abstract IImage getIcon();
+    public boolean smoothIcon() { return true; }
     public abstract Object getName();
     public abstract Object getShortDescription();
 }
