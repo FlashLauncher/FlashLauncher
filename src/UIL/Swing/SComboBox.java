@@ -13,6 +13,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class SComboBox extends JComponent implements IComboBox {
     private static final float d = SSwing.DELTA / 300;
+
     private final SFPSTimer animator = new SFPSTimer() {
         @Override
         public void run() {
@@ -29,6 +30,7 @@ public class SComboBox extends JComponent implements IComboBox {
             }
         }
     };
+
     private final ConcurrentLinkedQueue<OnListListener> actions = new ConcurrentLinkedQueue<>();
     private final ConcurrentLinkedQueue<CloseListListener> closeListListeners = new ConcurrentLinkedQueue<>();
 
@@ -65,24 +67,21 @@ public class SComboBox extends JComponent implements IComboBox {
     }
 
     private final class CBP extends SPanel {
+        private final Object lc = new Object();
+        private boolean closed = false;
+
         private IContainer p;
 
-        private final FocusAdapter fa = new FocusAdapter() {
-            @Override public void focusLost(final FocusEvent e) {
-                if (CBP.this == e.getOppositeComponent() || containsComponent(CBP.this, e.getOppositeComponent()))
-                    return;
-                p.remove(CBP.this).update();
-                SComboBox.this.content = null;
-                animator.start();
-                closeListListeners.removeIf(l -> l.run(SComboBox.this, CBP.this, l));
-            }
-        };
+        private final ContainerListener containerListener = new ContainerListener() {
+            @Override public void componentAdded(ContainerEvent e) {}
 
-        private final ContainerListener cl = new ContainerListener() {
             @Override
-            public void componentAdded(final ContainerEvent e) {
-                scan(e.getChild());
+            public void componentRemoved(ContainerEvent e) {
+                if (e.getChild() == CBP.this)
+                    close();
             }
+        },  cl = new ContainerListener() {
+            @Override public void componentAdded(final ContainerEvent e) { scan(e.getChild()); }
 
             @Override
             public void componentRemoved(final ContainerEvent e) {
@@ -91,6 +90,32 @@ public class SComboBox extends JComponent implements IComboBox {
                 e.getChild().removeFocusListener(fa);
             }
         };
+
+        private final FocusAdapter fa = new FocusAdapter() {
+            @Override public void focusLost(final FocusEvent e) {
+                if (CBP.this == e.getOppositeComponent() || containsComponent(CBP.this, e.getOppositeComponent()))
+                    return;
+                close();
+            }
+        };
+
+        public void close() {
+            synchronized (lc) {
+                if (closed)
+                    return;
+                closed = true;
+            }
+            ((Container) p.remove(CBP.this).update()).removeContainerListener(containerListener);
+            SComboBox.this.content = null;
+            animator.start();
+            closeListListeners.removeIf(l -> l.run(new ListEvent<CloseListListener>() {
+                @Override public CloseListListener getSelfListener() { return l; }
+                @Override public IComboBox getSelf() { return SComboBox.this; }
+                @Override public IContainer getContainer() { return CBP.this; }
+                @Override public boolean isClosed() { return true; }
+                @Override public void close() {}
+            }));
+        }
 
         private void scan(final Component co) {
             co.addFocusListener(fa);
@@ -132,12 +157,19 @@ public class SComboBox extends JComponent implements IComboBox {
         if (actions.isEmpty())
             return;
         for (final OnListListener al : actions)
-            if ((cu = al.run(SComboBox.this, sp)) != null)
+            if ((cu = al.run(new ListEvent<OnListListener>() {
+                @Override public OnListListener getSelfListener() { return al; }
+                @Override public IComboBox getSelf() { return SComboBox.this; }
+                @Override public IContainer getContainer() { return sp; }
+                @Override public boolean isClosed() { return sp.closed; }
+                @Override public void close() { sp.close(); }
+            })) != null)
                 c = cu;
         if (c == null)
             return;
         requestFocus();
         sp.p = c.add(sp).update();
+        ((Container) c).addContainerListener(sp.containerListener);
         (content = sp).requestFocus();
         animator.start();
     }
@@ -147,26 +179,20 @@ public class SComboBox extends JComponent implements IComboBox {
         final Graphics2D g = (Graphics2D) (graphics instanceof Graphics2D ? graphics : graphics.create());
         g.setRenderingHints(SSwing.RH);
         g.setFont((Font) font.get());
+
         final FontMetrics m = g.getFontMetrics();
-        final String t;
-        final Image i;
-        final int w = getWidth(), h = getHeight(), fh = m.getHeight(), oi, ot;
-        final Area area;
-        {
-            final Object to = text;
-            t = to == null ? null : to.toString();
+        final int br = borderRadius.run(), w = getWidth(), h = getHeight(), fh = m.getHeight(), oi = imageOffset.run(), ot = imageTextDist.run(),
+                rb = w - h, xc = rb + h / 2, o = h / 3, hc = h / 5, ho = (h - hc) / 2 + Math.round(a * hc), y1 = h - ho;
 
-            final IImage io = img;
-            i = io == null ? null : (Image) io.getImage();
+        final Object to = text;
+        final String t = to == null ? null : to.toString();
 
-            final int br = borderRadius.run();
-            area = br > 0 ? new Area(new RoundRectangle2D.Double(0, 0, w, h, br, br)) : new Area();
+        final IImage io = img;
+        final Image i = io == null ? null : (Image) io.getImage();
 
-            oi = imageOffset.run();
-            ot = imageTextDist.run();
-        }
-        final int rb = w - h, xc = rb + h / 2, o = h / 3, hc = h / 5, ho = (h - hc) / 2 + Math.round(a * hc), y1 = h - ho;
+        final Area area = br > 0 ? new Area(new RoundRectangle2D.Double(0, 0, w, h, br, br)) : new Area();
         g.setClip(area);
+
         g.setColor((Color) bg.get());
         g.fillRect(0, 0, w, h);
         g.setColor((Color) fg.get());
@@ -188,7 +214,8 @@ public class SComboBox extends JComponent implements IComboBox {
                 g.drawString(t, h + ot, (h - fh) / 2 + m.getLeading() + m.getAscent());
         }
 
-        g.dispose();
+        if (!(graphics instanceof Graphics2D))
+            g.dispose();
     }
 
     @Override public int width() { return getWidth(); }

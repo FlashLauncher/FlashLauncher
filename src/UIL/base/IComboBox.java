@@ -5,11 +5,20 @@ import Utils.RRunnable;
 
 public interface IComboBox extends IButton {
     interface OnListListener {
-        IContainer run(final IComboBox self, final IContainer container);
+        IContainer run(final ListEvent<OnListListener> event);
     }
 
     interface CloseListListener {
-        boolean run(final IComboBox selfObject, final IContainer container, final CloseListListener selfListener);
+        boolean run(final ListEvent<CloseListListener> event);
+    }
+
+    interface ListEvent<T> {
+        T getSelfListener();
+        IComboBox getSelf();
+        IContainer getContainer();
+
+        boolean isClosed();
+        void close();
     }
 
     default IComboBox onList(final OnListListener listener) { return this; }
