@@ -20,8 +20,8 @@ public class SSwing extends UI {
     public static final int MULTIPLIER = 16;
 
     public static final RenderingHints RH = new RenderingHints(new FixedMap<>(
-            new Key[]    { KEY_ANTIALIASING  , KEY_TEXT_ANTIALIASING  , KEY_RENDERING        },
-            new Object[] { VALUE_ANTIALIAS_ON, VALUE_TEXT_ANTIALIAS_ON, VALUE_RENDER_QUALITY }
+            new Key[]    { KEY_ANTIALIASING  , KEY_TEXT_ANTIALIASING  , KEY_RENDERING       , KEY_INTERPOLATION            },
+            new Object[] { VALUE_ANTIALIAS_ON, VALUE_TEXT_ANTIALIAS_ON, VALUE_RENDER_QUALITY, VALUE_INTERPOLATION_BILINEAR }
     ));
 
     private static int callGCEvery = -1, fc = 0;
@@ -105,6 +105,10 @@ public class SSwing extends UI {
 
     @Override
     public void invokeAndWait(final Runnable action) throws InterruptedException {
+        if (SwingUtilities.isEventDispatchThread()) {
+            action.run();
+            return;
+        }
         try {
             SwingUtilities.invokeAndWait(action);
         } catch (InvocationTargetException ex) {
