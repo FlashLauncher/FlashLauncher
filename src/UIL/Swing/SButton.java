@@ -31,7 +31,7 @@ public class SButton extends JButton implements IButton {
             @Override
             public void keyPressed(final KeyEvent e) {
                 if (e.getKeyCode() == KeyEvent.VK_SPACE) {
-                    final SButtonKeyEvent evt = new SButtonKeyEvent();
+                    final SButtonKeyEvent evt = new SButtonKeyEvent(e);
                     for (final IButtonAction a : actionListeners)
                         a.run(SButton.this, evt);
                 }
@@ -75,11 +75,10 @@ public class SButton extends JButton implements IButton {
         final boolean t = !text.isEmpty();
         final HAlign ha = this.ha;
         final ImgAlign ia = align;
-        final Image img;
-        {
-            final IImage i = image;
-            img = i != null ? (Image) i.getImage() : null;
-        }
+
+        final IImage i = image;
+        final Image img = i != null ? (Image) i.getImage() : null;
+
 
         int w = t ? metrics.stringWidth(text) : 0, h = t ? metrics.getHeight() : 0, x, y;
         if (img != null)
@@ -91,7 +90,7 @@ public class SButton extends JButton implements IButton {
         x = ha == HAlign.LEFT ? img == null ? 0 : io : (getWidth() - w) / 2;
         y = (getHeight() - h) / 2;
 
-        if (img != null) {
+        if (img != null)
             if (ia == ImgAlign.TOP) {
                 g.drawImage(img, (getWidth() - s) / 2, y, s, s, this);
                 y += s + itd;
@@ -99,7 +98,7 @@ public class SButton extends JButton implements IButton {
                 g.drawImage(img, x, (getHeight() - s) / 2, s, s, this);
                 x += s + itd;
             }
-        }
+
         if (t)
             g.drawString(text, x, y + metrics.getLeading() + metrics.getAscent());
 
@@ -116,7 +115,11 @@ public class SButton extends JButton implements IButton {
     @Override public SButton size(final int width, final int height) { setSize(width, height); return this; }
     @Override public SButton pos(final int x, final int y) { setLocation(x, y); return this; }
     @Override public SButton visible(final boolean visible) { setVisible(visible); return this; }
-    @Override public SButton focus() { requestFocus(); return this; }
+    @Override public SButton focus() {
+        //requestFocus();
+        requestFocusInWindow();
+        return this;
+    }
     @Override public SButton onAction(final IButtonAction runnable) { actionListeners.add(runnable); return this; }
     @Override public SButton borderRadius(final RRunnable<Integer> borderRadius) { this.borderRadius = borderRadius; return this; }
     @Override public SButton imageTextDist(final int imageTextDist) { this.imageTextDist = () -> imageTextDist; return this; }
@@ -138,10 +141,15 @@ public class SButton extends JButton implements IButton {
     }
 
     private static class SButtonKeyEvent implements IButtonActionEvent {
-        private SButtonKeyEvent() {}
+        private final KeyEvent e;
 
+        private SButtonKeyEvent(final KeyEvent event) { e = event; }
+
+        @Override public boolean isConsumed() { return e.isConsumed(); }
         @Override public boolean isMouse() { return false; }
         @Override public int clickCount() { return 0; }
+
+        @Override public void consume() { e.consume(); }
     }
 
     private static class SButtonMouseEvent implements IButtonActionEvent {
@@ -149,7 +157,10 @@ public class SButton extends JButton implements IButton {
 
         private SButtonMouseEvent(final MouseEvent event) { e = event; }
 
+        @Override public boolean isConsumed() { return e.isConsumed(); }
         @Override public boolean isMouse() { return true; }
         @Override public int clickCount() { return e.getClickCount(); }
+
+        @Override public void consume() { e.consume(); }
     }
 }

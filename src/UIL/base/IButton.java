@@ -28,8 +28,11 @@ public interface IButton extends IText {
     @Override default IButton update() { return this; }
 
     interface IButtonActionEvent {
+        boolean isConsumed();
         boolean isMouse();
         int clickCount();
+
+        void consume();
     }
 
     interface IButtonAction { void run(final IButton self, final IButtonActionEvent event); }
