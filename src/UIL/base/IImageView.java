@@ -7,6 +7,7 @@ public interface IImageView extends IComponent {
     IImageView image(final IImage img);
     IImageView imageSizeMode(final ImageSizeMode imageSizeMode);
     IImageView imagePosMode(final ImagePosMode imagePosMode);
+    IImageView smooth(final boolean value);
 
     // IComponent
     @Override IImageView size(final int width, final int height);

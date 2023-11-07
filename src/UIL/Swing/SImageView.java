@@ -3,6 +3,8 @@ package UIL.Swing;
 import UIL.*;
 import UIL.base.IImage;
 import UIL.base.IImageView;
+import Utils.Core;
+import Utils.RRunnable;
 
 import javax.swing.*;
 import java.awt.*;
@@ -11,6 +13,7 @@ public class SImageView extends JComponent implements IImageView {
     private ImageSizeMode imageSizeMode;
     private ImagePosMode imagePosMode;
     private IImage image = null;
+    private boolean smooth = true;
 
     public SImageView(final ImagePosMode imagePosMode, final ImageSizeMode imageSizeMode) {
         this.imagePosMode = imagePosMode;
@@ -65,6 +68,8 @@ public class SImageView extends JComponent implements IImageView {
 
         final Graphics2D g = (Graphics2D) (graphics instanceof Graphics2D ? graphics : graphics.create());
         g.setRenderingHints(SSwing.RH);
+        if (!smooth)
+            g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
         g.drawImage(img, x, y, Math.round(iw), Math.round(ih), this);
         g.dispose();
     }
@@ -80,23 +85,10 @@ public class SImageView extends JComponent implements IImageView {
     @Override public SImageView visible(final boolean visible) { setVisible(visible); return this; }
     @Override public SImageView focus() { requestFocus(); return this; }
 
-    @Override
-    public SImageView image(final IImage img) {
-        image = img;
-        return this;
-    }
-
-    @Override
-    public SImageView imageSizeMode(final ImageSizeMode imageSizeMode) {
-        this.imageSizeMode = imageSizeMode;
-        return this;
-    }
-
-    @Override
-    public SImageView imagePosMode(final ImagePosMode imagePosMode) {
-        this.imagePosMode = imagePosMode;
-        return this;
-    }
+    @Override public SImageView image(final IImage img) { image = img; return this; }
+    @Override public SImageView imageSizeMode(final ImageSizeMode imageSizeMode) { this.imageSizeMode = imageSizeMode; return this; }
+    @Override public SImageView imagePosMode(final ImagePosMode imagePosMode) { this.imagePosMode = imagePosMode; return this; }
+    @Override public SImageView smooth(boolean value) { smooth = value; return this; }
 
     @Override
     public SImageView update() {
