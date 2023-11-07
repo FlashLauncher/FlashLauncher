@@ -35,15 +35,17 @@ public class SGraphics2D extends Graphics2D {
     }
 
     @Override
-    public void setClip(Shape clip) {
+    public void setClip(final Shape clip) {
+        if (clip == null) {
+            graphics.setClip(r);
+            return;
+        }
         final Area a = new Area(r);
         a.intersect(new Area(clip));
         graphics.setClip(a);
     }
 
-    @Override public void dispose() {
-        graphics.dispose();
-    }
+    @Override public void dispose() { graphics.dispose(); }
 
     @Override public void draw(final Shape s) { graphics.draw(s); }
     @Override public boolean drawImage(Image img, AffineTransform xform, ImageObserver obs) { return graphics.drawImage(img, xform, obs); }
