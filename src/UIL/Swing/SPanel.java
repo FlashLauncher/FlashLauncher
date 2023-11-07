@@ -4,6 +4,7 @@ import UIL.*;
 import UIL.base.IColor;
 import UIL.base.IComponent;
 import UIL.base.IContainer;
+import Utils.Core;
 import Utils.RRunnable;
 
 import javax.swing.*;
@@ -15,25 +16,38 @@ public class SPanel extends JPanel implements IContainer {
     private RRunnable<Integer> borderRadius = Theme.BORDER_RADIUS;
     private IColor bg = Theme.BACKGROUND_COLOR;
 
+    private RoundRectangle2D.Double area = null;
+
     public SPanel() { setOpaque(false); setLayout(null); }
 
-    @Override protected void paintComponent(final Graphics g) {}
+    private long nano;
+
+    @Override
+    protected void paintComponent(final Graphics graphics) {
+        final Graphics2D g = new SGraphics2D((Graphics2D) (graphics instanceof Graphics2D ? graphics : graphics.create()));
+        g.setRenderingHints(SSwing.RH);
+
+        final int br = borderRadius.run(), cw = getWidth(), ch = getHeight();
+        area = br > 0 ? new RoundRectangle2D.Double(0, 0, cw, ch, br, br) : null;
+        g.setClip(area);
+        g.setColor((Color) bg.get());
+        g.fillRect(0, 0, cw, ch);
+
+        if (!(graphics instanceof Graphics2D))
+            g.dispose();
+    }
 
     @Override
     protected void paintChildren(final Graphics graphics) {
         final Graphics2D g = new SGraphics2D((Graphics2D) (graphics instanceof Graphics2D ? graphics : graphics.create()));
         g.setRenderingHints(SSwing.RH);
-
-        final int br = borderRadius.run(), cw = getWidth(), ch = getHeight();
-        if (br > 0)
-            g.setClip(new RoundRectangle2D.Double(0, 0, cw, ch, br, br));
-
-        g.setColor((Color) bg.get());
-        g.fillRect(0, 0, cw, ch);
+        if (area != null)
+            g.setClip(area);
 
         super.paintChildren(g);
 
-        g.dispose();
+        if (!(graphics instanceof Graphics2D))
+            g.dispose();
     }
 
     @Override public int width() { return getWidth(); }
@@ -47,6 +61,7 @@ public class SPanel extends JPanel implements IContainer {
         setSize(width, height);
         return this;
     }
+
     @Override public SPanel pos(final int x, final int y) { setLocation(x, y); return this; }
     @Override public SPanel visible(final boolean visible) { setVisible(visible); return this; }
     @Override public SPanel focus() { requestFocus(); return this; }
@@ -73,29 +88,10 @@ public class SPanel extends JPanel implements IContainer {
         return this;
     }
 
-    @Override
-    public SPanel remove(final IComponent component) {
-        super.remove((Component) component.getComponent());
-        return this;
-    }
-
-    @Override
-    public SPanel clear() {
-        super.removeAll();
-        return this;
-    }
-
-    @Override
-    public SPanel background(final IColor bg) {
-        this.bg = bg;
-        return this;
-    }
-
-    @Override
-    public SPanel borderRadius(final RRunnable<Integer> borderRadius) {
-        this.borderRadius = borderRadius;
-        return this;
-    }
+    @Override public SPanel remove(final IComponent component) { super.remove((Component) component.getComponent()); return this; }
+    @Override public SPanel clear() { super.removeAll(); return this; }
+    @Override public SPanel background(final IColor bg) { this.bg = bg; return this; }
+    @Override public SPanel borderRadius(final RRunnable<Integer> borderRadius) { this.borderRadius = borderRadius; return this; }
 
     @Override
     public SPanel update() {
