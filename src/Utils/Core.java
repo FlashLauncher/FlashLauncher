@@ -23,20 +23,27 @@ public class Core {
 
     public static final boolean
             IS_WINDOWS,
-            IS_WINDOWS_10,
+            //IS_WINDOWS_10,
             IS_LINUX,
             IS_MACOS
+    ;
+
+    public static final Version VERSION = new Version(System.getProperty("os.version"));
+
+    public static final RRunnable<Boolean>
+            TRUE = () -> true,
+            FALSE = () -> false
     ;
 
     static {
         final String osn = System.getProperty("os.name").toLowerCase();
         IS_WINDOWS = osn.contains("win");
         if (IS_WINDOWS) {
-            IS_WINDOWS_10 = osn.contains("10");
+            //IS_WINDOWS_10 = osn.contains("10");
             IS_LINUX = false;
             IS_MACOS = false;
         } else {
-            IS_WINDOWS_10 = false;
+            //IS_WINDOWS_10 = false;
             IS_LINUX = osn.contains("nix") || osn.contains("nux") || osn.contains("aix");
             IS_MACOS = !IS_LINUX && osn.contains("mac");
         }
@@ -394,6 +401,20 @@ public class Core {
                 }
             }
         }
+    }
+
+    public static String repeat(final char ch, int n) {
+        final StringBuilder b = new StringBuilder(n);
+        for (; n > 0; n--)
+            b.append(ch);
+        return b.toString();
+    }
+
+    public static String repeat(final String str, int n) {
+        final StringBuilder b = new StringBuilder(str.length() * n);
+        for (; n > 0; n--)
+            b.append(str);
+        return b.toString();
     }
 
     public static int syncGetSize(final Collection<?> collection) { synchronized (collection) { return collection.size(); } }
