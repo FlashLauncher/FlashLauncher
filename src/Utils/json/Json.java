@@ -64,7 +64,7 @@ public abstract class Json extends Reader implements AutoCloseable {
 
     public static JsonElement parse(final InputStream is, final boolean autoClose, Charset charset) throws IOException {
         try (final Json j = new Json() {
-            private final BufferedReader isr = new BufferedReader(new InputStreamReader(is, charset));
+            private final InputStreamReader isr = new InputStreamReader(is, charset);
 
             @Override
             public int read(final char[] cbuf, final int off, final int len) throws IOException {
@@ -83,7 +83,7 @@ public abstract class Json extends Reader implements AutoCloseable {
 
     public static JsonElement parse(final InputStream is, final boolean autoClose, String charset) throws IOException {
         try (final Json j = new Json() {
-            private final BufferedReader isr = new BufferedReader(new InputStreamReader(is, charset));
+            private final InputStreamReader isr = new InputStreamReader(is, charset);
 
             @Override
             public int read(final char[] cbuf, final int off, final int len) throws IOException {
@@ -95,6 +95,25 @@ public abstract class Json extends Reader implements AutoCloseable {
                 if (autoClose)
                     isr.close();
             }
+        }) {
+            return j.p();
+        }
+    }
+
+    public static JsonElement parse(final File file, final String charset) throws IOException {
+        try (
+                final FileInputStream is = new FileInputStream(file);
+                final BufferedReader isr = new BufferedReader(new InputStreamReader(is, charset));
+                final Json j = new Json() {
+                        @Override
+                        public int read(final char[] cbuf, final int off, final int len) throws IOException {
+                            return isr.read(cbuf, off, len);
+                        }
+
+                        @Override
+                        public void close() throws IOException {
+                            isr.close();
+                        }
         }) {
             return j.p();
         }
