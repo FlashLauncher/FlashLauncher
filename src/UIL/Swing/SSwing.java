@@ -26,7 +26,7 @@ public class SSwing extends UI {
 
     private static int callGCEvery = -1, fc = 0;
 
-    private static final Thread updater = new Thread(() -> {
+    private final Thread updater = new Thread(() -> {
         try {
             long l1 = System.currentTimeMillis(), l2;
             while (true) {
@@ -37,20 +37,26 @@ public class SSwing extends UI {
                         SFPSTimer.timers.wait();
                         continue;
                     }
-                    for (final SFPSTimer t : SFPSTimer.timers)
-                        t.run();
-                    if (callGCEvery > -1 && ++fc >= callGCEvery) {
-                        fc = 0;
-                        System.gc();
-                    }
                 }
+                SwingUtilities.invokeAndWait(() -> {
+                    try {
+                        for (final SFPSTimer t : SFPSTimer.timers)
+                            t.run();
+                    } catch (final Exception ex) {
+                        ex.printStackTrace();
+                    }
+                });
                 l2 = System.currentTimeMillis();
                 final float d = SSwing.DELTA - (l2 - l1);
                 l1 = l2;
                 if (d > 0)
                     Thread.sleep((int) Math.ceil(d));
             }
-        } catch (final InterruptedException ignored) {}
+        } catch (final Throwable ex) {
+            if (ex instanceof InterruptedException)
+                return;
+            ex.printStackTrace();
+        }
     }) {{ start(); }};
 
     @Override public boolean isRunnable() { return !GraphicsEnvironment.isHeadless(); }
