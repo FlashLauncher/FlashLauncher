@@ -15,6 +15,5 @@ public interface IProfile {
 
     void open(final IEditorContext context);
 
-    void preLaunch(final RunProc configuration);
-    void launch(final RunProc configuration);
+    default LaunchListener init(final RunProc configuration) { return null; }
 }
