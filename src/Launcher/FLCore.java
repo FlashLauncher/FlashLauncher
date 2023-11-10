@@ -29,14 +29,10 @@ public class FLCore {
         if (cf.exists() && cf.isFile())
             try {
                 g = new IniGroup(new String(FS.OS.readFully(cf.getAbsolutePath()), StandardCharsets.UTF_8), false);
-                if (!g.has("plugins") || !(g.get("plugins") instanceof IniGroup))
-                    g.newGroup("plugins");
             } catch (final IOException exception) {
                 exception.printStackTrace();
             }
-        config = g == null ? new IniGroup() {{
-            newGroup("plugins");
-        }} : g;
+        config = g == null ? new IniGroup() : g;
 
         UI.UI = new SSwing();
         IImage ip = null, ip2 = null, im = null, ia = null, ifi = null, ii = null, iu = null, id = null, a = null;
@@ -410,7 +406,7 @@ public class FLCore {
             @Override public Version getVersion() { return FlashLauncher.VERSION; }
             @Override public String getMarket() {
                 synchronized (config) {
-                    return config.getAsGroup("plugins").getAsString(FlashLauncher.ID);
+                    return config.group("plugins." + FlashLauncher.ID).getAsString("market");
                 }
             }
             @Override public IImage getIcon() { return FlashLauncher.ICON; }
@@ -1174,7 +1170,7 @@ public class FLCore {
                                                         groups.notifyAll();
                                                     }
                                                     synchronized (config) {
-                                                        config.getAsGroup("plugins").put(id, i.getKey().getID());
+                                                        config.group("plugins." + id).put("market", i.getKey().getID());
                                                         try (final FileOutputStream fos = new FileOutputStream(new File(Core.getPath(FLCore.class), "config.ini"))) {
                                                             fos.write(config.toString().getBytes(StandardCharsets.UTF_8));
                                                         } catch (final IOException ex) {
@@ -1220,7 +1216,7 @@ public class FLCore {
                                                                     groups.notifyAll();
                                                                 }
                                                                 synchronized (config) {
-                                                                    config.getAsGroup("plugins").remove(im.getID());
+                                                                    config.remove("plugins." + im.getID());
                                                                     try (final FileOutputStream fos = new FileOutputStream(new File(Core.getPath(FLCore.class), "config.ini"))) {
                                                                         fos.write(config.toString().getBytes(StandardCharsets.UTF_8));
                                                                     } catch (final IOException ex) {
@@ -1240,7 +1236,7 @@ public class FLCore {
                                                     groups.notifyAll();
                                                 }
                                                 synchronized (config) {
-                                                    config.getAsGroup("plugins").put(me.getID(), i.getKey().getID());
+                                                    config.group("plugins." + me.getID()).put("market", i.getKey().getID());
                                                     try (final FileOutputStream fos = new FileOutputStream(new File(Core.getPath(FLCore.class), "config.ini"))) {
                                                         fos.write(config.toString().getBytes(StandardCharsets.UTF_8));
                                                     } catch (final IOException ex) {
@@ -1732,7 +1728,7 @@ public class FLCore {
                 r.cats = cl.toArray();
                 r.main = g.has("main") ? g.getAsString("main") : null;
                 synchronized (config) {
-                    r.market = config.getAsGroup("plugins").getAsString(r.id);
+                    r.market = config.group("plugins." + r.id).getAsString("market");
                 }
 
                 try {
