@@ -84,6 +84,8 @@ public class FLCore {
                 if (g.tasks.isEmpty())
                     return false;
             }
+            if (super.contains(g))
+                return true;
             return super.add(g);
         }
 
@@ -452,6 +454,8 @@ public class FLCore {
                 boolean finished = false;
                 Process process = null;
 
+                final ArrayList<LaunchListener> l = new ArrayList<>();
+
                 public PlayStatus(final RunProc rp) { this.rp = rp; }
             }
 
@@ -585,10 +589,23 @@ public class FLCore {
                                                 if (acc == null || pro == null || !acc.isCompatible(pro) || !pro.isCompatible(acc))
                                                     return;
                                                 final PlayStatus s = new PlayStatus(new RunProc(launcher, acc, pro));
-                                                pro.preLaunch(s.rp);
-                                                acc.preLaunch(s.rp);
-                                                pro.launch(s.rp);
-                                                acc.launch(s.rp);
+
+                                                LaunchListener listener = pro.init(s.rp);
+                                                if (listener != null)
+                                                    s.l.add(listener);
+
+                                                listener = acc.init(s.rp);
+                                                if (listener != null)
+                                                    s.l.add(listener);
+
+                                                listener = null;
+
+                                                for (final LaunchListener ll : s.l)
+                                                    ll.preLaunch();
+
+                                                for (final LaunchListener ll : s.l)
+                                                    ll.launch();
+
                                                 synchronized (statusList) {
                                                     statusList.put(launcher, s);
                                                 }
@@ -1938,29 +1955,32 @@ public class FLCore {
         });
 
         new Thread(() -> {
-            try {
-                final ObjLocker lf = new ObjLocker(frames), lg = new ObjLocker(groups);
-                while (true) {
+            final ObjLocker lf = new ObjLocker(frames), lg = new ObjLocker(groups);
+            while (true)
+                try {
                     lf.lock();
                     lg.lock();
-                    if (frames.isEmpty() && groups.isEmpty()) {
-                        lf.unlock();
-                        lg.unlock();
+                    if (frames.isEmpty() && groups.isEmpty())
                         break;
-                    }
                     Core.waitM(lf, lg);
+                } catch (final InterruptedException ignored) {
+                    break;
+                } finally {
                     lg.unlock();
                     lf.unlock();
                 }
-            } catch (final InterruptedException ignored) {}
             try {
                 server.close();
             } catch (final IOException ignored) {}
+            Core.offNotify(r);
+            synchronized (groups) {
+                if (!groups.isEmpty())
+                    System.out.println("Exit. Skip groups: " + groups.size());
+            }
             synchronized (threads) {
                 for (final Thread t : threads)
                     t.interrupt();
             }
-            Core.offNotify(r);
             System.exit(0);
         }).start();
     }
@@ -2017,11 +2037,18 @@ public class FLCore {
                 }
             }
         if (t == null) {
-            if (w == null)
-                l.waitNotify();
-            else
-                Core.waitM(l, w);
-            l.unlock();
+            try {
+                if (w == null)
+                    l.waitNotify();
+                else
+                    Core.waitM(l, w);
+            } catch (final InterruptedException ex) {
+                throw ex;
+            } finally {
+                l.unlock();
+                if (w != null)
+                    w.unlock();
+            }
         } else {
             l.unlock();
             t.LRun();
