@@ -47,14 +47,21 @@ public class IniGroup {
     public Set<Map.Entry<String, Object>> entrySet() { return values.entrySet(); }
 
     public IniGroup newGroup(final String k) {
-        return new IniGroup() {{
-            values.put(k, this);
-        }};
+        final IniGroup g = new IniGroup();
+        values.put(k, g);
+        return g;
     }
 
     public IniGroup getAsGroup(final String k) {
         final Object o = get(k);
         return o != null ? (IniGroup) o : null;
+    }
+
+    public IniGroup group(final String k) {
+        IniGroup g = getAsGroup(k);
+        if (g == null)
+            values.put(k, g = new IniGroup());
+        return g;
     }
 
     public String getAsString(final String k) {
