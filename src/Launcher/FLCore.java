@@ -1981,6 +1981,7 @@ public class FLCore {
                 for (final Thread t : threads)
                     t.interrupt();
             }
+            UI.UI.dispose();
             System.exit(0);
         }).start();
     }
