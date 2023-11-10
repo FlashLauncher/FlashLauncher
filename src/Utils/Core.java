@@ -239,27 +239,32 @@ public class Core {
         }
         final Object o = new Object();
         final ArrayList<Thread> l = new ArrayList<>();
-        synchronized (o) {
-            for (final Object ob : objects)
-                l.add(new Thread(() -> {
-                    try {
-                        if (ob instanceof ObjLocker)
-                            ((ObjLocker) ob).waitNotify();
-                        else
-                            synchronized (ob) {
-                                ob.wait();
+        try {
+            synchronized (o) {
+                for (final Object ob : objects)
+                    l.add(new Thread(() -> {
+                        try {
+                            if (ob instanceof ObjLocker)
+                                ((ObjLocker) ob).waitNotify();
+                            else
+                                synchronized (ob) {
+                                    ob.wait();
+                                }
+                            synchronized (o) {
+                                o.notifyAll();
                             }
-                        synchronized (o) {
-                            o.notifyAll();
-                        }
-                    } catch (final InterruptedException ignored) {}
-                }, "Wait multiple " + ob) {{
-                    start();
-                }});
-            o.wait();
+                        } catch (final InterruptedException ignored) {}
+                    }, "Wait multiple " + ob) {{
+                        start();
+                    }});
+                o.wait();
+            }
+        } catch (final Throwable ex) {
+            throw ex;
+        } finally {
+            for (final Thread t : l)
+                t.interrupt();
         }
-        for (final Thread t : l)
-            t.interrupt();
     }
 
     private static final ListMap<Object, FixedEntry<Thread, List<Runnable>>> waiterList = new ListMap<>();
