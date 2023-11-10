@@ -42,6 +42,7 @@ public class SScrollPane extends JPanel implements IScrollPane {
     protected void paintComponent(final Graphics graphics) {
         final SGraphics2D g = graphics instanceof SGraphics2D ? (SGraphics2D) graphics :
                 new SGraphics2D((Graphics2D) (graphics instanceof Graphics2D ? graphics : graphics.create()));
+        g.setRenderingHints(SSwing.RH);
 
         final int br = borderRadius.run(), w = getWidth(), h = getHeight(), sx = this.sx, sy = this.sy;
         a = new Area(br > 0 ? new RoundRectangle2D.Double(0, 0, w, h, br, br) : new Rectangle(0, 0, w, h));
