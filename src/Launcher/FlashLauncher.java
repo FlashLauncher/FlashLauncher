@@ -124,7 +124,7 @@ public class FlashLauncher {
                 final IScrollPane sp = UI.scrollPane().size(scw, ch).pos(168, 0);
                 frame.add(content = UI.panel().add(mb, sp).background(UI.TRANSPARENT).borderRadius(UI.ZERO).size(cw, ch).pos(64, 8)).update();
                 final Runnable r = Core.onNotifyLoop(FLCore.HELP_ITEMS, () -> {
-                    final IContainer sc = UI.panel().size(scw, ch).pos(168, 0);
+                    final IContainer sc = UI.panel().size(scw, ch);
                     mb.clearTop();
                     sp.content(sc);
                     for (final FLMenuItemListener mbi : FLCore.HELP_ITEMS)
@@ -154,7 +154,7 @@ public class FlashLauncher {
                 final IScrollPane sp = UI.scrollPane().size(scw, ch).pos(168, 0);
                 frame.add(content = UI.panel().add(mb, sp).background(UI.TRANSPARENT).borderRadius(UI.ZERO).size(cw, ch).pos(64, 8)).update();
                 final Runnable r = Core.onNotifyLoop(FLCore.SETTINGS_ITEMS, () -> {
-                    final IContainer sc = UI.panel().size(scw, ch).pos(168, 0);
+                    final IContainer sc = UI.panel().size(scw, ch);
                     mb.clearTop();
                     sp.content(sc);
                     for (final FLMenuItemListener mbi : FLCore.SETTINGS_ITEMS)
