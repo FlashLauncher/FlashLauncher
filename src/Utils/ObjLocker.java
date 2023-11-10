@@ -1,5 +1,7 @@
 package Utils;
 
+import java.util.ConcurrentModificationException;
+
 public class ObjLocker {
     private final Object lo = new Object(), o;
     private boolean l = false, w = false;
@@ -37,14 +39,25 @@ public class ObjLocker {
                     if (ex instanceof InterruptedException)
                         return;
                     ex.printStackTrace();
+                    ex.fillInStackTrace();
+                    ex.printStackTrace();
                 }
-            }, "ObjectLocker of " + o.getClass().getName() + " - " + o) {{
-                setPriority(MIN_PRIORITY);
-                start();
-            }};
-            lo.wait();
+            }, "ObjectLocker of " + o.getClass().getName());
+            t.setPriority(Thread.MIN_PRIORITY);
+            t.start();
+            try {
+                lo.wait();
+            } catch (final Throwable ex) {
+                l = false;
+                lo.notify();
+                t.interrupt();
+                t = null;
+                throw ex;
+            }
         }
     }
+
+    public boolean isLocked() { synchronized (lo) { return l; } }
 
     public void waitNotify() throws InterruptedException {
         synchronized (lo) {
@@ -52,8 +65,13 @@ public class ObjLocker {
                 lock();
             w = true;
             lo.notify();
-            lo.wait();
-            w = false;
+            try {
+                lo.wait();
+                lo.notify();
+            } catch (final InterruptedException ex) {
+                w = false;
+                throw ex;
+            }
         }
     }
 
@@ -67,4 +85,6 @@ public class ObjLocker {
             }
         }
     }
+
+    public Object getLocker() { return lo; }
 }
