@@ -10,8 +10,8 @@ import Utils.RRunnable;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.geom.Area;
 import java.awt.geom.RoundRectangle2D;
-import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Map;
 
@@ -40,7 +40,7 @@ public class SMenuBar extends JPanel implements IMenuBar {
                     final float dd = fh - ch;
                     ch += dd > 0 ? Math.min(dd, d2) : Math.max(dd, -d2);
                 }
-                repaint();
+                repaint(0, 0, 8, getHeight());
             } else
                 stop();
         }
@@ -72,13 +72,14 @@ public class SMenuBar extends JPanel implements IMenuBar {
 
     @Override
     protected void paintChildren(final Graphics graphics) {
-        final Graphics2D g = (Graphics2D) graphics.create();
+        final SGraphics2D g = graphics instanceof SGraphics2D ? (SGraphics2D) graphics :
+                new SGraphics2D((Graphics2D) (graphics instanceof Graphics2D ? graphics : graphics.create()));
         g.setRenderingHints(SSwing.RH);
 
         final int br = borderRadius.run(), contentHeight = y, sh = getHeight() - iv, h = Math.max(64, sh * (sh / contentHeight)), yl;
-        if (br > 0)
-            g.setClip(new RoundRectangle2D.Double(0, 0, getWidth(), getHeight(), br, br));
+        final Area a = br > 0 ? new Area(new RoundRectangle2D.Double(0, 0, getWidth(), getHeight(), br, br)) : null;
 
+        g.setClip(a);
         g.setColor((Color) bg.get());
         g.fillRect(0, 0, getWidth(), getHeight());
 
@@ -89,9 +90,9 @@ public class SMenuBar extends JPanel implements IMenuBar {
         } else
             yl = getHeight();
 
-        final BufferedImage img = g.getDeviceConfiguration().createCompatibleImage(getWidth(), yl, Transparency.TRANSLUCENT);
-        super.paintChildren(img.createGraphics());
-        g.drawImage(img, 0, 0, this);
+        g.clipRect(0, 0, getWidth(), yl);
+        super.paintChildren(g);
+        g.setClip(a);
 
         synchronized (bottom) {
             for (final SButton btn : bottom)
@@ -104,7 +105,8 @@ public class SMenuBar extends JPanel implements IMenuBar {
         if (contentHeight > 0 && yl < contentHeight)
             g.fillRect(getWidth() - 4, Math.round((float) (sh - h) / (contentHeight - sh) * (-sy)), 4, h);
 
-        g.dispose();
+        if (!(graphics instanceof Graphics2D))
+            g.dispose();
     }
 
     @Override
