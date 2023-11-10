@@ -254,7 +254,7 @@ public class Core {
                                 o.notifyAll();
                             }
                         } catch (final InterruptedException ignored) {}
-                    }, "Wait multiple " + ob) {{
+                    }, "Wait multiple " + ob.getClass().getName()) {{
                         start();
                     }});
                 o.wait();
