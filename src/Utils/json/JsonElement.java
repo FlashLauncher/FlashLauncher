@@ -1,12 +1,21 @@
 package Utils.json;
 
+import java.util.UUID;
+
 public class JsonElement {
     private final Object o;
 
     public JsonElement() { o = this; }
-    public JsonElement(final Object obj) { o = obj; }
+    public JsonElement(final Object obj) {
+        if (obj instanceof UUID) {
+            o = obj.toString();
+            return;
+        }
+        o = obj;
+    }
 
     public boolean isDict() { return o instanceof JsonDict; }
+    public boolean isList() { return o instanceof JsonList; }
     public boolean isString() { return o instanceof String; }
 
     public Object get() { return o; }
