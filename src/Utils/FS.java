@@ -150,10 +150,14 @@ public class FS {
         return path.isFile() ? new FSZip(path) : new FSDir(path);
     }
 
-
-
     public static File[] parents(File f) {
-        if (f != null) f = f.getAbsoluteFile();
+        if (f != null)
+            try {
+                f = f.getCanonicalFile();
+            } catch (final IOException ex) {
+                ex.printStackTrace();
+                f = f.getAbsoluteFile();
+            }
         final ArrayList<File> parents = new ArrayList<>();
         for (; f != null; f = f.getParentFile())
             parents.add(0, f);
@@ -182,6 +186,10 @@ public class FS {
                 r.append('/').append(op[i].getName());
         }
         return r.toString();
+    }
+
+    public static File resolve(final File main, final String other) throws IOException {
+        return main.toPath().resolve(other).toFile().getCanonicalFile();
     }
 
     public static boolean clearDir(final File dir) {
