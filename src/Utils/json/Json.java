@@ -1,5 +1,7 @@
 package Utils.json;
 
+import Utils.Core;
+
 import java.io.*;
 import java.nio.charset.Charset;
 
@@ -145,52 +147,17 @@ public abstract class Json extends Reader implements AutoCloseable {
                             case '\t': case ' ': case '\r': case '\n': case ',': break;
                             case '}': return d;
                             case '"':
-                                final StringBuilder key = new StringBuilder();
-                                char ch1;
-                                boolean nbs = true;
-                                s1:
-                                while (true)
-                                    switch (ch1 = (char) read()) {
-                                        case '\\':
-                                            nbs = !nbs;
-                                            if (nbs)
-                                                key.append('\\');
-                                            break;
-                                        case '"':
-                                            if (nbs)
-                                                break s1;
-                                            key.append(ch1);
-                                            nbs = true;
-                                            break;
-                                        case 'n':
-                                            if (!nbs) {
-                                                key.append('\n');
-                                                nbs = true;
-                                            } else
-                                                key.append('n');
-                                            break;
-                                        case 'r':
-                                            if (!nbs) {
-                                                key.append('\r');
-                                                nbs = true;
-                                            } else
-                                                key.append('r');
-                                            break;
-                                        default:
-                                            if (!nbs)
-                                                nbs = true;
-                                            key.append(ch1);
-                                            break;
-                                    }
+                                p = '"';
+                                final String key = p().getAsString();
                                 while ((ch = (char) read()) == ' ' || ch == '\t') {}
                                 if (ch != ':')
                                     throw new IOException("Unexpected char " + ch + ", I need :");
-                                d.put(key.toString(), p());
+                                d.put(key, p());
                                 break;
                             default:
                                 final StringBuilder k = new StringBuilder().append(ch);
                                 StringBuilder s = null;
-                                boolean nbs1 = false;
+                                boolean nbs1 = true;
                                 char ch2;
                                 s1:
                                 while (true)
@@ -198,16 +165,35 @@ public abstract class Json extends Reader implements AutoCloseable {
                                         case ' ': case '\t':
                                             if (s == null)
                                                 s = new StringBuilder().append(ch2);
-                                            else s.append(ch2);
+                                            else
+                                                s.append(ch2);
                                             break;
                                         case '\\':
                                             nbs1 = !nbs1;
                                             if (nbs1)
                                                 k.append('\\');
                                             break;
+                                        case 'r':
+                                            if (!nbs1) {
+                                                nbs1 = true;
+                                                k.append('\r');
+                                                break;
+                                            }
+                                            k.append('r');
+                                            break;
+                                        case 'n':
+                                            if (!nbs1) {
+                                                nbs1 = true;
+                                                k.append('\n');
+                                                break;
+                                            }
+                                            k.append('n');
+                                            break;
                                         case ':':
                                             if (nbs1)
                                                 break s1;
+                                            else
+                                                nbs1 = true;
                                         default:
                                             if (s != null) {
                                                 k.append(s).append(ch2);
@@ -284,9 +270,19 @@ public abstract class Json extends Reader implements AutoCloseable {
                                 } else
                                     str.append('r');
                                 break;
+                            case 'u':
+                                if (!nbs) {
+                                    nbs = true;
+                                    str.append((char) Core.fromHexInt("" + (char) read() + (char) read() + (char) read() + (char) read()));
+                                } else
+                                    str.append('u');
+                                break;
                             default:
-                                if (!nbs)
+                                if (!nbs) {
+                                    str.append('\\');
                                     System.out.println("Error: \\" + ch3);
+                                    nbs = true;
+                                }
                                 str.append(ch3);
                                 break;
                         }
