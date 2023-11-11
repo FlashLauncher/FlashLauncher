@@ -8,6 +8,7 @@ import Utils.FSRoot;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class PluginContext {
     private final Object o = new Object();
@@ -16,8 +17,8 @@ public class PluginContext {
     boolean enabled = false;
 
     private final ArrayList<Market> markets = new ArrayList<>();
-    private final ArrayList<IProfile> profiles = new ArrayList<>();
-    private final ArrayList<IAccount> accounts = new ArrayList<>();
+    private final ConcurrentLinkedQueue<IProfile> profiles = new ConcurrentLinkedQueue<>();
+    private final ConcurrentLinkedQueue<IAccount> accounts = new ConcurrentLinkedQueue<>();
     private final ArrayList<IMaker<IProfile>> profileMakers = new ArrayList<>();
     private final ArrayList<IMaker<IAccount>> accountMakers = new ArrayList<>();
     private final ArrayList<FLMenuItemListener>
@@ -102,6 +103,8 @@ public class PluginContext {
         }
     }
 
+    public ConcurrentLinkedQueue<IProfile> getProfiles() { return profiles; }
+
     public final IProfile addProfile(final IProfile profile) {
         synchronized (profiles) {
             profiles.add(profile);
@@ -128,6 +131,8 @@ public class PluginContext {
             return profiles.remove(profile);
         }
     }
+
+    public ConcurrentLinkedQueue<IAccount> getAccounts() { return accounts; }
 
     public final IAccount addAccount(final IAccount account) {
         synchronized (accounts) {

@@ -7,6 +7,7 @@ import UIL.base.IImage;
 import Utils.FSRoot;
 
 import java.io.File;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class Plugin {
     private final PluginContext context;
@@ -27,8 +28,10 @@ public class Plugin {
     public IImage getIcon() { return ip.getIcon(); }
     protected Market addMarket(final Market market) { return context.addMarket(market); }
     protected boolean removeMarket(final Market market) { return context.removeMarket(market); }
+    protected ConcurrentLinkedQueue<IProfile> getProfiles() { return context.getProfiles(); }
     protected IProfile addProfile(final IProfile profile) { return context.addProfile(profile); }
     protected boolean removeProfile(final IProfile profile) { return context.removeProfile(profile); }
+    protected ConcurrentLinkedQueue<IAccount> getAccounts() { return context.getAccounts(); }
     protected IAccount addAccount(final IAccount account) { return context.addAccount(account); }
     protected boolean removeAccount(final IAccount account) { return context.removeAccount(account); }
     protected void addAccountMaker(final IMaker<IAccount> account) { context.addAccountMaker(account); }
