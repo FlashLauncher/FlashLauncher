@@ -1,6 +1,7 @@
 package Utils.json;
 
 import java.util.UUID;
+import java.util.regex.Matcher;
 
 public class JsonElement {
     private final Object o;
@@ -26,5 +27,5 @@ public class JsonElement {
     public float getAsFloat() { return (float) o; }
     public boolean getAsBool() { return (boolean) o; }
 
-    @Override public String toString() { return o == null ? "null" : o instanceof String ? "\"" + o +  "\"" : o.toString(); }
+    @Override public String toString() { return o == null ? "null" : o instanceof String ? "\"" + Matcher.quoteReplacement((String) o) +  "\"" : o.toString(); }
 }
