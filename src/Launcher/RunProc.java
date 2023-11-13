@@ -34,6 +34,10 @@ public class RunProc {
     public int getStatusWidth() { return statusWidth; }
 
     public void addTaskGroup(final TaskGroup group) {
+        synchronized (group.tasks) {
+            if (group.tasks.isEmpty())
+                return;
+        }
         synchronized (groups) {
             groups.add(group);
             groups.notifyAll();
