@@ -6,6 +6,7 @@ import UIL.Swing.SSwing;
 import UIL.base.*;
 import Utils.*;
 import Utils.fixed.FixedEntry;
+import Utils.json.Json;
 
 import java.awt.*;
 import java.io.*;
@@ -16,6 +17,8 @@ import java.util.*;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class FLCore {
     public static final File LAUNCHER_DIR = Core.getPath(FLCore.class);
@@ -586,28 +589,35 @@ public class FLCore {
                                                     return;
                                                 final PlayStatus s = new PlayStatus(new RunProc(launcher, acc, pro));
 
-                                                LaunchListener listener = pro.init(s.rp);
-                                                if (listener != null)
-                                                    s.l.add(listener);
+                                                {
+                                                    LaunchListener listener = pro.init(s.rp);
+                                                    if (listener != null)
+                                                        s.l.add(listener);
 
-                                                listener = acc.init(s.rp);
-                                                if (listener != null)
-                                                    s.l.add(listener);
-
-                                                listener = null;
-
-                                                for (final LaunchListener ll : s.l)
-                                                    ll.preLaunch();
-
-                                                for (final LaunchListener ll : s.l)
-                                                    ll.launch();
+                                                    listener = acc.init(s.rp);
+                                                    if (listener != null)
+                                                        s.l.add(listener);
+                                                }
 
                                                 synchronized (statusList) {
                                                     statusList.put(launcher, s);
                                                 }
+
                                                 update(launcher, cont, c);
+
                                                 new Thread(() -> {
                                                     try {
+                                                        for (final LaunchListener ll : s.l)
+                                                            ll.preLaunch();
+                                                        while (true) {
+                                                            final TaskGroup g = getUnfinishedGroup(s.rp.groups);
+                                                            if (g != null)
+                                                                g.waitFinish();
+                                                            else
+                                                                break;
+                                                        }
+                                                        for (final LaunchListener ll : s.l)
+                                                            ll.launch();
                                                         while (true) {
                                                             final TaskGroup g = getUnfinishedGroup(s.rp.groups);
                                                             if (g != null)
@@ -620,12 +630,30 @@ public class FLCore {
                                                             s.rp.generalObjects.clear();
                                                         }
                                                         System.gc();
-                                                        if (s.rp.arguments.isEmpty()) {
+                                                        if (s.rp.beginArgs.isEmpty() && s.rp.args.isEmpty() && s.rp.endArgs.isEmpty()) {
                                                             System.out.println("No arguments!");
                                                             return;
                                                         }
-                                                        final Process proc = s.process = new ProcessBuilder(s.rp.arguments.toArray(new String[0])).directory(s.rp.workDir).start();
-                                                        s.rp.arguments.clear();
+
+                                                        final Process proc;
+
+                                                        {
+                                                            final ArrayList<String> args = new ArrayList<>();
+
+                                                            args.addAll(s.rp.beginArgs);
+                                                            args.addAll(s.rp.args);
+                                                            args.addAll(s.rp.endArgs);
+
+                                                            System.out.println(args);
+
+                                                            proc = s.process = new ProcessBuilder(
+                                                                    args.toArray(new String[0])
+                                                            ).directory(s.rp.workDir).start();
+                                                        }
+
+                                                        s.rp.beginArgs.clear();
+                                                        s.rp.args.clear();
+                                                        s.rp.endArgs.clear();
 
                                                         final Thread
                                                                 t1 = new Thread(() -> {

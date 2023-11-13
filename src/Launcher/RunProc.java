@@ -15,7 +15,13 @@ public class RunProc {
     public final FlashLauncher launcher;
     public final IAccount account;
     public final IProfile profile;
-    public final ConcurrentLinkedQueue<String> arguments = new ConcurrentLinkedQueue<>();
+
+    public final ConcurrentLinkedQueue<String>
+            beginArgs = new ConcurrentLinkedQueue<>(),
+            args = new ConcurrentLinkedQueue<>(),
+            endArgs = new ConcurrentLinkedQueue<>()
+    ;
+
     public final ConcurrentHashMap<String, Object> generalObjects = new ConcurrentHashMap<>();
     public File workDir = null;
 
