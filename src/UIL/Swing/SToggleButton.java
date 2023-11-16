@@ -18,7 +18,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 public class SToggleButton extends JButton implements IToggleButton {
     private IImage image;
     private ImgAlign align = ImgAlign.LEFT;
-    private boolean c;
+    private boolean c, smooth = true;
 
     private IColor bg = Theme.BACKGROUND_COLOR, fg = Theme.FOREGROUND_COLOR, bga = Theme.BACKGROUND_ACCENT_COLOR, fga = Theme.FOREGROUND_ACCENT_COLOR;
     private IFont font = Theme.FONT;
@@ -85,6 +85,8 @@ public class SToggleButton extends JButton implements IToggleButton {
         y = (getHeight() - h) / 2;
 
         if (img != null) {
+            if (!smooth)
+                g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
             if (ia == ImgAlign.TOP) {
                 g.drawImage(img, (getWidth() - s) / 2, y, s, s, this);
                 y += s + itd;
@@ -93,8 +95,10 @@ public class SToggleButton extends JButton implements IToggleButton {
                 x += s + itd;
             }
         }
-        if (t)
+        if (t) {
+            g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
             g.drawString(text, x, y + metrics.getLeading() + metrics.getAscent());
+        }
 
         g.dispose();
     }
@@ -123,6 +127,7 @@ public class SToggleButton extends JButton implements IToggleButton {
     @Override public SToggleButton backgroundAccent(IColor color) { bga = color; return this; }
     @Override public SToggleButton foregroundAccent(final IColor color) { fga = color; return this; }
     @Override public SToggleButton image(final IImage image) { this.image = image; return this; }
+    @Override public SToggleButton smooth(final boolean value) { smooth = value; return this; }
     @Override public SToggleButton update() { repaint(); return this; }
     @Override public SToggleButton onChange(final IToggleButtonListener listener) { listeners.add(listener); return this; }
 }

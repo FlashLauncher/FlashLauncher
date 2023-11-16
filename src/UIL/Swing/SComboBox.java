@@ -42,6 +42,7 @@ public class SComboBox extends JComponent implements IComboBox {
 
     private Object text = null;
     private IImage img = null;
+    private boolean smooth = true;
 
     private SPanel content = null;
 
@@ -209,9 +210,13 @@ public class SComboBox extends JComponent implements IComboBox {
                 g.drawString(t, (h - fh) / 2 + ot, (h - fh) / 2 + m.getLeading() + m.getAscent());
         } else {
             final int is = h - oi * 2;
+            if (!smooth)
+                g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
             g.drawImage(i, oi, oi, is, is, this);
-            if (t != null && !t.isEmpty())
+            if (t != null && !t.isEmpty()) {
+                g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
                 g.drawString(t, h + ot, (h - fh) / 2 + m.getLeading() + m.getAscent());
+            }
         }
 
         if (!(graphics instanceof Graphics2D))
@@ -235,12 +240,13 @@ public class SComboBox extends JComponent implements IComboBox {
     @Override public SComboBox focus() { requestFocus(); return this; }
     @Override public SComboBox borderRadius(final RRunnable<Integer> borderRadius) { this.borderRadius = borderRadius; return this; }
     @Override public SComboBox imageTextDist(final int imageTextDist) { this.imageTextDist = () -> imageTextDist; return this; }
-    @Override public IComboBox imageOffset(final int imageOffset) { this.imageOffset = () -> imageOffset; return this; }
+    @Override public SComboBox imageOffset(final int imageOffset) { this.imageOffset = () -> imageOffset; return this; }
+    @Override public SComboBox smooth(final boolean value) { smooth = value; return this; }
     @Override public SComboBox background(final IColor bg) { this.bg = bg; return this; }
     @Override public SComboBox foreground(final IColor fg) { this.fg = fg; return this; }
     @Override public SComboBox grounds(final IColor bg, final IColor fg) { this.bg = bg; this.fg = fg; return this; }
     @Override public SComboBox onList(final OnListListener listener) { actions.add(listener); return this; }
-    @Override public IComboBox onCloseList(final CloseListListener listener) { closeListListeners.add(listener); return this; }
-    @Override public IComboBox offCloseList(final CloseListListener listener) { closeListListeners.remove(listener); return this; }
+    @Override public SComboBox onCloseList(final CloseListListener listener) { closeListListeners.add(listener); return this; }
+    @Override public SComboBox offCloseList(final CloseListListener listener) { closeListListeners.remove(listener); return this; }
     @Override public SComboBox update() { repaint(); return this; }
 }

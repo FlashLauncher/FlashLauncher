@@ -9,6 +9,7 @@ public interface IButton extends IText {
     IButton imageTextDist(final int imageTextDist);
     default IButton imageOffset(final int imageOffset) { return this; }
     default IButton imageAlign(final ImgAlign align) { return this; }
+    IButton smooth(final boolean value);
     default IButton onAction(final IButtonAction runnable) { return this; }
 
     // IText

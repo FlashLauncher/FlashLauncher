@@ -28,6 +28,7 @@ public interface IComboBox extends IButton {
     // IButton
     @Override IComboBox image(final IImage image);
     @Override default IComboBox imageOffset(final int imageOffset) { return this; }
+    @Override IComboBox smooth(final boolean value);
 
     // IText
     @Override IComboBox text(final Object text);
