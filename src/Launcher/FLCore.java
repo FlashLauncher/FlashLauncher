@@ -1925,7 +1925,9 @@ public class FLCore {
                     for (final InstalledMeta meta : mel)
                         if (id.equals(meta.getMarket()))
                             cml.add(meta);
-                    if (!cml.isEmpty())
+                    if (cml.isEmpty())
+                        m.checkForUpdates();
+                    else
                         m.checkForUpdates(cml.toArray(new InstalledMeta[0]));
                 }
                 System.gc();
