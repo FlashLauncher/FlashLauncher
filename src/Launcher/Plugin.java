@@ -5,6 +5,7 @@ import Launcher.base.IMaker;
 import Launcher.base.IProfile;
 import UIL.base.IImage;
 import Utils.FSRoot;
+import Utils.Version;
 
 import java.io.File;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -19,6 +20,7 @@ public class Plugin {
         context.plugin = this;
     }
 
+    public Version getVersion() { return context.getVersion(); }
     public FSRoot getPluginRoot() { return context.getPluginRoot(); }
     public File getPluginData() { return context.getPluginData(); }
     public File getPluginCache() { return context.getPluginCache(); }

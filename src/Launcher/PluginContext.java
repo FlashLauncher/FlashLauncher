@@ -5,6 +5,7 @@ import Launcher.base.IMaker;
 import Launcher.base.IProfile;
 import UIL.base.IImage;
 import Utils.FSRoot;
+import Utils.Version;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -12,6 +13,8 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class PluginContext {
     private final Object o = new Object();
+    private final Version version;
+
     final FLCore.InstalledPlugin ip;
     Plugin plugin = null;
     boolean enabled = false;
@@ -32,9 +35,11 @@ public class PluginContext {
     PluginContext(final FLCore.InstalledPlugin installedPlugin) {
         ip = installedPlugin;
         root = installedPlugin.root;
+        version = installedPlugin.getVersion();
     }
 
     public final IImage getIcon() { return ip.getIcon(); }
+    public final Version getVersion() { return version; }
     public final Plugin getPlugin() { return plugin; }
     public final FSRoot getPluginRoot() { return root; }
     public final File getPluginData() { return ip.data; }
