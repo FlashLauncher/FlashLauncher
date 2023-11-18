@@ -25,7 +25,10 @@ public class Core {
             IS_WINDOWS,
             //IS_WINDOWS_10,
             IS_LINUX,
-            IS_MACOS
+            IS_MACOS,
+
+            IS_64BIT,
+            IS_32BIT
     ;
 
     public static final Version VERSION = new Version(System.getProperty("os.version"));
@@ -36,7 +39,7 @@ public class Core {
     ;
 
     static {
-        final String osn = System.getProperty("os.name").toLowerCase();
+        final String osn = System.getProperty("os.name").toLowerCase(), osa = System.getProperty("os.arch");
         IS_WINDOWS = osn.contains("win");
         if (IS_WINDOWS) {
             //IS_WINDOWS_10 = osn.contains("10");
@@ -46,6 +49,17 @@ public class Core {
             //IS_WINDOWS_10 = false;
             IS_LINUX = osn.contains("nix") || osn.contains("nux") || osn.contains("aix");
             IS_MACOS = !IS_LINUX && osn.contains("mac");
+        }
+        if (osa.equals("amd64")) {
+            IS_64BIT = true;
+            IS_32BIT = false;
+        } else if (osa.equals("x86")) {
+            IS_64BIT = false;
+            IS_32BIT = true;
+        } else {
+            IS_64BIT = false;
+            IS_32BIT = false;
+            System.out.println("Unknown arch: " + osa);
         }
     }
 
