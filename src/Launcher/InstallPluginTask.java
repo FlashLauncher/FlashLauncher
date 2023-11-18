@@ -36,7 +36,8 @@ public final class InstallPluginTask extends Task {
     public void run() throws Throwable {
         FLCore.InstalledPlugin im = null;
         try {
-            final IniGroup cfg = new IniGroup(new String(files.get("fl-plugin.ini"), StandardCharsets.UTF_8), false);
+            final boolean isPlugin = files.containsKey("fl-plugin.ini");
+            final IniGroup cfg = new IniGroup(new String(files.get(isPlugin ? "fl-plugin.ini" : "fl-info.ini"), StandardCharsets.UTF_8), false);
             final String id = cfg.getAsString("id"), name = cfg.getAsString("name"), verStr = cfg.getAsString("version"), author = cfg.getAsString("author"), sd = cfg.getAsString("shortDescription"),
                     main = cfg.getAsString("main");
 
@@ -80,7 +81,7 @@ public final class InstallPluginTask extends Task {
                 final String m = im.getMarket();
                 if (m != null && !m.isEmpty())
                     cfg.put("market", m);
-                files.put("fl-plugin.ini", cfg.toString().getBytes(StandardCharsets.UTF_8));
+                files.put(isPlugin ? "fl-plugin.ini" : "fl-info.ini", cfg.toString().getBytes(StandardCharsets.UTF_8));
             }
 
             if (im.file == null)
@@ -112,7 +113,10 @@ public final class InstallPluginTask extends Task {
                     if (e.getValue() == null)
                         new File(im.file, e.getKey()).mkdirs();
                     else {
-                        try (final FileOutputStream fos = new FileOutputStream(new File(im.file, e.getKey()))) {
+                        final File f = new File(im.file, e.getKey()), p = f.getParentFile();
+                        if (!p.exists())
+                            p.mkdirs();
+                        try (final FileOutputStream fos = new FileOutputStream(f)) {
                             fos.write(e.getValue(), 0, e.getValue().length);
                         }
                     }
