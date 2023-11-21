@@ -189,6 +189,11 @@ public abstract class Json extends Reader implements AutoCloseable {
                                             }
                                             k.append('n');
                                             break;
+                                        case '/':
+                                            if (!nbs1)
+                                                nbs1 = true;
+                                            k.append('/');
+                                            break;
                                         case ':':
                                             if (nbs1)
                                                 break s1;
@@ -269,6 +274,11 @@ public abstract class Json extends Reader implements AutoCloseable {
                                     nbs = true;
                                 } else
                                     str.append('r');
+                                break;
+                            case '/':
+                                if (!nbs)
+                                    nbs = true;
+                                str.append('/');
                                 break;
                             case 'u':
                                 if (!nbs) {
