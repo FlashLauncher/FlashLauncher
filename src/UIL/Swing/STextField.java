@@ -40,24 +40,21 @@ public class STextField extends JComponent implements ITextField {
     }
 
     private void setSelIndex(final int ni) {
-        si = ni;
-        if (ni == -1)
-            tsi = -1;
-        else
-            tsi = getFontMetrics((Font) font.get()).stringWidth(text.substring(0, si));
+        tsi = (si = ni) == -1 ? -1 : getFontMetrics((Font) font.get()).stringWidth(text.substring(0, si));
     }
 
     private int getIndexByX(final int x) {
         final Font f = (Font) font.get();
         final FontMetrics m = getFontMetrics(f);
         final int o = (getHeight() - f.getSize()) / 2;
-        if (m.stringWidth(text) + o - ox <= x)
-            return text.length();
+        final String t = text;
+        if (m.stringWidth(t) + o - ox <= x)
+            return t.length();
         else {
             int i = 0;
-            for (float r = o - ox; r < x; r += m.stringWidth(text.substring(i, i + 1))) {
+            for (float r = o - ox; r < x; r += m.stringWidth(t.substring(i, i + 1))) {
                 i++;
-                if (i == text.length())
+                if (i == t.length())
                     break;
             }
             return i;
@@ -315,7 +312,7 @@ public class STextField extends JComponent implements ITextField {
 
     public STextField(final String string) {
         this();
-        text = string;
+        text = string == null ? "" : string;
     }
 
     @Override
