@@ -28,6 +28,10 @@ public interface IComboBox extends IButton {
     // IButton
     @Override IComboBox image(final IImage image);
     @Override default IComboBox imageOffset(final int imageOffset) { return this; }
+
+    /**
+     * @since FlashLauncher 0.2.1
+     */
     @Override IComboBox smooth(final boolean value);
 
     // IText

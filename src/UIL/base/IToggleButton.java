@@ -16,7 +16,12 @@ public interface IToggleButton extends IButton {
     // IButton
     @Override IToggleButton image(final IImage image);
     @Override IToggleButton imageTextDist(final int imageTextDist);
+
+    /**
+     * @since FlashLauncher 0.2.1
+     */
     @Override IToggleButton smooth(final boolean value);
+
     @Override default IToggleButton imageOffset(final int imageOffset) { return this; }
     @Override default IToggleButton imageAlign(final ImgAlign align) { return this; }
     @Override default IToggleButton onAction(final IButton.IButtonAction runnable) { return this; }

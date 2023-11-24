@@ -39,7 +39,12 @@ public class PluginContext {
     }
 
     public final IImage getIcon() { return ip.getIcon(); }
+
+    /**
+     * @since FlashLauncher 0.2.1
+     */
     public final Version getVersion() { return version; }
+
     public final Plugin getPlugin() { return plugin; }
     public final FSRoot getPluginRoot() { return root; }
     public final File getPluginData() { return ip.data; }

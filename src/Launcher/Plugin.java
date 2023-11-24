@@ -20,7 +20,11 @@ public class Plugin {
         context.plugin = this;
     }
 
+    /**
+     * @since FlashLauncher 0.2.1
+     */
     public Version getVersion() { return context.getVersion(); }
+
     public FSRoot getPluginRoot() { return context.getPluginRoot(); }
     public File getPluginData() { return context.getPluginData(); }
     public File getPluginCache() { return context.getPluginCache(); }
