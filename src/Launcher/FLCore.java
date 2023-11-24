@@ -1866,7 +1866,6 @@ public class FLCore {
                                 a = true;
                             }
                     }
-
                     mp.clear();
                     synchronized (installed) {
                         for (final pi p : loaded.values())
@@ -1890,10 +1889,7 @@ public class FLCore {
                 }
             }
 
-            @Override
-            public String toString() {
-                return "Loading plugins ...";
-            }
+            @Override public String toString() { return "Loading plugins ..."; }
         });
 
         loader.addTask(new Task() {
