@@ -644,7 +644,7 @@ public class FLCore {
                                                             args.addAll(s.rp.args);
                                                             args.addAll(s.rp.endArgs);
 
-                                                            System.out.println(args);
+                                                            //System.out.println(args);
 
                                                             proc = s.process = new ProcessBuilder(
                                                                     args.toArray(new String[0])
@@ -693,7 +693,19 @@ public class FLCore {
                                                     }
                                                 }).start();
                                             }),
-                                            UI.button(langHome, FSChooser.ICON_FOLDER).imageOffset(6).size(96, 32).pos(c.width() - y - 96, y)
+                                            UI.button(langHome, FSChooser.ICON_FOLDER).imageOffset(6).size(96, 32).pos(c.width() - y - 96, y).onAction((s, e) -> {
+                                                try {
+                                                    final File f = launcher.profile.home(launcher.account);
+                                                    if (f != null) {
+                                                        if (!f.exists())
+                                                            f.mkdirs();
+                                                        if (f.exists() && Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.OPEN))
+                                                            Desktop.getDesktop().open(f);
+                                                    }
+                                                } catch (final Throwable ex) {
+                                                    ex.printStackTrace();
+                                                }
+                                            })
                                     ).update();
                                 else if (status.process == null) {
                                     final IText st = UI.text();
