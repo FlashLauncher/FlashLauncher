@@ -9,13 +9,13 @@ import java.util.Set;
 public class JsonDict extends JsonElement {
     private final ListMap<String, JsonElement> elements = new ListMap<>();
 
-    public JsonDict from(Map<String, Object> map) {
+    public JsonDict from(final Map<String, Object> map) {
         for (String k : map.keySet())
             put(k, map.get(k));
         return this;
     }
 
-    public JsonDict from(JsonDict dict) {
+    public JsonDict from(final JsonDict dict) {
         for (String k : dict.keys())
             put(k, dict.get(k));
         return this;
@@ -40,11 +40,14 @@ public class JsonDict extends JsonElement {
     public Set<String> keys() { return elements.keySet(); }
     public int size() { return elements.size(); }
 
-    public void put(String key, Object value) {
+    public void put(final String key, final Object value) {
         elements.put(key.startsWith("\"") && key.endsWith("\"") ? key.substring(1, key.length() - 1) : key,
                 value instanceof JsonElement ? (JsonElement) value : new JsonElement(value));
     }
 
+    public JsonElement remove(final String key) { return elements.remove(key); }
+
+    public boolean isEmpty() { return elements.isEmpty(); }
     public boolean has(final String key) { return elements.containsKey(key); }
     public JsonElement get(final String key) { return elements.get(key); }
     public Collection<JsonElement> values() { return elements.values(); }
