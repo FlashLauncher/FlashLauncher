@@ -182,10 +182,10 @@ public class FLCore {
                     try {
                         if (root != null)
                             if (root.exists("assets/" + getID() + "/langs/" + FLCore.lang + ".ini")) {
-                                Lang.add(lang = new IniGroup(new String(root.readFully("assets/" + getID() + "/langs/" + FLCore.lang + ".ini")), false));
+                                Lang.add(lang = new IniGroup(new String(root.readFully("assets/" + getID() + "/langs/" + FLCore.lang + ".ini"), StandardCharsets.UTF_8), false));
                                 Lang.update();
                             } else if (root.exists("assets/" + getID() + "/langs/en_US.ini")) {
-                                Lang.add(lang = new IniGroup(new String(root.readFully("assets/" + getID() + "/langs/en_US.ini")), false));
+                                Lang.add(lang = new IniGroup(new String(root.readFully("assets/" + getID() + "/langs/en_US.ini"), StandardCharsets.UTF_8), false));
                                 Lang.update();
                             } else
                                 lang = null;
