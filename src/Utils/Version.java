@@ -11,7 +11,8 @@ public class Version {
         m:
         for (String sv : ver.split(",")) {
             final boolean m = sv.startsWith("-");
-            sv = sv.substring(1);
+            if (m)
+                sv = sv.substring(1);
 
             if (sv.startsWith("^")) {
                 sv = sv.substring(1);
