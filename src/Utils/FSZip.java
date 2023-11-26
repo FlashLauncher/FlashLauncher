@@ -48,8 +48,10 @@ public class FSZip extends FSRoot {
     }
 
     @Override
-    public FSFile[] list(final String path) throws IOException {
-        final String p2 = path + "/";
+    public FSFile[] list(String path) throws IOException {
+        if (path.endsWith("/"))
+            path = path.substring(0, path.length() - 1);
+        final String p2 = path.isEmpty() ? path : path + "/";
         final int le = p2.length();
         final ArrayList<FSFile> l = new ArrayList<>();
 
