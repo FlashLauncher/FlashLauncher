@@ -120,11 +120,17 @@ public class FS {
                 path = "assets/" + path.substring(0, i) + "/" + path.substring(i + 3);
             final ArrayList<FSFile> l = new ArrayList<>();
             synchronized (roots) {
-                for (final FSRoot r : roots)
-                    if (r.exists(path))
+                if (path.isEmpty())
+                    for (final FSRoot r : roots)
                         try {
                             Collections.addAll(l, r.list(path));
                         } catch (final IOException ignored) {}
+                else
+                    for (final FSRoot r : roots)
+                        if (r.exists(path))
+                            try {
+                                Collections.addAll(l, r.list(path));
+                            } catch (final IOException ignored) {}
             }
             return l.toArray(new FSFile[0]);
         }
