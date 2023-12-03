@@ -450,4 +450,66 @@ public class Core {
             return map.get(key);
         }
     }
+
+    public static boolean contains(final char[] chars, final char ch) {
+        for (final char c : chars)
+            if (c == ch)
+                return true;
+        return false;
+    }
+
+    public static boolean contains(final char[] chars, final String string) {
+        final int sl = string.length(), ml = chars.length - sl;
+        m:
+        for (int i = 0; i < ml; i++) {
+            for (int i1 = 0, i2 = i; i1 < sl; i1++, i2++)
+               if (chars[i2] != string.charAt(i1))
+                   continue m;
+            return true;
+        }
+        return false;
+    }
+
+    public static boolean contains(final char[] chars, final char[] chars2) {
+        final int sl = chars2.length, ml = chars.length - sl;
+        m:
+        for (int i = 0; i < ml; i++) {
+            for (int i1 = 0, i2 = i; i1 < sl; i1++, i2++)
+                if (chars[i2] != chars2[i1])
+                    continue m;
+            return true;
+        }
+        return false;
+    }
+
+    public static int indexOf(final char[] chars, final char ch) {
+        for (int i = 0; i < chars.length; i++)
+            if (chars[i] == ch)
+                return i;
+        return -1;
+    }
+
+    public static int indexOf(final char[] chars, final String string) {
+        final int sl = string.length(), ml = chars.length - sl;
+        m:
+        for (int i = 0; i < ml; i++) {
+            for (int i1 = 0, i2 = i; i1 < sl; i1++, i2++)
+                if (chars[i2] != string.charAt(i1))
+                    continue m;
+            return i;
+        }
+        return -1;
+    }
+
+    public static int indexOf(final char[] chars, final char[] chars2) {
+        final int sl = chars2.length, ml = chars.length - sl;
+        m:
+        for (int i = 0; i < ml; i++) {
+            for (int i1 = 0, i2 = i; i1 < sl; i1++, i2++)
+                if (chars[i2] != chars2[i1])
+                    continue m;
+            return i;
+        }
+        return -1;
+    }
 }
