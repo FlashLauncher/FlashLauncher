@@ -632,12 +632,14 @@ public class FLCore {
                                                         System.gc();
                                                         if (s.rp.beginArgs.isEmpty() && s.rp.args.isEmpty() && s.rp.endArgs.isEmpty()) {
                                                             System.out.println("No arguments!");
+                                                            for (final LaunchListener ll : s.l)
+                                                                ll.cancel();
                                                             return;
                                                         }
 
                                                         final Process proc;
 
-                                                        {
+                                                        try {
                                                             final ArrayList<String> args = new ArrayList<>();
 
                                                             args.addAll(s.rp.beginArgs);
@@ -649,6 +651,10 @@ public class FLCore {
                                                             proc = s.process = new ProcessBuilder(
                                                                     args.toArray(new String[0])
                                                             ).directory(s.rp.workDir).start();
+                                                        } catch (final Exception ex) {
+                                                            for (final LaunchListener ll : s.l)
+                                                                ll.cancel();
+                                                            throw ex;
                                                         }
 
                                                         s.rp.beginArgs.clear();
@@ -661,7 +667,9 @@ public class FLCore {
                                                                         final char[] buf = new char[256];
                                                                         int l;
                                                                         while ((l = ro.read(buf, 0, buf.length)) != -1)
-                                                                            System.out.print(String.copyValueOf(buf, 0, l));
+                                                                            for (final LaunchListener ll : s.l)
+                                                                                ll.out(buf, l);
+                                                                            //System.out.print(String.copyValueOf(buf, 0, l));
                                                                     } catch (final Exception ex) {
                                                                         ex.printStackTrace();
                                                                     }
@@ -672,7 +680,9 @@ public class FLCore {
                                                                         final char[] buf = new char[256];
                                                                         int l;
                                                                         while ((l = ro.read(buf, 0, buf.length)) != -1)
-                                                                            System.err.print(String.copyValueOf(buf, 0, l));
+                                                                            for (final LaunchListener ll : s.l)
+                                                                                ll.err(buf, l);
+                                                                            //System.err.print(String.copyValueOf(buf, 0, l));
                                                                     } catch (final Exception ex) {
                                                                         ex.printStackTrace();
                                                                     }
@@ -682,6 +692,8 @@ public class FLCore {
                                                         t2.start();
 
                                                         System.out.println("Finished " + proc.waitFor());
+                                                        for (final LaunchListener ll : s.l)
+                                                            ll.exit(proc.exitValue());
                                                         s.process = null;
                                                     } catch (final Throwable ex) {
                                                         ex.printStackTrace();
