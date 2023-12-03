@@ -16,6 +16,7 @@ public interface IMenuBar extends IContainer {
     default IMenuBar changed() { return this; }
 
     // IContainer
+    @Override IMenuBar borderRadius(final RRunnable<Integer> borderRadius);
     @Override IMenuBar add(final IComponent component);
     @Override IMenuBar add(final IComponent... components);
     @Override IMenuBar remove(final IComponent component);
