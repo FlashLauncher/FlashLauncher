@@ -117,69 +117,66 @@ public class FlashLauncher {
         }
         final int cw = width - 72, ch = height - 16, scw = cw - 168;
         frame.add(menuBar.addEnd("help", ICON_HELP, null, () -> {
-            synchronized (this) {
-                if (content != null)
-                    frame.remove(content);
-                final IMenuBar mb = UI.menuBar().size(160, ch);
-                final IScrollPane sp = UI.scrollPane().size(scw, ch).pos(168, 0);
-                frame.add(content = UI.panel().add(mb, sp).background(UI.TRANSPARENT).borderRadius(UI.ZERO).size(cw, ch).pos(64, 8)).update();
-                final Runnable r = Core.onNotifyLoop(FLCore.HELP_ITEMS, () -> {
-                    final IContainer sc = UI.panel().size(scw, ch);
-                    mb.clearTop();
-                    sp.content(sc);
-                    for (final FLMenuItemListener mbi : FLCore.HELP_ITEMS)
-                        mb.add(mbi.id, mbi.icon, mbi.text, () -> {
-                            final FLMenuItemEvent e = new FLMenuItemEvent(this, sc, mbi.icon);
-                            mbi.onOpen(e);
-                            menuBar.onChange(() -> {
-                                synchronized (e.l) {
-                                    e.a = false;
-                                }
-                                return true;
-                            });
+            if (content != null)
+                frame.remove(content);
+            final IMenuBar mb = UI.menuBar().size(160, ch);
+            final IScrollPane sp = UI.scrollPane().size(scw, ch).pos(168, 0);
+            frame.add(content = UI.panel().add(mb, sp).background(UI.TRANSPARENT).borderRadius(UI.ZERO).size(cw, ch).pos(64, 8));
+            final Runnable r = Core.onNotifyLoop(FLCore.HELP_ITEMS, () -> {
+                final IContainer sc = UI.panel().size(scw, ch);
+                mb.clearTop();
+                sp.content(sc);
+                for (final FLMenuItemListener mbi : FLCore.HELP_ITEMS)
+                    mb.add(mbi.id, mbi.icon, mbi.text, () -> {
+                        final FLMenuItemEvent e = new FLMenuItemEvent(this, sc, mbi.icon);
+                        mbi.onOpen(e);
+                        menuBar.onChange(() -> {
+                            synchronized (e.l) {
+                                e.a = false;
+                            }
+                            return true;
                         });
-                    mb.select("launcher");
-                    content.update();
-                });
-                menuBar.onChange(() -> {
-                    Core.offNotifyLoop(r);
-                    return true;
-                });
-            }
+                    });
+                mb.select("launcher");
+                content.update();
+            });
+            menuBar.onChange(() -> {
+                Core.offNotifyLoop(r);
+                return true;
+            });
         }).addEnd("settings", ICON_SETTINGS, null, () -> {
-            synchronized (this) {
-                if (content != null)
-                    frame.remove(content);
-                final IMenuBar mb = UI.menuBar().size(160, ch);
-                final IScrollPane sp = UI.scrollPane().size(scw, ch).pos(168, 0);
-                frame.add(content = UI.panel().add(mb, sp).background(UI.TRANSPARENT).borderRadius(UI.ZERO).size(cw, ch).pos(64, 8)).update();
-                final Runnable r = Core.onNotifyLoop(FLCore.SETTINGS_ITEMS, () -> {
-                    final IContainer sc = UI.panel().size(scw, ch);
-                    mb.clearTop();
-                    sp.content(sc);
-                    for (final FLMenuItemListener mbi : FLCore.SETTINGS_ITEMS)
-                        mb.add(mbi.id, mbi.icon, mbi.text, () -> {
-                            final FLMenuItemEvent e = new FLMenuItemEvent(this, sc, mbi.icon);
-                            mbi.onOpen(e);
-                            menuBar.onChange(() -> {
-                                synchronized (e.l) {
-                                    e.a = false;
-                                }
-                                return true;
-                            });
+            if (content != null)
+                frame.remove(content);
+            final IMenuBar mb = UI.menuBar().size(160, ch);
+            final IScrollPane sp = UI.scrollPane().size(scw, ch).pos(168, 0);
+            frame.add(content = UI.panel().add(mb, sp).background(UI.TRANSPARENT).borderRadius(UI.ZERO).size(cw, ch).pos(64, 8));
+            final Runnable r = Core.onNotifyLoop(FLCore.HELP_ITEMS, () -> {
+                final IContainer sc = UI.panel().size(scw, ch);
+                mb.clearTop();
+                sp.content(sc);
+                for (final FLMenuItemListener mbi : FLCore.SETTINGS_ITEMS)
+                    mb.add(mbi.id, mbi.icon, mbi.text, () -> {
+                        final FLMenuItemEvent e = new FLMenuItemEvent(this, sc, mbi.icon);
+                        mbi.onOpen(e);
+                        menuBar.onChange(() -> {
+                            synchronized (e.l) {
+                                e.a = false;
+                            }
+                            return true;
                         });
-                    mb.select("launcher");
-                    content.update();
-                });
-                menuBar.onChange(() -> {
-                    Core.offNotifyLoop(r);
-                    return true;
-                });
-            }
+                    });
+                mb.select("launcher");
+                content.update();
+            });
+            menuBar.onChange(() -> {
+                Core.offNotifyLoop(r);
+                return true;
+            });
         }));
         synchronized (FLCore.MENU_ITEMS) {
             updateMenuBar();
         }
+        frame.update();
     }
 
     final void updateMenuBar() {
