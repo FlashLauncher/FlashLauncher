@@ -512,4 +512,24 @@ public class Core {
         }
         return -1;
     }
+
+    public static boolean contains(final char[] chars, final int offset, final int size, final char ch) {
+        final int l = Math.min(offset + size, chars.length);
+        for (int i = 0; i < l; i++)
+            if (chars[i] == ch)
+                return true;
+        return false;
+    }
+
+    public static boolean contains(final char[] chars, final int offset, final int size, final String string) {
+        final int sl = string.length(), ml = Math.min(offset + size, chars.length) - sl;
+        m:
+        for (int i = offset; i < ml; i++) {
+            for (int i1 = 0, i2 = i; i1 < sl; i1++, i2++)
+                if (chars[i2] != string.charAt(i1))
+                    continue m;
+            return true;
+        }
+        return false;
+    }
 }
