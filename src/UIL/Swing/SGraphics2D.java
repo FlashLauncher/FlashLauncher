@@ -5,6 +5,7 @@ import java.awt.font.FontRenderContext;
 import java.awt.font.GlyphVector;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
+import java.awt.geom.RoundRectangle2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.BufferedImageOp;
 import java.awt.image.ImageObserver;
@@ -23,12 +24,16 @@ public class SGraphics2D extends Graphics2D {
     }
 
     @Override
-    public void clipRect(int x, int y, int width, int height) {
+    public void clipRect(final int x, final int y, final int width, final int height) {
         graphics.clipRect(x, y, width, height);
     }
 
     @Override
-    public void setClip(int x, int y, int width, int height) {
+    public void setClip(final int x, final int y, final int width, final int height) {
+        if (r == null) {
+            graphics.setClip(x, y, width, height);
+            return;
+        }
         final Area a = new Area(r);
         a.intersect(new Area(new Rectangle(x, y, width, height)));
         graphics.setClip(a);
@@ -40,6 +45,46 @@ public class SGraphics2D extends Graphics2D {
             graphics.setClip(r);
             return;
         }
+        if (r == null) {
+            graphics.setClip(clip);
+            return;
+        }
+
+        final Rectangle
+                rb = r.getBounds(),
+                cb = clip.getBounds();
+
+        if (rb.equals(cb)) {
+            if (r instanceof RoundRectangle2D)
+                if (clip instanceof RoundRectangle2D)
+                    if (
+                            ((RoundRectangle2D) r).getArcWidth() == ((RoundRectangle2D) clip).getArcWidth() &&
+                                    ((RoundRectangle2D) r).getArcHeight() == ((RoundRectangle2D) clip).getArcHeight()
+                    )
+                        graphics.setClip(r);
+                    else
+                        graphics.setClip(new RoundRectangle2D.Double(
+                                Math.max(((RoundRectangle2D) r).getX(), ((RoundRectangle2D) clip).getX()),
+                                Math.max(((RoundRectangle2D) r).getY(), ((RoundRectangle2D) clip).getY()),
+
+                                Math.max(((RoundRectangle2D) r).getWidth(), ((RoundRectangle2D) clip).getWidth()),
+                                Math.max(((RoundRectangle2D) r).getHeight(), ((RoundRectangle2D) clip).getHeight()),
+
+                                Math.max(((RoundRectangle2D) r).getArcWidth(), ((RoundRectangle2D) clip).getArcWidth()),
+                                Math.max(((RoundRectangle2D) r).getArcHeight(), ((RoundRectangle2D) clip).getArcHeight())
+                        ));
+                else
+                    graphics.setClip(r);
+            else
+                graphics.setClip(clip);
+            return;
+        }
+
+
+
+        //System.out.println(r + " vs " + clip);
+        //System.out.println(" - " + rb + " vs " + cb + " - " + rb.equals(cb));
+
         final Area a = new Area(r);
         a.intersect(new Area(clip));
         graphics.setClip(a);
