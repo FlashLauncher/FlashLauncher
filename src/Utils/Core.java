@@ -7,6 +7,8 @@ import Utils.fixed.FixedEntry;
 import java.io.*;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -531,5 +533,19 @@ public class Core {
             return true;
         }
         return false;
+    }
+
+    public static byte[] toBytes(final char[] chars) {
+        final ByteBuffer bb = StandardCharsets.UTF_8.encode(CharBuffer.wrap(chars));
+        final byte[] d = new byte[bb.remaining()];
+        bb.get(d);
+        return d;
+    }
+
+    public static byte[] toBytes(final char[] chars, final int offset, final int length) {
+        final ByteBuffer bb = StandardCharsets.UTF_8.encode(CharBuffer.wrap(chars, offset, length));
+        final byte[] d = new byte[bb.remaining()];
+        bb.get(d);
+        return d;
     }
 }
