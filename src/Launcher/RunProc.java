@@ -9,6 +9,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class RunProc {
+    final Object l = new Object();
+    boolean r = false;
+
     int statusWidth = 0;
 
     final ArrayList<TaskGroup> groups = new ArrayList<>();
@@ -51,6 +54,13 @@ public class RunProc {
     public TaskGroup[] getTaskGroups() {
         synchronized (groups) {
             return groups.toArray(new TaskGroup[0]);
+        }
+    }
+
+    public void setVisible(final boolean visible) {
+        synchronized (l) {
+            if (r)
+                launcher.frame.visible(visible);
         }
     }
 }
