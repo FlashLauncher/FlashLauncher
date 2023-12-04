@@ -24,12 +24,22 @@ public interface LaunchListener {
     /**
      * @since FlashLauncher 0.2.3
      */
+    default void outLine(final String line) {}
+
+    /**
+     * @since FlashLauncher 0.2.3
+     */
     default void closeOut() {}
 
     /**
      * @since FlashLauncher 0.2.3
      */
     default void err(final char[] out, final int length) {}
+
+    /**
+     * @since FlashLauncher 0.2.3
+     */
+    default void errLine(final String line) {}
 
     /**
      * @since FlashLauncher 0.2.3

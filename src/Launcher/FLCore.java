@@ -661,31 +661,57 @@ public class FLCore {
                                                         s.rp.args.clear();
                                                         s.rp.endArgs.clear();
 
+                                                        synchronized (s.rp.l) {
+                                                            s.rp.r = true;
+                                                        }
+
                                                         final Thread
                                                                 t1 = new Thread(() -> {
-                                                                    try (final InputStreamReader ro = new InputStreamReader(proc.getInputStream(), StandardCharsets.UTF_8)) {
+                                                                    try (
+                                                                            final InputStreamReader ro = new InputStreamReader(proc.getInputStream(), StandardCharsets.UTF_8);
+                                                                            final CLineReader o = new CLineReader()
+                                                                    ) {
                                                                         final char[] buf = new char[256];
                                                                         int l;
-                                                                        while ((l = ro.read(buf, 0, buf.length)) != -1)
+                                                                        while ((l = ro.read(buf, 0, buf.length)) != -1) {
                                                                             for (final LaunchListener ll : s.l)
                                                                                 ll.out(buf, l);
-                                                                            //System.out.print(String.copyValueOf(buf, 0, l));
+                                                                            o.write(buf, 0, l);
+                                                                            while (o.hasNextLine()) {
+                                                                                final String line = o.nextLine();
+                                                                                for (final LaunchListener ll : s.l)
+                                                                                    ll.outLine(line);
+                                                                            }
+                                                                        }
                                                                     } catch (final Exception ex) {
                                                                         ex.printStackTrace();
                                                                     }
+                                                                    for (final LaunchListener ll : s.l)
+                                                                        ll.closeOut();
                                                                     System.out.println("Output closed");
                                                                 }),
                                                                 t2 = new Thread(() -> {
-                                                                    try (final InputStreamReader ro = new InputStreamReader(proc.getErrorStream(), StandardCharsets.UTF_8)) {
+                                                                    try (
+                                                                            final InputStreamReader ro = new InputStreamReader(proc.getErrorStream(), StandardCharsets.UTF_8);
+                                                                            final CLineReader o = new CLineReader()
+                                                                    ) {
                                                                         final char[] buf = new char[256];
                                                                         int l;
-                                                                        while ((l = ro.read(buf, 0, buf.length)) != -1)
+                                                                        while ((l = ro.read(buf, 0, buf.length)) != -1) {
                                                                             for (final LaunchListener ll : s.l)
                                                                                 ll.err(buf, l);
-                                                                            //System.err.print(String.copyValueOf(buf, 0, l));
+                                                                            o.write(buf, 0, l);
+                                                                            if (o.hasNextLine()) {
+                                                                                final String line = o.nextLine();
+                                                                                for (final LaunchListener ll : s.l)
+                                                                                    ll.errLine(line);
+                                                                            }
+                                                                        }
                                                                     } catch (final Exception ex) {
                                                                         ex.printStackTrace();
                                                                     }
+                                                                    for (final LaunchListener ll : s.l)
+                                                                        ll.closeErr();
                                                                     System.out.println("Error closed");
                                                                 });
                                                         t1.start();
@@ -698,10 +724,14 @@ public class FLCore {
                                                     } catch (final Throwable ex) {
                                                         ex.printStackTrace();
                                                     } finally {
+                                                        synchronized (s.rp.l) {
+                                                            s.rp.r = false;
+                                                        }
                                                         s.finished = true;
                                                         synchronized (statusList) {
                                                             statusList.remove(launcher, s);
                                                         }
+                                                        launcher.frame.visible(true);
                                                     }
                                                 }).start();
                                             }),
