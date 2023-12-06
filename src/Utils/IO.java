@@ -4,6 +4,9 @@ import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.file.Files;
+import java.util.Map;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 public class IO {
     public static final int BUFFER_SIZE = 1024 * 1024;
@@ -102,5 +105,36 @@ public class IO {
         try (final InputStream fis = Files.newInputStream(path.toPath())) {
             return reader.run(fis);
         }
+    }
+
+    public static ListMap<String, byte[]> toMap(final byte[] data) throws IOException {
+        final ListMap<String, byte[]> files = new ListMap<>();
+        try (final ZipInputStream zis = new ZipInputStream(new ByteArrayInputStream(data))) {
+            for (ZipEntry e = zis.getNextEntry(); e != null; e = zis.getNextEntry()) {
+                files.put(e.getName(), e.getName().endsWith("/") ? null : IO.readFully(zis, false));
+                zis.closeEntry();
+            }
+        }
+        return files;
+    }
+
+    private static void toMapScan(final Map<String, byte[]> map, final String path, final File file) throws IOException {
+        if (file.isDirectory()) {
+            final File[] l = file.listFiles();
+            if (l != null)
+                for (final File f : l)
+                    toMapScan(map, path + f.getName() + "/", f);
+            return;
+        }
+        map.put(path + file.getName(), IO.readFully(file));
+    }
+
+    public static ListMap<String, byte[]> toMap(final File file) throws IOException {
+        if (file.isDirectory()) {
+            final ListMap<String, byte[]> data = new ListMap<>();
+            toMapScan(data, "", file);
+            return data;
+        }
+        return toMap(IO.readFully(file));
     }
 }
