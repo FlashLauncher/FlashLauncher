@@ -2,6 +2,7 @@ package Launcher;
 
 import Launcher.base.*;
 import UIL.*;
+import UIL.Swing.SPanel;
 import UIL.Swing.SSwing;
 import UIL.base.*;
 import Utils.*;
@@ -1104,14 +1105,56 @@ public class FLCore {
                             final LangItem all = Lang.get("market.all"), mixed = Lang.get("market.mixed");
 
                             final IComboBox filter = UI.comboBox().text(all).imageOffset(4).size(160, 32).pos(0, 0);
-                            final ContainerListBuilder ilb = new ContainerListBuilder(
-                                    UI.scrollPane()
-                                            .content(UI.panel().borderRadius(UI.ZERO))
-                                            .size(e.width(), e.height() - 80)
-                                            .pos(0, 40),
-                                    //c.width() / 2 - 16,
-                                    e.width() - 16,
-                                    120, 8);
+                            final ContainerListBuilder ilb;
+                            {
+                                final IContainer c;
+                                ilb = new ContainerListBuilder(
+                                        UI.scrollPane()
+                                                .content(c = UI.panel().borderRadius(UI.ZERO))
+                                                .size(e.width(), e.height() - 80)
+                                                .pos(0, 40),
+                                        //c.width() / 2 - 16,
+                                        e.width() - 16,
+                                        120, 8);
+                                if (c instanceof SPanel)
+                                    ((SPanel) c).onTransfer(new TransferListener() {
+                                        @Override
+                                        public boolean canImport(final TransferEvent event) {
+                                            return event.isDrop() && event.hasFileListSupport();
+                                        }
+
+                                        @Override
+                                        public boolean onImport(final TransferEvent event) {
+                                            if (!canImport(event))
+                                                return false;
+
+                                            try {
+                                                for (final File f : event.getFileList())
+                                                    try {
+                                                        final ListMap<String, byte[]> l = IO.toMap(f);
+                                                        if (l.containsKey("fl-plugin.ini") || l.containsKey("fl-info.ini")) {
+                                                            final IniGroup g = new IniGroup(new String(l.get(l.containsKey("fl-plugin.ini") ? "fl-plugin.ini" : "fl-info"), StandardCharsets.UTF_8), false);
+                                                            final String id = g.getAsString("id");
+                                                            final TaskGroupAutoProgress gr = new TaskGroupAutoProgress(1);
+                                                            if (!bindTaskGroup(id, gr))
+                                                                continue;
+                                                            gr.addTask(new InstallPluginTask(l));
+                                                            synchronized (groups) {
+                                                                groups.add(gr);
+                                                                groups.notifyAll();
+                                                            }
+                                                        }
+                                                    } catch (final Exception ex) {
+                                                        ex.printStackTrace();
+                                                    }
+                                            } catch (final Exception ex) {
+                                                ex.printStackTrace();
+                                            }
+                                            return true;
+                                        }
+                                    });
+                            }
+
                             final ITextField findField = UI.textField("").hint(Lang.get("market.hint")).size(e.width() - 208, 32).pos(168, 0);
 
                             final IText cg;
