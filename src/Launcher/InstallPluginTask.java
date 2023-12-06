@@ -11,16 +11,16 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 public final class InstallPluginTask extends Task {
     private final ListMap<String, byte[]> files;
+    private final AtomicBoolean success = new AtomicBoolean();
 
-    public InstallPluginTask(final Map<String, byte[]> files) {
-        this.files = new ListMap<>(files);
-    }
+    public InstallPluginTask(final Map<String, byte[]> files) { this.files = new ListMap<>(files); }
 
     public InstallPluginTask(final byte[] data) throws IOException {
         files = new ListMap<>();
@@ -31,6 +31,8 @@ public final class InstallPluginTask extends Task {
             }
         }
     }
+
+    public boolean isSuccess() { return success.get(); }
 
     @Override
     public void run() throws Throwable {
@@ -131,6 +133,8 @@ public final class InstallPluginTask extends Task {
                         im.disable();
                     im.enable();
                 }
+
+            success.set(true);
         } catch (final Throwable ex) {
             ex.printStackTrace();
         } finally {
