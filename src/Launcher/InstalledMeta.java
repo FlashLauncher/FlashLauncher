@@ -2,12 +2,18 @@ package Launcher;
 
 import Utils.Version;
 
-abstract class InstalledMeta extends Meta {
+/**
+ * @since FlashLauncher 0.2.4
+ */
+public abstract class InstalledMeta extends Meta {
     String market = null;
 
     InstalledMeta(final String id, final Version version, final String author) {
         super(id, version, author);
     }
 
-    public String getMarket() { return market; }
+    public String getMarket() {
+        System.out.println("get market");
+        return market;
+    }
 }
