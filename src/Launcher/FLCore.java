@@ -1853,10 +1853,8 @@ public class FLCore {
                 System.gc();
             }
 
-            @Override
-            public String toString() {
-                return "Checking for updates ...";
-            }
+            final LangItem ch = Lang.get("market.checkingForUpdates");
+            @Override public String toString() { return ch.toString(); }
         });
 
         groups.add(loader);
