@@ -36,7 +36,7 @@ public final class InstallPluginTask extends Task {
 
     @Override
     public void run() throws Throwable {
-        FLCore.InstalledPlugin im = null;
+        InstalledPlugin im = null;
         try {
             final boolean isPlugin = files.containsKey("fl-plugin.ini");
             final IniGroup cfg = new IniGroup(new String(files.get(isPlugin ? "fl-plugin.ini" : "fl-info.ini"), StandardCharsets.UTF_8), false);
@@ -56,13 +56,13 @@ public final class InstallPluginTask extends Task {
             }
 
             synchronized (FLCore.installed) {
-                for (final FLCore.InstalledMeta me : FLCore.installed)
-                    if (me instanceof FLCore.InstalledPlugin && id.equals(me.getID())) {
-                        im = (FLCore.InstalledPlugin) me;
+                for (final InstalledMeta me : FLCore.installed)
+                    if (me instanceof InstalledPlugin && id.equals(me.getID())) {
+                        im = (InstalledPlugin) me;
                         break;
                     }
                 if (im == null)
-                    FLCore.installed.add(im = new FLCore.InstalledPlugin(id, name, new Version(verStr), author, sd) {
+                    FLCore.installed.add(im = new InstalledPlugin(id, name, new Version(verStr), author, sd) {
                         @Override
                         public String getMarket() {
                             return null;

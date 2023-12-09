@@ -12,7 +12,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class Plugin {
     private final PluginContext context;
-    private final FLCore.InstalledPlugin ip;
+    private final InstalledPlugin ip;
 
     public Plugin(final PluginContext context) {
         this.context = context;
