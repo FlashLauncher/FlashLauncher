@@ -1229,7 +1229,7 @@ public class FLCore {
 
                                                 @Override
                                                 public String toString() {
-                                                    return n + " (" + v + ")";
+                                                    return v == null ? n.toString() : n + " (" + v + ")";
                                                 }
                                             }),
                                             UI.text(me.getAuthor()).foreground(Theme.AUTHOR_FOREGROUND_COLOR).ha(HAlign.LEFT).size(tw, 16).pos(Meta.ICON_SIZE + 16, 30),
