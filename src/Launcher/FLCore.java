@@ -150,7 +150,6 @@ public class FLCore {
         }
     }
 
-
     public static void main(final String[] args) {
         try {
             server = new ServerSocket();
@@ -1843,7 +1842,7 @@ public class FLCore {
                     final String id = m.getID();
                     final ArrayList<InstalledMeta> cml = new ArrayList<>();
                     for (final InstalledMeta meta : mel)
-                        if (id.equals(meta.getMarket()))
+                        if (id.equals(meta.market))
                             cml.add(meta);
                     if (cml.isEmpty())
                         m.checkForUpdates();
