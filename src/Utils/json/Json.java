@@ -261,6 +261,8 @@ public abstract class Json extends Reader implements AutoCloseable {
                                 if (nbs)
                                     return new JsonElement(str.toString());
                                 nbs = true;
+                                str.append('"');
+                                break;
                             case 'n':
                                 if (!nbs) {
                                     str.append('\n');
