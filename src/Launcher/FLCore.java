@@ -647,7 +647,10 @@ public class FLCore {
                                                             args.addAll(s.rp.args);
                                                             args.addAll(s.rp.endArgs);
 
-                                                            //System.out.println(args);
+                                                            /*System.out.print("Arguments:");
+                                                            for (final String arg : args)
+                                                                System.out.print(arg.contains(" ") ? " \"" + arg + '"' : ' ' + arg);
+                                                            System.out.println();*/
 
                                                             proc = s.process = new ProcessBuilder(
                                                                     args.toArray(new String[0])
