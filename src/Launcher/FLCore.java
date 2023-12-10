@@ -134,7 +134,11 @@ public class FLCore {
     }
 
     public static boolean bindMeta(final InstalledMeta meta) {
+        if (meta == null)
+            return false;
         final String id = meta.getID();
+        if (id == null || id.isEmpty())
+            return false;
         synchronized (installed) {
             for (final InstalledMeta m : installed)
                 if (id.equals(m.getID()))
@@ -1052,7 +1056,7 @@ public class FLCore {
 
                                                 @Override
                                                 public String toString() {
-                                                    return v == null ? n.toString() : n + " (" + v + ")";
+                                                    return v == null ? n == null ? "Unnamed" : n.toString() : n + " (" + v + ")";
                                                 }
                                             }),
                                             UI.text(me.getAuthor()).foreground(Theme.AUTHOR_FOREGROUND_COLOR).ha(HAlign.LEFT).size(tw, 16).pos(Meta.ICON_SIZE + 16, 30),
@@ -1107,28 +1111,32 @@ public class FLCore {
 
                                     if (g == null) {
                                         final InstalledMeta im = getById(id);
-                                        if (im != null)
-                                            if (ml.length == 1 && !me.getVersion().equals(im.ver) && !me.getVersion().equals(im.getVersion())) {
+                                        final Version
+                                                mev = me == null ? null : me.getVersion(),
+                                                imv1 = im == null ? null : im.ver,
+                                                imv2 = im == null ? null : im.getVersion();
+                                        if (im != null) {
+                                            if (ml.length == 1 && mev != null && !mev.equals(imv1) && !mev.equals(imv2)) {
                                                 ic.add(UI.button(ICON_UPDATE).imageOffset(2)
                                                         .grounds(Theme.CATEGORIES_BACKGROUND_COLOR, Theme.CATEGORIES_FOREGROUND_COLOR)
                                                         .size(40, 20).pos(ilb.getChildWidth() - 48, 8).onAction((self, event) -> {
-                                                    final TaskGroup gr = i.getValue().install();
-                                                    if (!bindTaskGroup(me.getID(), gr))
-                                                        return;
+                                                            final TaskGroup gr = i.getValue().install();
+                                                            if (!bindTaskGroup(me.getID(), gr))
+                                                                return;
 
-                                                    synchronized (groups) {
-                                                        groups.add(gr);
-                                                        groups.notifyAll();
-                                                    }
-                                                    synchronized (config) {
-                                                        config.group("plugins." + id).put("market", i.getKey().getID());
-                                                        try (final FileOutputStream fos = new FileOutputStream(new File(Core.getPath(FLCore.class), "config.ini"))) {
-                                                            fos.write(config.toString().getBytes(StandardCharsets.UTF_8));
-                                                        } catch (final IOException ex) {
-                                                            ex.printStackTrace();
-                                                        }
-                                                    }
-                                                }));
+                                                            synchronized (groups) {
+                                                                groups.add(gr);
+                                                                groups.notifyAll();
+                                                            }
+                                                            synchronized (config) {
+                                                                config.group("plugins." + id).put("market", i.getKey().getID());
+                                                                try (final FileOutputStream fos = new FileOutputStream(new File(Core.getPath(FLCore.class), "config.ini"))) {
+                                                                    fos.write(config.toString().getBytes(StandardCharsets.UTF_8));
+                                                                } catch (final IOException ex) {
+                                                                    ex.printStackTrace();
+                                                                }
+                                                            }
+                                                        }));
                                                 name.text(new Object() {
                                                     final Object n = me.getName(), v1 = im.getVersion(), v2 = me.getVersion();
 
@@ -1176,7 +1184,7 @@ public class FLCore {
                                                                 }
                                                             }));
                                             }
-                                        else if (emm.getValue().size() == 1)
+                                        } else if (emm.getValue().size() == 1)
                                             ic.add(UI.button(ml.length == 1 ? ICON_INSTALL : i.getKey().getIcon()).imageOffset(2).grounds(Theme.CATEGORIES_BACKGROUND_COLOR, Theme.CATEGORIES_FOREGROUND_COLOR)
                                                     .size(40, 20).pos(ilb.getChildWidth() - 48, 8).onAction((self, event) -> {
                                                 final TaskGroup gr = i.getValue().install();
