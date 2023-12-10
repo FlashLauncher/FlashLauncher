@@ -17,9 +17,7 @@ public class CIMeta extends InstalledMeta {
     /**
      * @since FlashLauncher 0.2.4
      */
-    public CIMeta(String id, Version version, String author) {
-        super(id, version, author);
-    }
+    public CIMeta(String id, Version version, String author) { super(id, version, author); }
 
     @Override public IImage getIcon() { return icon.get(); }
     @Override public Object getName() { return name.get(); }
