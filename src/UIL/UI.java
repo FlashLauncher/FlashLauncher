@@ -4,6 +4,7 @@ import UIL.base.*;
 import Utils.*;
 import Utils.fixed.FixedEntry;
 
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -136,11 +137,12 @@ public abstract class UI {
     }
 
 
-    public static IColor TRANSPARENT, WHITE, BLACK, RED, GREEN, BLUE, YELLOW, PURPLE;
+    public static IColor TRANSPARENT, WHITE, GRAY, BLACK, RED, GREEN, BLUE, YELLOW, PURPLE;
 
     public static void initColors() {
         TRANSPARENT = color(0, 0, 0, 0);
         WHITE = color(255, 255, 255);
+        GRAY = color(128, 128, 128);
         BLACK = color(0, 0, 0);
         RED = color(255, 0, 0);
         GREEN = color(0, 255, 0);
