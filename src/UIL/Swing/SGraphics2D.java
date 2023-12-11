@@ -54,8 +54,8 @@ public class SGraphics2D extends Graphics2D {
                 rb = r.getBounds(),
                 cb = clip.getBounds();
 
-        if (rb.equals(cb)) {
-            if (r instanceof RoundRectangle2D)
+        if (rb.equals(cb))
+            if (r instanceof RoundRectangle2D) {
                 if (clip instanceof RoundRectangle2D)
                     if (
                             ((RoundRectangle2D) r).getArcWidth() == ((RoundRectangle2D) clip).getArcWidth() &&
@@ -75,10 +75,11 @@ public class SGraphics2D extends Graphics2D {
                         ));
                 else
                     graphics.setClip(r);
-            else
+                return;
+            } else if (clip instanceof RoundRectangle2D) {
                 graphics.setClip(clip);
-            return;
-        }
+                return;
+            }
 
 
 
