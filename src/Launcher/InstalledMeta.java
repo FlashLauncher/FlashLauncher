@@ -16,4 +16,6 @@ public abstract class InstalledMeta extends Meta {
         System.out.println("get market");
         return market;
     }
+
+    protected void onDelete() throws Throwable {}
 }

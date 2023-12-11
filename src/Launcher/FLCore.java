@@ -1174,6 +1174,11 @@ public class FLCore {
                                                                 synchronized (groups) {
                                                                     groups.notifyAll();
                                                                 }
+                                                                try {
+                                                                    im.onDelete();
+                                                                } catch (final Throwable ex) {
+                                                                    ex.printStackTrace();
+                                                                }
                                                                 synchronized (config) {
                                                                     config.remove("plugins." + im.getID());
                                                                     try (final FileOutputStream fos = new FileOutputStream(new File(Core.getPath(FLCore.class), "config.ini"))) {
