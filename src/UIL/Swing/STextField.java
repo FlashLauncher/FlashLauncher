@@ -94,7 +94,9 @@ public class STextField extends JComponent implements ITextField {
         }
     };
 
-    public STextField() {
+    public STextField() { this(""); }
+
+    public STextField(final String string) {
         setOpaque(false);
         setFocusable(true);
         setCursor(Cursor.getPredefinedCursor(Cursor.TEXT_CURSOR));
@@ -308,10 +310,6 @@ public class STextField extends JComponent implements ITextField {
 
             @Override public void ancestorMoved(final AncestorEvent event) {}
         });
-    }
-
-    public STextField(final String string) {
-        this();
         text = string == null ? "" : string;
     }
 
@@ -409,55 +407,13 @@ public class STextField extends JComponent implements ITextField {
         return this;
     }
 
-    @Override
-    public STextField hint(final Object hint) {
-        this.hint = hint;
-        return this;
-    }
-
-    @Override
-    public STextField borderRadius(final RRunnable<Integer> borderRadius) {
-        this.borderRadius = borderRadius;
-        return this;
-    }
-
-    @Override
-    public STextField text(final Object text) {
-        this.text = text.toString();
-        setIndex(this.text.length());
-        return this;
-    }
-
-    @Override
-    public STextField font(final IFont font) {
-        this.font = font;
-        return this;
-    }
-
+    @Override public STextField hint(final Object hint) { this.hint = hint; return this; }
+    @Override public STextField borderRadius(final RRunnable<Integer> borderRadius) { this.borderRadius = borderRadius; return this; }
+    @Override public STextField text(final Object text) { this.text = text.toString(); setIndex(this.text.length()); return this; }
+    @Override public STextField font(final IFont font) { this.font = font; return this; }
     @Override public STextField ha(final HAlign align) { return this; }
-
-    @Override
-    public STextField background(final IColor bg) {
-        this.bg = bg;
-        return this;
-    }
-
-    @Override
-    public STextField foreground(final IColor color) {
-        fg = color;
-        return this;
-    }
-
-    @Override
-    public ITextField grounds(final IColor bg, final IColor fg) {
-        this.bg = bg;
-        this.fg = fg;
-        return this;
-    }
-
-    @Override
-    public ITextField update() {
-        repaint();
-        return this;
-    }
+    @Override public STextField background(final IColor bg) { this.bg = bg; return this; }
+    @Override public STextField foreground(final IColor color) { fg = color; return this; }
+    @Override public ITextField grounds(final IColor bg, final IColor fg) { this.bg = bg; this.fg = fg; return this; }
+    @Override public ITextField update() { repaint(); return this; }
 }

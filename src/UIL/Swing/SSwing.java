@@ -95,6 +95,7 @@ public class SSwing extends UI {
     @Override public IText newText() { return new SText(); }
     @Override public IText newText(final Object text) { return new SText(text); }
     @Override public ICheckBox newCheckBox(final Object text, final boolean checked) { return new SCheckBox(text, checked); }
+    @Override public ITextField newTextField() { return new STextField(); }
     @Override public ITextField newTextField(final String text) { return new STextField(text); }
     @Override public IButton newButton() { return new SButton(); }
     @Override public IButton newButton(final LangItem text) { return new SButton(text); }

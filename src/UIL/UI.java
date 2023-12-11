@@ -38,6 +38,7 @@ public abstract class UI {
     public abstract IText newText();
     public abstract IText newText(final Object text);
     public abstract ICheckBox newCheckBox(final Object text, final boolean checked);
+    public abstract ITextField newTextField();
     public abstract ITextField newTextField(final String text);
     public abstract IButton newButton();
     public abstract IButton newButton(final LangItem text);
@@ -106,6 +107,7 @@ public abstract class UI {
     public static IText text() { return UI.newText(); }
     public static IText text(final Object text) { return UI.newText(text); }
     public static ICheckBox checkBox(final Object text, final boolean checked) { return UI.newCheckBox(text, checked); }
+    public static ITextField textField() { return UI.newTextField(); }
     public static ITextField textField(final String text) { return UI.newTextField(text); }
     public static IButton button() { return UI.newButton(); }
     public static IButton button(final LangItem text) { return UI.newButton(text); }
