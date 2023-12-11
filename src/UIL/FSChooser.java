@@ -48,9 +48,8 @@ public class FSChooser {
 
     public FSChooser(final IFrame owner, final String title) {
         final int height = 380, width = 720;
-        dialog = UI.dialog(owner, title).resizable(false).size(width, height).center(owner);
+        dialog = UI.dialog(owner, title).resizable(false).size(width, height).center(owner).background(UI.color(64, 64, 64));
         dialog.add(
-                        UI.panel().size(width, height).borderRadius(UI.ZERO),
                         UI.panel().size(spw, 48).pos(8, 8).add(
                                 UI.button(ICON_REFRESH).imageOffset(4).size(32, 32).pos(8, 8).onAction((s, e) -> refresh()),
                                 UI.button(ICON_PARENT).imageOffset(4).size(32, 32).pos(48, 8).onAction((s, e) -> {
@@ -60,7 +59,8 @@ public class FSChooser {
                                 }),
                                 path = UI.text("").ha(HAlign.LEFT).size(608, 32).pos(88, 8)
                         ),
-                        sp = UI.scrollPane().size(spw, mhf).pos(8, 64).content(fileContainer = UI.panel().borderRadius(UI.ZERO)),
+                        sp = UI.scrollPane().size(spw, mhf).pos(8, 64)
+                                .content(fileContainer = UI.panel().borderRadius(UI.ZERO)),
                         UI.panel().size(spw, 48).pos(8, mhf + 72).add(
                                 filename = UI.text("File name").ha(HAlign.LEFT).size(spw - 144 - 80, 32).pos(80, 8),
                                 UI.button("Select").onAction((s, e) -> {
@@ -203,6 +203,13 @@ public class FSChooser {
     }
 
     public File[] getSelected() { return files.toArray(new File[0]); }
-    public boolean start() { refresh(); isSuccess = false; dialog.visible(true); return isSuccess; }
+    public boolean start() {
+        isSuccess = false;
+        dialog.pack();
+        UI.run(this::refresh);
+        dialog.visible(true);
+        return isSuccess;
+    }
+
     public void dispose() { dialog.dispose(); }
 }
