@@ -25,8 +25,6 @@ public class SPanel extends JPanel implements IContainer {
 
     public SPanel() { setOpaque(false); setLayout(null); }
 
-    private long nano;
-
     @Override
     protected void paintComponent(final Graphics graphics) {
         final Graphics2D g = new SGraphics2D((Graphics2D) (graphics instanceof Graphics2D ? graphics : graphics.create()));
@@ -80,11 +78,7 @@ public class SPanel extends JPanel implements IContainer {
     }
     @Override public SPanel getComponent() { return this; }
 
-    @Override
-    public SPanel add(final IComponent component) {
-        super.add((Component) component.getComponent(), 0);
-        return this;
-    }
+    @Override public SPanel add(final IComponent component) { super.add((Component) component.getComponent(), 0); return this; }
 
     @Override
     public SPanel add(final IComponent... components) {
@@ -113,23 +107,14 @@ public class SPanel extends JPanel implements IContainer {
             nixFL = r;
         }
 
-        public STE(final TransferHandler.TransferSupport support) {
-            s = support;
-        }
+        public STE(final TransferHandler.TransferSupport support) { s = support; }
 
         @Override public boolean isDrop() { return s.isDrop(); }
 
         @Override public boolean hasStringSupport() { return s.isDataFlavorSupported(DataFlavor.stringFlavor); }
+        @Override public boolean hasFileListSupport() { return s.isDataFlavorSupported(DataFlavor.javaFileListFlavor) || (nixFL != null && s.isDataFlavorSupported(nixFL)); }
 
-        @Override
-        public boolean hasFileListSupport() {
-            return s.isDataFlavorSupported(DataFlavor.javaFileListFlavor) || (nixFL != null && s.isDataFlavorSupported(nixFL));
-        }
-
-        @Override
-        public String getString() throws Exception {
-            return (String) s.getTransferable().getTransferData(DataFlavor.stringFlavor);
-        }
+        @Override public String getString() throws Exception { return (String) s.getTransferable().getTransferData(DataFlavor.stringFlavor); }
 
         @Override
         public List<File> getFileList() throws Exception {
