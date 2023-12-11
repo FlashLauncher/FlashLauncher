@@ -79,45 +79,11 @@ public class SFrame implements IFrame {
         return this;
     }
 
-    @Override
-    public SFrame remove(final IComponent component) {
-        root.remove((Component) component);
-        return this;
-    }
-
-    @Override
-    public SFrame clear() {
-        root.removeAll();
-        return this;
-    }
-
-    @Override
-    public SFrame icon(final IImage icon) {
-        frame.setIconImage((Image) icon.getImage());
-        return this;
-    }
-
-    @Override
-    public SFrame resizable(final boolean resizable) {
-        frame.setResizable(resizable);
-        return this;
-    }
-
-    @Override
-    public SFrame background(final IColor bg) {
-        frame.setBackground((Color) bg.get());
-        return this;
-    }
-
-    @Override
-    public SFrame update() {
-        frame.repaint();
-        return this;
-    }
-
-    @Override
-    public SFrame dispose() {
-        frame.dispose();
-        return this;
-    }
+    @Override public SFrame remove(final IComponent component) { root.remove((Component) component); return this; }
+    @Override public SFrame clear() { root.removeAll(); return this; }
+    @Override public SFrame icon(final IImage icon) { frame.setIconImage((Image) icon.getImage()); return this; }
+    @Override public SFrame resizable(final boolean resizable) { frame.setResizable(resizable); return this; }
+    @Override public SFrame background(final IColor bg) { root.setBackground((Color) bg.get()); return this; }
+    @Override public SFrame update() { frame.repaint(); return this; }
+    @Override public SFrame dispose() { frame.dispose(); return this; }
 }

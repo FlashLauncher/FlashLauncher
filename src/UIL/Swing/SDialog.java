@@ -27,23 +27,9 @@ public class SDialog implements IDialog {
     @Override public IComponent[] childs() { return (IComponent[]) cont.getComponents(); }
     @Override public Object getComponent() { return this; }
 
-    @Override
-    public SDialog icon(final IImage icon) {
-        d.setIconImage((Image) icon.getImage());
-        return this;
-    }
-
-    @Override
-    public SDialog resizable(final boolean resizable) {
-        d.setResizable(resizable);
-        return this;
-    }
-
-    @Override
-    public SDialog add(final IComponent component) {
-        cont.add((Component) component.getComponent(), 0);
-        return this;
-    }
+    @Override public SDialog icon(final IImage icon) { d.setIconImage((Image) icon.getImage()); return this; }
+    @Override public SDialog resizable(final boolean resizable) { d.setResizable(resizable); return this; }
+    @Override public SDialog add(final IComponent component) { cont.add((Component) component.getComponent(), 0); return this; }
 
     @Override
     public SDialog add(final IComponent... components) {
@@ -52,17 +38,8 @@ public class SDialog implements IDialog {
         return this;
     }
 
-    @Override
-    public SDialog remove(final IComponent component) {
-        cont.remove((Component) component.getComponent());
-        return this;
-    }
-
-    @Override
-    public SDialog clear() {
-        cont.removeAll();
-        return this;
-    }
+    @Override public SDialog remove(final IComponent component) { cont.remove((Component) component.getComponent()); return this; }
+    @Override public SDialog clear() { cont.removeAll(); return this; }
 
     @Override
     public SDialog size(final int width, final int height) {
@@ -83,6 +60,7 @@ public class SDialog implements IDialog {
     }
 
     @Override public SDialog center(final IComponent component) { d.setLocationRelativeTo(component == null ? null : (Component) component.getComponent()); return this; }
+
     @Override public SDialog visible(final boolean visible) {
         if (!packed) {
             packed = true;
@@ -91,13 +69,9 @@ public class SDialog implements IDialog {
         d.setVisible(visible);
         return this;
     }
-    @Override public SDialog focus() { d.requestFocus(); return this; }
 
-    @Override
-    public SDialog background(final IColor bg) {
-        d.setBackground((Color) bg.get());
-        return this;
-    }
+    @Override public SDialog focus() { d.requestFocus(); return this; }
+    @Override public SDialog background(final IColor bg) { cont.setBackground((Color) bg.get()); return this; }
 
     @Override
     public SDialog onClose(final Runnable1a<IFrame> listener) {
@@ -109,16 +83,6 @@ public class SDialog implements IDialog {
         });
         return this;
     }
-
-    @Override
-    public SDialog update() {
-        d.repaint();
-        return this;
-    }
-
-    @Override
-    public SDialog dispose() {
-        d.dispose();
-        return this;
-    }
+    @Override public SDialog update() { d.repaint(); return this; }
+    @Override public SDialog dispose() { d.dispose(); return this; }
 }
