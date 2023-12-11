@@ -5,13 +5,11 @@ import UIL.base.IColor;
 import UIL.base.IComponent;
 import UIL.base.IContainer;
 import UIL.base.IScrollPane;
-import Utils.Core;
 import Utils.RRunnable;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.geom.Area;
-import java.awt.geom.Rectangle2D;
 import java.awt.geom.RoundRectangle2D;
 
 public class SScrollPane extends JPanel implements IScrollPane {
@@ -133,12 +131,16 @@ public class SScrollPane extends JPanel implements IScrollPane {
     @Override public SScrollPane foreground(final IColor fg) { this.fg = fg; return this; }
     @Override public SScrollPane grounds(final IColor bg, final IColor fg) { this.bg = bg; this.fg = fg; return this; }
 
-    @Override public SScrollPane update() {
-        sx = Math.min(Math.max(sx, getWidth() - content.width()), 0);
-        sy = Math.min(Math.max(sy, getHeight() - content.height()), 0);
+    @Override
+    public SScrollPane update() {
         final boolean o = bg.alpha() == 255 && borderRadius.run() <= 0;
         if (isOpaque() != o)
             setOpaque(o);
+        sx = Math.min(Math.max(sx, getWidth() - content.width()), 0);
+        sy = Math.min(Math.max(sy, getHeight() - content.height()), 0);
+        final IContainer c = content;
+        if (c != null)
+            c.pos(sx, sy);
         repaint();
         return this;
     }
