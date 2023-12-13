@@ -27,5 +27,12 @@ public class JsonElement {
     public float getAsFloat() { return (float) o; }
     public boolean getAsBool() { return (boolean) o; }
 
-    @Override public String toString() { return o == null ? "null" : o instanceof String ? "\"" + Matcher.quoteReplacement((String) o) +  "\"" : o.toString(); }
+    @Override public String toString() {
+        return o == null ? "null" :
+            o instanceof String ? "\"" + Matcher.quoteReplacement(((String) o))
+                        .replaceAll("\n", "\\\\n")
+                        .replaceAll("\"", "\\\\\"")
+                    + "\"" :
+                    o.toString();
+    }
 }
