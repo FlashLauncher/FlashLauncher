@@ -112,10 +112,48 @@ public abstract class Json extends Reader implements AutoCloseable {
                             return isr.read(cbuf, off, len);
                         }
 
-                        @Override
-                        public void close() throws IOException {
-                            isr.close();
-                        }
+                        @Override public void close() throws IOException { isr.close(); }
+        }) {
+            return j.p();
+        }
+    }
+
+    /**
+     * @since FlashLauncher 0.2.4
+     */
+    public static JsonElement parse(final byte[] buf, final Charset charset) throws IOException {
+        try (final Json j = new Json() {
+            private final InputStreamReader isr = new InputStreamReader(new ByteArrayInputStream(buf), charset);
+
+            @Override
+            public int read(final char[] cbuf, final int off, final int len) throws IOException {
+                return isr.read(cbuf, off, len);
+            }
+
+            @Override public void close() throws IOException { isr.close(); }
+        }) {
+            return j.p();
+        }
+    }
+
+    /**
+     * @since FlashLauncher 0.2.4
+     */
+    public static JsonElement parse(final ByteArrayOutputStream outputStream, final Charset charset, final boolean autoClose) throws IOException {
+        try (final Json j = new Json() {
+            private final InputStreamReader isr = new InputStreamReader(new ByteArrayInputStream(outputStream.toByteArray()), charset);
+
+            @Override
+            public int read(final char[] cbuf, final int off, final int len) throws IOException {
+                return isr.read(cbuf, off, len);
+            }
+
+            @Override
+            public void close() throws IOException {
+                isr.close();
+                if (autoClose)
+                    outputStream.close();
+            }
         }) {
             return j.p();
         }
