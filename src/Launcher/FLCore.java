@@ -1171,14 +1171,6 @@ public class FLCore {
                                                                         ip.file.delete();
                                                                     }
                                                                 }
-                                                                synchronized (groups) {
-                                                                    groups.notifyAll();
-                                                                }
-                                                                try {
-                                                                    im.onDelete();
-                                                                } catch (final Throwable ex) {
-                                                                    ex.printStackTrace();
-                                                                }
                                                                 synchronized (config) {
                                                                     config.remove("plugins." + im.getID());
                                                                     try (final FileOutputStream fos = new FileOutputStream(new File(Core.getPath(FLCore.class), "config.ini"))) {
@@ -1186,6 +1178,16 @@ public class FLCore {
                                                                     } catch (final IOException ex) {
                                                                         ex.printStackTrace();
                                                                     }
+                                                                }
+                                                                synchronized (groups) {
+                                                                    try {
+                                                                        final TaskGroup gr = im.onDelete();
+                                                                        if (gr != null && bindTaskGroup(im.getID(), gr))
+                                                                            groups.add(gr);
+                                                                    } catch (final Throwable ex) {
+                                                                        ex.printStackTrace();
+                                                                    }
+                                                                    groups.notifyAll();
                                                                 }
                                                             }));
                                             }
@@ -1929,6 +1931,11 @@ public class FLCore {
                 server.close();
             } catch (final IOException ignored) {}
             Core.offNotify(r);
+            synchronized (installed) {
+                for (final InstalledMeta m : installed)
+                    if (m instanceof InstalledPlugin)
+                        ((InstalledPlugin) m).disable();
+            }
             synchronized (groups) {
                 if (!groups.isEmpty())
                     System.out.println("Exit. Skip groups: " + groups.size());
