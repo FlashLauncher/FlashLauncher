@@ -5,6 +5,7 @@ import java.awt.font.FontRenderContext;
 import java.awt.font.GlyphVector;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
+import java.awt.geom.Path2D;
 import java.awt.geom.RoundRectangle2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.BufferedImageOp;
@@ -54,6 +55,14 @@ public class SGraphics2D extends Graphics2D {
                 rb = r.getBounds(),
                 cb = clip.getBounds();
 
+        if (rb.getWidth() == 0 || rb.getHeight() == 0) {
+            graphics.setClip(r);
+            return;
+        } else if (cb.getWidth() == 0 || cb.getHeight() == 0) {
+            graphics.setClip(clip);
+            return;
+        }
+
         if (rb.equals(cb))
             if (r instanceof RoundRectangle2D) {
                 if (clip instanceof RoundRectangle2D)
@@ -81,7 +90,168 @@ public class SGraphics2D extends Graphics2D {
                 return;
             }
 
+        if (r instanceof Rectangle && clip instanceof Rectangle) {
+            if (rb.equals(cb)) {
+                graphics.setClip(r);
+                return;
+            }
+            System.out.println(r + " vs " + clip);
+        }
 
+        /*if (r instanceof Rectangle && clip instanceof RoundRectangle2D) {
+            final double
+                    arcW = ((RoundRectangle2D) clip).getArcWidth(),
+                    arcH = ((RoundRectangle2D) clip).getArcHeight(),
+                    cx = ((RoundRectangle2D) clip).getX(),
+                    cy = ((RoundRectangle2D) clip).getY(),
+                    cw = ((RoundRectangle2D) clip).getWidth(),
+                    ch = ((RoundRectangle2D) clip).getHeight(),
+                    x = ((Rectangle) r).getX(),
+                    y = ((Rectangle) r).getY(),
+                    w = ((Rectangle) r).getWidth(),
+                    h = ((Rectangle) r).getHeight();
+
+
+
+            if (x >= arcW + cx && w <= cw - arcW)
+                if (y >= arcH + cy && h <= ch - arcH) {
+                    graphics.setClip(r);
+                    return;
+                } else {
+                    graphics.setClip(new RoundRectangle2D.Double(
+                            x, Math.min(y, cy),
+                            w, Math.max(h, ch),
+                            0, 0
+                    ));
+                    return;
+                }
+
+            if (y >= arcH + cy && h <= ch - arcH) {
+                // java.awt.Rectangle[x=0,y=156,width=128,height=4] vs java.awt.Rectangle[x=0,y=0,width=128,height=160], 16.0, 16.0
+                // 0 156 128   4 |
+                // 0   0 128 160 | 16 16
+
+                graphics.setClip(new RoundRectangle2D.Double(
+                        Math.min(x, cx), y,
+                        Math.max(w, cw), h,
+                        0, 0
+                ));
+                return;
+
+                graphics.setClip(new RoundRectangle2D.Double(
+                        Math.max(x, cx), cy,
+                        cw, Math.min(h, ch),
+                        arcW, 0
+                ));
+                return;
+            }
+
+            // 0 0 680 60 / 0 0 680 72 , 16 , 16
+            // 8 220 632 32 / 0 0 648 308 16 16
+
+            //System.out.println(r + " vs " + clip.getBounds() + ", " + ((RoundRectangle2D) clip).getArcWidth() + ", " + ((RoundRectangle2D) clip).getArcHeight());
+        }*/
+
+        if (r instanceof Rectangle && clip instanceof RoundRectangle2D) {
+            final double
+                    x = ((Rectangle) r).getX(),
+                    y = ((Rectangle) r).getY(),
+                    w = ((Rectangle) r).getWidth(),
+                    h = ((Rectangle) r).getHeight(),
+                    cx = ((RoundRectangle2D) clip).getX(),
+                    cy = ((RoundRectangle2D) clip).getY(),
+                    cw = ((RoundRectangle2D) clip).getWidth(),
+                    ch = ((RoundRectangle2D) clip).getHeight(),
+                    aw = ((RoundRectangle2D) clip).getArcWidth(),
+                    ah = ((RoundRectangle2D) clip).getArcHeight(),
+                    awh = aw / 2,
+                    ahh = ah / 2;
+
+            if (x == cx + aw && x + w == cx + cw - aw) {
+                graphics.setClip(new Rectangle(
+                        (int) Math.round(x), (int) Math.round(y),
+                        (int) Math.round(w), (int) Math.round(h)
+                ));
+                return;
+            }
+
+            if (x <= cx && y <= cy && cw <= w && ch <= h) {
+                graphics.setClip(clip);
+                return;
+            }
+
+            if (
+                    x >= cx + aw && y >= cy + ah &&
+                            w <= cw - aw && h <= ch - ah
+            ) {
+                graphics.setClip(r);
+                return;
+            }
+
+            if (
+                    x >= cx + awh && y >= cy + ahh &&
+                            w <= cw - awh && h <= ch - awh
+            ) {
+                graphics.setClip(r);
+                return;
+            }
+
+            if (
+                x     >= cx      && y     >= cy      + ah &&
+                x + w <= cx + cw && y + h <= cy + ch - ah
+            ) {
+                graphics.setClip(r);
+                return;
+            }
+
+            if (
+                    x == cx && y == cy &&
+                    w == cw && y <= ch
+            ) {
+                graphics.setClip(new Path2D.Double() {{
+                    final double p1w = x + w, p1h = y + h;
+                    moveTo(x, y);
+                    lineTo(p1w, y);
+                    lineTo(p1w, p1h - ah);
+                    curveTo(p1w, p1h, p1w, p1h, p1w - aw, p1h);
+                    lineTo(x + aw, p1h);
+                    curveTo(x, p1h, x, p1h, x, p1h - ah);
+                    lineTo(x, y);
+                    closePath();
+                }});
+                return;
+            }
+
+            /*System.out.println("---");
+            System.out.println("// " + x + " " + y);
+            System.out.println("// " + cx + " " + cy);
+            System.out.println("// " + w + " " + h);
+            System.out.println("// " + cw + " " + ch);
+
+            System.out.println(r + " vs " + clip.getBounds() + ", " + ((RoundRectangle2D) clip).getArcWidth() + ", " + ((RoundRectangle2D) clip).getArcHeight());*/
+
+            graphics.setClip(new Path2D.Double() {{
+                final double
+                        sx = Math.max(x, cx), sy = Math.max(y, cy),
+                        ox = Math.max(x, cx + aw), oy = Math.max(y, cy + aw),
+                        ew = Math.min(x + w, cx + cw), eh = Math.min(y + h, cy + ch),
+                        ow = Math.min(x + w, cx + cw - aw), oh = Math.min(y + h, cy + ch - ah)
+                ;
+
+                moveTo(sx, oy);
+                curveTo(cx, cy, cx, cy, ox, sy);
+                lineTo(ow, sy);
+                curveTo(ew, sy, ew, sy, ew, oy);
+                lineTo(ew, oh);
+                curveTo(ew, eh, ew, eh, ow, eh);
+                lineTo(ox, eh);
+                curveTo(sx, eh, sx, eh, sx, oh);
+                lineTo(sx, oy);
+
+                closePath();
+            }});
+            return;
+        }
 
         //System.out.println(r + " vs " + clip);
         //System.out.println(" - " + rb + " vs " + cb + " - " + rb.equals(cb));
