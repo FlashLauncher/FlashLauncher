@@ -17,5 +17,5 @@ public abstract class InstalledMeta extends Meta {
         return market;
     }
 
-    protected void onDelete() throws Throwable {}
+    protected TaskGroup onDelete() throws Throwable { return null; }
 }
