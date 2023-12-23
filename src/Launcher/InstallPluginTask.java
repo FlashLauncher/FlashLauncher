@@ -76,7 +76,7 @@ public final class InstallPluginTask extends Task {
                 im.locked = true;
                 im.ver = new Version(verStr);
                 im.n = name;
-                im.author = author;
+                im.setAuthor(author);
                 im.sd = sd;
                 im.icon = icon;
                 im.main = main;
