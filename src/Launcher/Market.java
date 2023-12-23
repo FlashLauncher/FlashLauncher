@@ -6,7 +6,12 @@ import UIL.base.IImage;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 public abstract class Market {
-    public static final int MENU_ICON_SIZE = 118, MENU_ICON_SIZE_MIN = 96;
+    public static final int MENU_ICON_SIZE = 118;
+
+    /**
+     * @since FlashLauncher 0.2.4
+     */
+    public static final int MENU_ICON_SIZE_MIN = 96;
 
     final ConcurrentLinkedQueue<Object> cl = new ConcurrentLinkedQueue<>();
 
