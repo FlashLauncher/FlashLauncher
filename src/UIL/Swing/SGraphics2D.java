@@ -239,7 +239,7 @@ public class SGraphics2D extends Graphics2D {
                 ;
 
                 moveTo(sx, oy);
-                curveTo(cx, cy, cx, cy, ox, sy);
+                curveTo(sx, sy, sx, sy, ox, sy);
                 lineTo(ow, sy);
                 curveTo(ew, sy, ew, sy, ew, oy);
                 lineTo(ew, oh);
