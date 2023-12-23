@@ -48,7 +48,7 @@ public class CLineReader implements Closeable {
                     nr = chars[i1] == '\r';
                     lines.add(sb + new String(chars, i, i1 - i));
                     sb = new StringBuilder();
-                    i = i1;
+                    i = i1 + 1;
                 } else if (nr)
                     nr = false;
             if (chars.length - i > 0)
