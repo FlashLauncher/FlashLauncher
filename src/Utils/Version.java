@@ -27,7 +27,7 @@ public class Version {
                             ex.printStackTrace();
                             continue m;
                         }
-                return true;
+                return l2.length >= l1.length;
             }
 
             if (sv.isEmpty() || sv.equals("*") || sv.equals(v))
