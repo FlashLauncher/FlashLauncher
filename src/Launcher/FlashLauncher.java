@@ -85,7 +85,7 @@ public class FlashLauncher {
         if (FLCore.loader != null) {
             final IContainer r = UI.panel().size(128, 160).add(UI.loader().size(96, 96).pos(16, 16));
             final IText s = UI.text().size(112, 40).pos(8, 116);
-            final IProgressBar p = UI.progressBar().size(128, 4).pos(0, 156);
+            final IProgressBar p = UI.progressBar().borderRadius(UI.ZERO).size(128, 4).pos(0, 156);
             frame.add(r.add(s, p).pos((width - r.width()) / 2, (height - r.height()) / 2));
             try {
                 final TaskGroup l = FLCore.loader;
