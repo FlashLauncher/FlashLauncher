@@ -1324,7 +1324,9 @@ public class FLCore {
                                                     clb.clear();
                                                     synchronized (mle) {
                                                         for (final Market m : markets)
-                                                            clb.add(UI.toggleButton(m.getName(), m.getIcon(), mle.contains(m)).imageAlign(ImgAlign.TOP).imageOffset(16).onChange((self1, newValue) -> {
+                                                            clb.add(UI.toggleButton(m.getName(), m.getIcon(), mle.contains(m))
+                                                                    .imageAlign(ImgAlign.TOP).imageOffset(16).imageTextDist(4)
+                                                                    .smooth(m.smoothIcon()).onChange((self1, newValue) -> {
                                                                 synchronized (mle) {
                                                                     if (newValue) {
                                                                         mle.add(m);
