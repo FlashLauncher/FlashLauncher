@@ -315,6 +315,13 @@ public abstract class Json extends Reader implements AutoCloseable {
                                 } else
                                     str.append('r');
                                 break;
+                            case 't':
+                                if (!nbs) {
+                                    str.append('\t');
+                                    nbs = true;
+                                } else
+                                    str.append('t');
+                                break;
                             case '/':
                                 if (!nbs)
                                     nbs = true;
