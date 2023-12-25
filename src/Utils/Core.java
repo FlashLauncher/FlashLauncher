@@ -548,4 +548,22 @@ public class Core {
         bb.get(d);
         return d;
     }
+
+    /**
+     * @since FlashLauncher 0.2.4.1
+     */
+    public static <T> Iterable<T> asReversed(final List<T> list) {
+        return () -> new Iterator<T>() {
+            private int i = list.size() - 1;
+
+            @Override public boolean hasNext() { return i >= 0; }
+
+            @Override
+            public T next() {
+                if (i < 0)
+                    throw new NoSuchElementException();
+                return list.get(i--);
+            }
+        };
+    }
 }
