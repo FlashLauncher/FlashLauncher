@@ -12,6 +12,7 @@ import Utils.IniGroup;
 import Utils.Version;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Calendar;
 
 public class FlashLauncher {
     public static final IImage ICON, BACKGROUND, ICON_SETTINGS, ICON_HELP;
@@ -33,7 +34,27 @@ public class FlashLauncher {
             sd = g.getAsString("shortDescription");
             v = new Version(g.getAsString("version"));
 
-            icon = UI.image(i + "://images/grass.png");
+            final Calendar c = Calendar.getInstance();
+            switch (c.get(Calendar.MONTH)) {
+                case Calendar.JANUARY:
+                case Calendar.FEBRUARY:
+                    icon = UI.image(i + "://images/ice.png");
+                    break;
+                case Calendar.MARCH:
+                    icon = UI.image(c.get(Calendar.DAY_OF_MONTH) <= 19 ? i + "://images/ice.png" : i + "://images/grass.png");
+                    break;
+                case Calendar.DECEMBER:
+                    if (c.get(Calendar.DAY_OF_MONTH) >= 25) {
+                        icon = UI.image(i + "://images/ice.png");
+                        break;
+                    }
+                default:
+                    icon = UI.image(i + "://images/grass.png");
+                    break;
+            }
+            icon = (c.get(Calendar.MONTH) == Calendar.DECEMBER && c.get(Calendar.DAY_OF_MONTH) >= 25) ||
+                            (c.get(Calendar.MONTH) == Calendar.JANUARY && c.get(Calendar.DAY_OF_MONTH) < 15) ?
+                    UI.image(i + "://images/ice.png") : UI.image(i + "://images/grass.png");
             bg = UI.image(i + "://images/background.png");
             s = UI.image(i + "://images/settings.png");
             h = UI.image(i + "://images/help.png");
