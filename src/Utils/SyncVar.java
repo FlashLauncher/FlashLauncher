@@ -10,4 +10,6 @@ public class SyncVar<T> {
 
     public void set(final T value) { synchronized (locker) { v = value; } }
     public T get() { synchronized (locker) { return v; } }
+
+    @Override public String toString() { synchronized (locker) { return v == null ? null : v.toString(); } }
 }
