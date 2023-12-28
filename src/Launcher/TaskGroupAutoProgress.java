@@ -8,12 +8,16 @@ public class TaskGroupAutoProgress extends TaskGroup {
     public void addTask(final Task task) {
         if (task == null)
             return;
-        synchronized (po) {
-            m++;
-            po.notifyAll();
-        }
         synchronized (tasks) {
-            tasks.add(task);
+            synchronized (task.po) {
+                if (task.f)
+                    return;
+                synchronized (po) {
+                    m++;
+                    po.notifyAll();
+                }
+                tasks.add(task);
+            }
         }
     }
 

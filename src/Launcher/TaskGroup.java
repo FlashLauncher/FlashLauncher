@@ -15,11 +15,7 @@ public class TaskGroup {
     public TaskGroup() { tl = -1; }
     public TaskGroup(final int threadLimit) { tl = threadLimit; }
 
-    public Task[] getTasks() {
-        synchronized (tasks) {
-            return tasks.toArray(new Task[0]);
-        }
-    }
+    public Task[] getTasks() { synchronized (tasks) { return tasks.toArray(new Task[0]); } }
 
     public Task getTask(final int index) {
         synchronized (tasks) {
@@ -100,12 +96,19 @@ public class TaskGroup {
     }
 
     final Task getAny() {
+        synchronized (po) {
+            if (f)
+                return null;
+        }
         synchronized (tasks) {
             for (final Task t : tasks)
                 synchronized (t.po) {
                     if (!t.f)
                         return t;
                 }
+            synchronized (po) {
+                f = true;
+            }
             return null;
         }
     }
