@@ -104,6 +104,9 @@ public class FLCore {
             HELP_ITEMS = new ArrayList<>()
     ;
 
+    static final SyncVar<IAccount> latestAccount = new SyncVar<>();
+    static final SyncVar<IProfile> latestProfile = new SyncVar<>();
+
     static final ArrayList<InstalledMeta> installed = new ArrayList<>();
     static final ArrayList<Market> markets = new ArrayList<>();
     static final ArrayList<IProfile> profiles = new ArrayList<>();
@@ -358,7 +361,19 @@ public class FLCore {
                                                     clb.clear();
                                                     for (final IAccount i : accounts)
                                                         clb.add(UI.button(i, i.getIcon()).imageAlign(ImgAlign.TOP).imageOffset(20).onAction((s, e) -> {
-                                                            launcher.account = i;
+                                                            latestAccount.set(launcher.account = i);
+                                                            synchronized (config) {
+                                                                final String a = i.getID();
+                                                                if (a == null || a.isEmpty())
+                                                                    config.remove("latestAccount");
+                                                                else
+                                                                    config.put("latestAccount", a);
+                                                                try (final FileOutputStream fos = new FileOutputStream(new File(Core.getPath(FLCore.class), "config.ini"))) {
+                                                                    fos.write(config.toString().getBytes(StandardCharsets.UTF_8));
+                                                                } catch (final IOException ex) {
+                                                                    ex.printStackTrace();
+                                                                }
+                                                            }
                                                             le.close();
                                                         }));
                                                     clb.update();
@@ -399,7 +414,19 @@ public class FLCore {
                                                     clb.clear();
                                                     for (final IProfile i : profiles)
                                                         clb.add(UI.button(i, i.getIcon()).imageAlign(ImgAlign.TOP).imageOffset(20).onAction((s, e) -> {
-                                                            launcher.profile = i;
+                                                            latestProfile.set(launcher.profile = i);
+                                                            synchronized (config) {
+                                                                final String a = i.getID();
+                                                                if (a == null || a.isEmpty())
+                                                                    config.remove("latestProfile");
+                                                                else
+                                                                    config.put("latestProfile", a);
+                                                                try (final FileOutputStream fos = new FileOutputStream(new File(Core.getPath(FLCore.class), "config.ini"))) {
+                                                                    fos.write(config.toString().getBytes(StandardCharsets.UTF_8));
+                                                                } catch (final IOException ex) {
+                                                                    ex.printStackTrace();
+                                                                }
+                                                            }
                                                             le.close();
                                                         }));
                                                     clb.update();
@@ -1871,6 +1898,33 @@ public class FLCore {
 
             final LangItem ch = Lang.get("market.checkingForUpdates");
             @Override public String toString() { return ch.toString(); }
+        });
+
+        loader.addTask(new Task() {
+            @Override
+            public void run() throws Throwable {
+                synchronized (config) {
+                    final String a = config.getAsString("latestAccount"), p = config.getAsString("latestProfile");
+                    if (a != null && !a.isEmpty())
+                        synchronized (accounts) {
+                            for (final IAccount acc : accounts)
+                                if (a.equals(acc.getID())) {
+                                    latestAccount.set(acc);
+                                    break;
+                                }
+                        }
+                    if (p != null && !p.isEmpty())
+                        synchronized (accounts) {
+                            for (final IProfile pro : profiles)
+                                if (p.equals(pro.getID())) {
+                                    latestProfile.set(pro);
+                                    break;
+                                }
+                        }
+                }
+            }
+
+            @Override public String toString() { return "Finalizing ..."; }
         });
 
         groups.add(loader);

@@ -10,6 +10,11 @@ public interface IAccount {
 
     String toString();
 
+    /**
+     * @since FlashLauncher 0.2.5
+     */
+    default String getID() { return toString(); }
+
     default boolean isCompatible(final IProfile profile) { return true; }
     default IImage getIcon() { return null; }
 

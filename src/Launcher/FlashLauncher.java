@@ -136,6 +136,8 @@ public class FlashLauncher {
             } catch (final InterruptedException ignored) {}
             frame.remove(r);
         }
+        account = FLCore.latestAccount.get();
+        profile = FLCore.latestProfile.get();
         final int cw = width - 72, ch = height - 16, scw = cw - 168;
         frame.add(menuBar.addEnd("help", ICON_HELP, null, () -> {
             if (content != null)
