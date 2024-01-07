@@ -23,6 +23,8 @@ public class FLCore {
 
     static final IniGroup config;
 
+    private static final ArrayList<String> langs = new ArrayList<>();
+
     static {
         IniGroup g = null;
         final File cf = new File(Core.getPath(FLCore.class), "config.ini");
@@ -61,6 +63,15 @@ public class FLCore {
         ICON_UPDATE = iu;
         ICON_DELETE = id;
         ICON_ADD = a;
+
+        try {
+            for (final FSFile f : FS.ROOT.list("flash-launcher://langs"))
+                if (!f.getName().equals("lang-names.ini"))
+                    langs.add(f.getNameWithoutExt());
+        } catch (final Exception ex) {
+            ex.printStackTrace();
+            System.exit(1);
+        }
     }
 
     private static ServerSocket server;
@@ -197,7 +208,10 @@ public class FLCore {
             final boolean fle = FS.ROOT.exists(FlashLauncher.ID + "://langs/" + l + ".ini"), ule = FS.ROOT.exists("ui-lib://langs/" + l + ".ini");
             if (fle || ule)
                 lang = l;
+            else
+                config.put("lang", "en_US");
             Lang.add(
+                    new IniGroup(new String(FS.ROOT.readFully(FlashLauncher.ID + "://langs/lang-names.ini"), StandardCharsets.UTF_8), false),
                     new IniGroup(new String(
                             fle ? FS.ROOT.readFully(FlashLauncher.ID + "://langs/" + lang + ".ini") : FS.ROOT.readFully(FlashLauncher.ID + "://langs/en_US.ini"),
                             StandardCharsets.UTF_8), false),
@@ -327,7 +341,37 @@ public class FLCore {
                     SETTINGS_ITEMS.add(new FLMenuItemListener("launcher", FlashLauncher.ICON, FlashLauncher.NAME) {
                         @Override
                         public void onOpen(final FLMenuItemEvent e) {
-                            e.add(UI.text("Thread count: " + Core.syncGetSize(threads)).ha(HAlign.LEFT).size(e.width() - 24, 18).pos(8, 8));
+                            final int cw = e.width() - 16, cwh = (cw - 8) / 2, cwhO = cwh + 16;
+                            //e.add(UI.text("Thread count: " + Core.syncGetSize(threads)).ha(HAlign.LEFT).size(e.width() - 24, 18).pos(8, 8));
+                            e.add(
+                                    UI.text("Language:").size(cwh, 32).pos(8, 8).ha(HAlign.LEFT),
+                                    UI.comboBox().text(Lang.get(Core.syncGetString(config, "lang"))).size(cwh, 32).pos(cwhO, 8).onList(event -> {
+                                        final IContainer c = event.getContainer();
+                                        c.size(cwh, 40 * langs.size() + 8).pos(cwhO, 48);
+                                        int y = 8;
+                                        final int cwhS = cwh - 16;
+                                        for (final String l : langs) {
+                                            c.add(
+                                                    lang.equals(l) ?
+                                                            UI.button(Lang.get(l)).size(cwhS, 32).pos(8, y).background(Theme.BACKGROUND_ACCENT_COLOR) :
+                                                            UI.button(Lang.get(l)).size(cwhS, 32).pos(8, y).onAction((b, se) -> {
+                                                                synchronized (config) {
+                                                                    config.put("lang", l);
+                                                                    try (final FileOutputStream fos = new FileOutputStream(new File(Core.getPath(FLCore.class), "config.ini"))) {
+                                                                        fos.write(config.toString().getBytes(StandardCharsets.UTF_8));
+                                                                    } catch (final IOException ex) {
+                                                                        ex.printStackTrace();
+                                                                    }
+                                                                }
+                                                                event.getSelf().text(Lang.get(l));
+                                                                event.close();
+                                                            })
+                                            );
+                                            y += 40;
+                                        }
+                                        return e.container;
+                                    })
+                            );
                         }
                     });
                 }
