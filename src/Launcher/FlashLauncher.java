@@ -152,6 +152,7 @@ public class FlashLauncher {
                 for (final FLMenuItemListener mbi : FLCore.HELP_ITEMS)
                     mb.add(mbi.id, mbi.icon, mbi.text, () -> {
                         final FLMenuItemEvent e = new FLMenuItemEvent(this, sc, mbi.icon);
+                        sc.clear();
                         mbi.onOpen(e);
                         menuBar.onChange(() -> {
                             synchronized (e.l) {
@@ -159,6 +160,7 @@ public class FlashLauncher {
                             }
                             return true;
                         });
+                        sc.update();
                     });
                 mb.select("launcher");
                 content.update();
@@ -180,6 +182,7 @@ public class FlashLauncher {
                 for (final FLMenuItemListener mbi : FLCore.SETTINGS_ITEMS)
                     mb.add(mbi.id, mbi.icon, mbi.text, () -> {
                         final FLMenuItemEvent e = new FLMenuItemEvent(this, sc, mbi.icon);
+                        sc.clear();
                         mbi.onOpen(e);
                         menuBar.onChange(() -> {
                             synchronized (e.l) {
@@ -187,6 +190,7 @@ public class FlashLauncher {
                             }
                             return true;
                         });
+                        sc.update();
                     });
                 mb.select("launcher");
                 content.update();
