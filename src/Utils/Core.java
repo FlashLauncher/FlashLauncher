@@ -29,7 +29,14 @@ public class Core {
             IS_LINUX,
             IS_MACOS,
 
+            /**
+             * @since FlashLauncher 0.2.1
+             */
             IS_64BIT,
+
+            /**
+             * @since FlashLauncher 0.2.1
+             */
             IS_32BIT
     ;
 
@@ -453,6 +460,15 @@ public class Core {
         }
     }
 
+    /**
+     * @since FlashLauncher 0.2.6
+     */
+    public static String syncGetString(final IniGroup iniGroup, final String key) {
+        synchronized (iniGroup) {
+            return iniGroup.getAsString(key);
+        }
+    }
+
     public static boolean contains(final char[] chars, final char ch) {
         for (final char c : chars)
             if (c == ch)
@@ -535,6 +551,9 @@ public class Core {
         return false;
     }
 
+    /**
+     * @since FlashLauncher 0.2.3
+     */
     public static byte[] toBytes(final char[] chars) {
         final ByteBuffer bb = StandardCharsets.UTF_8.encode(CharBuffer.wrap(chars));
         final byte[] d = new byte[bb.remaining()];
@@ -542,6 +561,9 @@ public class Core {
         return d;
     }
 
+    /**
+     * @since FlashLauncher 0.2.3
+     */
     public static byte[] toBytes(final char[] chars, final int offset, final int length) {
         final ByteBuffer bb = StandardCharsets.UTF_8.encode(CharBuffer.wrap(chars, offset, length));
         final byte[] d = new byte[bb.remaining()];
