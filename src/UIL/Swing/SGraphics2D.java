@@ -3,10 +3,7 @@ package UIL.Swing;
 import java.awt.*;
 import java.awt.font.FontRenderContext;
 import java.awt.font.GlyphVector;
-import java.awt.geom.AffineTransform;
-import java.awt.geom.Area;
-import java.awt.geom.Path2D;
-import java.awt.geom.RoundRectangle2D;
+import java.awt.geom.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.BufferedImageOp;
 import java.awt.image.ImageObserver;
@@ -222,39 +219,46 @@ public class SGraphics2D extends Graphics2D {
                 return;
             }
 
-            /*System.out.println("---");
-            System.out.println("// " + x + " " + y);
-            System.out.println("// " + cx + " " + cy);
-            System.out.println("// " + w + " " + h);
-            System.out.println("// " + cw + " " + ch);
-
-            System.out.println(r + " vs " + clip.getBounds() + ", " + ((RoundRectangle2D) clip).getArcWidth() + ", " + ((RoundRectangle2D) clip).getArcHeight());*/
-
             graphics.setClip(new Path2D.Double() {{
                 final double
                         sx = Math.max(x, cx), sy = Math.max(y, cy),
-                        ox = Math.max(x, cx + aw), oy = Math.max(y, cy + aw),
+                        ox = Math.max(x, cx + aw), oy = Math.max(y, cy + ah),
                         ew = Math.min(x + w, cx + cw), eh = Math.min(y + h, cy + ch),
                         ow = Math.min(x + w, cx + cw - aw), oh = Math.min(y + h, cy + ch - ah)
                 ;
 
-                moveTo(sx, oy);
-                curveTo(sx, sy, sx, sy, ox, sy);
-                lineTo(ow, sy);
-                curveTo(ew, sy, ew, sy, ew, oy);
-                lineTo(ew, oh);
-                curveTo(ew, eh, ew, eh, ow, eh);
-                lineTo(ox, eh);
-                curveTo(sx, eh, sx, eh, sx, oh);
-                lineTo(sx, oy);
-
+                if (sy >= oy) {
+                    moveTo(sx, sy);
+                    lineTo(ew, sy);
+                    lineTo(ew, oh);
+                    curveTo(ew, eh, ew, eh, ow, eh);
+                    lineTo(ox, eh);
+                    curveTo(sx, eh, sx, eh, sx, oh);
+                    lineTo(sx, sy);
+                } else if (oy > oh) {
+                    final double hy = (oy + oh) / 2;
+                    moveTo(sx, hy);
+                    curveTo(sx, sy, sx, sy, ox, sy);
+                    lineTo(ow, sy);
+                    curveTo(ew, sy, ew, sy, ew, hy);
+                    curveTo(ew, eh, ew, eh, ow, eh);
+                    lineTo(ox, eh);
+                    curveTo(sx, eh, sx, eh, sx, hy);
+                } else {
+                    moveTo(sx, oy);
+                    curveTo(sx, sy, sx, sy, ox, sy);
+                    lineTo(ow, sy);
+                    curveTo(ew, sy, ew, sy, ew, oy);
+                    lineTo(ew, oh);
+                    curveTo(ew, eh, ew, eh, ow, eh);
+                    lineTo(ox, eh);
+                    curveTo(sx, eh, sx, eh, sx, oh);
+                    lineTo(sx, oy);
+                }
                 closePath();
             }});
             return;
         }
-
-        //System.out.println(r + " vs " + clip);
-        //System.out.println(" - " + rb + " vs " + cb + " - " + rb.equals(cb));
 
         final Area a = new Area(r);
         a.intersect(new Area(clip));
