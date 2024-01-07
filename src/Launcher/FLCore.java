@@ -593,7 +593,7 @@ public class FLCore {
                                                     }
                                                 }).start();
                                             }),
-                                            UI.button(langHome, FSChooser.ICON_FOLDER).background(UI.PURPLE).imageOffset(6).size(96, 32).pos(c.width() - y - 96, y).onAction((s, e) -> {
+                                            UI.button(langHome, FSChooser.ICON_FOLDER).imageOffset(6).size(96, 32).pos(c.width() - y - 96, y).onAction((s, e) -> {
                                                 try {
                                                     final File f = launcher.profile.home(launcher.account);
                                                     if (f != null) {
