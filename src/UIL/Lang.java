@@ -22,17 +22,8 @@ public class Lang {
         }
     }
 
-    public static void add(final IniGroup... langs) {
-        synchronized (languages) {
-            Collections.addAll(languages, langs);
-        }
-    }
-
-    public static void remove(final IniGroup lang) {
-        synchronized (languages) {
-            languages.remove(lang);
-        }
-    }
+    public static void add(final IniGroup... langs) { synchronized (languages) { Collections.addAll(languages, langs); } }
+    public static boolean remove(final IniGroup lang) { synchronized (languages) { return languages.remove(lang); } }
 
     public static void update() {
         synchronized (languages) {
