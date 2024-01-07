@@ -72,6 +72,11 @@ public class FSChooser {
         ;
     }
 
+    /**
+     * @since FlashLauncher 0.2.6
+     */
+    public void setPath(final File path) { current = path; }
+
     public void refresh() {
         fileContainer.clear();
         buttons.clear();
