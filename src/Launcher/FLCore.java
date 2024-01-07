@@ -354,7 +354,7 @@ public class FLCore {
                                                 final IContainer container = le.getContainer();
                                                 container.background(UI.TRANSPARENT).size(cont.width(), cont.height() - h - 8).pos(0, 0);
                                                 final ContainerListBuilder clb = new ContainerListBuilder(UI.scrollPane()
-                                                                .size(container.width(), container.height()).content(UI.panel().size(container.width(), container.height())),
+                                                                .size(container.width(), container.height()).content(UI.panel().size(container.width(), container.height()).borderRadius(UI.ZERO)),
                                                         150, 8);
                                                 container.add(clb);
                                                 final Runnable r = Core.onNotifyLoop(accounts, () -> {
@@ -407,7 +407,7 @@ public class FLCore {
                                                 container.background(UI.TRANSPARENT).size(cont.width(), cont.height() - h - 8).pos(0, 0);
                                                 final ContainerListBuilder clb = new ContainerListBuilder(
                                                         UI.scrollPane().size(container.width(), container.height())
-                                                                .content(UI.panel().size(container.width(), container.height())),
+                                                                .content(UI.panel().size(container.width(), container.height()).borderRadius(UI.ZERO)),
                                                         150, 8);
                                                 container.add(clb);
                                                 final Runnable r = Core.onNotifyLoop(profiles, () -> {
@@ -593,7 +593,7 @@ public class FLCore {
                                                     }
                                                 }).start();
                                             }),
-                                            UI.button(langHome, FSChooser.ICON_FOLDER).imageOffset(6).size(96, 32).pos(c.width() - y - 96, y).onAction((s, e) -> {
+                                            UI.button(langHome, FSChooser.ICON_FOLDER).background(UI.PURPLE).imageOffset(6).size(96, 32).pos(c.width() - y - 96, y).onAction((s, e) -> {
                                                 try {
                                                     final File f = launcher.profile.home(launcher.account);
                                                     if (f != null) {
