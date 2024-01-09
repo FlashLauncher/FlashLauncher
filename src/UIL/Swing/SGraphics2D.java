@@ -201,33 +201,60 @@ public class SGraphics2D extends Graphics2D {
                 return;
             }
 
-            if (
-                    x == cx && y == cy &&
-                    w == cw && y <= ch
-            ) {
-                graphics.setClip(new Path2D.Double() {{
-                    final double p1w = x + w, p1h = y + h;
-                    moveTo(x, y);
-                    lineTo(p1w, y);
-                    lineTo(p1w, p1h - ah);
-                    curveTo(p1w, p1h, p1w, p1h, p1w - aw, p1h);
-                    lineTo(x + aw, p1h);
-                    curveTo(x, p1h, x, p1h, x, p1h - ah);
-                    lineTo(x, y);
-                    closePath();
-                }});
-                return;
-            }
+            final double
+                    sx = Math.max(x, cx), sy = Math.max(y, cy),
+                    ox = Math.max(x, cx + aw), oy = Math.max(y, cy + ah),
+                    ew = Math.min(x + w, cx + cw), eh = Math.min(y + h, cy + ch),
+                    ow = Math.min(x + w, cx + cw - aw), oh = Math.min(y + h, cy + ch - ah)
+            ;
+
+            /*graphics.setClip(new Path2D.Double() {{
+                if (sx == ox || sy == oy)
+                    moveTo(sx, sy);
+                else {
+                    moveTo(sx, oy);
+                    curveTo(sx, sy, sx, sy, ox, sy);
+                }
+
+                if (ew == ow || sy == oy)
+                    lineTo(ew, sy);
+                else {
+                    lineTo(ow, sy);
+                    curveTo(ew, sy, ew, sy, ew, oy);
+                }
+
+                if (ew == ow || eh == oh)
+                    lineTo(ew, eh);
+                else {
+                    lineTo(ew, oh);
+                    curveTo(ew, eh, ew, eh, ow, eh);
+                }
+
+                if (sx == ox || eh == oh)
+                    lineTo(sx, eh);
+                else {
+                    lineTo(ox, eh);
+                    curveTo(sx, eh, sx, eh, sx, oh);
+                }
+
+                lineTo(sx, oy);
+
+                closePath();
+            }});
+            return;*/
 
             graphics.setClip(new Path2D.Double() {{
-                final double
-                        sx = Math.max(x, cx), sy = Math.max(y, cy),
-                        ox = Math.max(x, cx + aw), oy = Math.max(y, cy + ah),
-                        ew = Math.min(x + w, cx + cw), eh = Math.min(y + h, cy + ch),
-                        ow = Math.min(x + w, cx + cw - aw), oh = Math.min(y + h, cy + ch - ah)
-                ;
-
-                if (sy >= oy) {
+                System.out.println("Here " + System.currentTimeMillis());
+                System.out.println(sy + " / " + oy + " / " + eh + " / " + oh);
+                if (eh <= oh) {
+                    moveTo(ox, sy);
+                    lineTo(ow, sy);
+                    curveTo(ew, sy, ew, sy, ew, oy);
+                    lineTo(ew, oh);
+                    lineTo(sx, oh);
+                    lineTo(sx, oy);
+                    curveTo(sx, sy, sx, sy, ox, sy);
+                } else if (sy >= oy) {
                     moveTo(sx, sy);
                     lineTo(ew, sy);
                     lineTo(ew, oh);
