@@ -244,8 +244,6 @@ public class SGraphics2D extends Graphics2D {
             return;*/
 
             graphics.setClip(new Path2D.Double() {{
-                System.out.println("Here " + System.currentTimeMillis());
-                System.out.println(sy + " / " + oy + " / " + eh + " / " + oh);
                 if (eh <= oh) {
                     moveTo(ox, sy);
                     lineTo(ow, sy);
