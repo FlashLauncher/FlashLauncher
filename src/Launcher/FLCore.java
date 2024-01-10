@@ -1088,8 +1088,11 @@ public class FLCore {
 
                                 final ListMap<String, ArrayList<FixedEntry<Market, Meta>>> mel = new ListMap<>();
 
-                                for (final Market m : ml)
-                                    for (final Meta me : m.find(q)) {
+                                for (final Market m : ml) {
+                                    final Meta[] l = m.find(q);
+                                    if (l == null)
+                                        continue;
+                                    for (final Meta me : l) {
                                         final ArrayList<FixedEntry<Market, Meta>> i = mel.get(me.getID());
                                         if (i == null)
                                             mel.put(me.getID(), new ArrayList<FixedEntry<Market, Meta>>() {{
@@ -1098,6 +1101,7 @@ public class FLCore {
                                         else
                                             i.add(new FixedEntry<>(m, me));
                                     }
+                                }
 
                                 /*final IFont font = Theme.FONT;
                                 int tw = ilb.getChildWidth() - Meta.ICON_SIZE - 72, sdw = ilb.getChildWidth() - 16;
