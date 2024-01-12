@@ -588,4 +588,15 @@ public class Core {
             }
         };
     }
+
+    /**
+     * @since FlashLauncher 0.2.6.2
+     */
+    public static <K, V> void sort(final Map<K, V> map, final Comparator<Map.Entry<K, V>> comparator) {
+        final ArrayList<Map.Entry<K, V>> l = new ArrayList<>(map.entrySet());
+        l.sort(comparator);
+        map.clear();
+        for (final Map.Entry<K, V> e : l)
+            map.put(e.getKey(), e.getValue());
+    }
 }
