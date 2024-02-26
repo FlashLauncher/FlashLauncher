@@ -89,4 +89,9 @@ public class FSZip extends FSRoot {
         @Override public boolean isDir() { return d; }
         @Override public String toString() { return p + "/" + n; }
     }
+
+    @Override
+    public String toString() {
+        return a.toString();
+    }
 }
