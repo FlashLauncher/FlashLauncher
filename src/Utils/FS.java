@@ -101,7 +101,9 @@ public class FS {
                     if (r.exists(path))
                         try {
                             return r.readFully(path);
-                        } catch (final IOException ignored) {}
+                        } catch (final IOException ex) {
+                            ex.printStackTrace();
+                        }
             }
             throw new IOException("File " + path + " not found!");
         }
