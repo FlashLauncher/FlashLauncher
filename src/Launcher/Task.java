@@ -13,7 +13,13 @@ public abstract class Task {
 
     final void LRun() {
         try {
-            run();
+            try {
+                run();
+            } catch (final LinkageError ex) {
+                ex.printStackTrace();
+                ex.fillInStackTrace();
+                ex.printStackTrace();
+            }
             synchronized (po) {
                 f = true;
                 l = false;
