@@ -51,6 +51,22 @@ public class IO {
                 };
             } catch (final NoSuchMethodException ignored) {}
             try {
+                final Method m = c.getDeclaredMethod("readAllBytes", InputStream.class);
+                return is -> {
+                    try {
+                        return (byte[]) m.invoke(null, is);
+                    } catch (final Throwable ex) {
+                        if (ex instanceof InvocationTargetException) {
+                            final Throwable e = ((InvocationTargetException) ex).getTargetException();
+                            if (e instanceof NullPointerException)
+                                throw (NullPointerException) e;
+                            throw (IOException) e;
+                        }
+                        throw new IOException(ex);
+                    }
+                };
+            } catch (final NoSuchMethodException ignored) {}
+            try {
                 final Method m = c.getDeclaredMethod("readFully", InputStream.class, int.class, boolean.class);
                 return is -> {
                     try {
