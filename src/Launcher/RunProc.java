@@ -26,6 +26,12 @@ public class RunProc {
     ;
 
     public final ConcurrentHashMap<String, Object> generalObjects = new ConcurrentHashMap<>();
+
+    /**
+     * @since FlashLauncher 0.2.7
+     */
+    public final ConcurrentHashMap<String, String> env = new ConcurrentHashMap<>();
+
     public File workDir = null;
 
     public RunProc(final FlashLauncher launcher, final IAccount account, final IProfile profile) {
