@@ -169,6 +169,45 @@ public class FLCore {
     }
 
     public static void main(final String[] args) {
+        final FastList<String> doNotUpdate = new FastList<>(new String[0]);
+
+        for (int i = 0; i < args.length; i++) {
+            String arg = args[i];
+            if (arg.startsWith("--dev")) {
+                if (arg.length() == 5) {
+                    i++;
+                    if (i < args.length) {
+                        if (!args[i].isEmpty())
+                            doNotUpdate.addAll(Arrays.asList(args[i].split(",")));
+                        continue;
+                    } else {
+                        System.err.println("--dev package1,package2");
+                        UI.UI.dispose();
+                        System.exit(1);
+                        return;
+                    }
+                } else if (arg.charAt(5) == '=') {
+                    if (arg.length() != 6)
+                        doNotUpdate.addAll(Arrays.asList(arg.substring(6).split(",")));
+                    continue;
+                } else {
+                    System.err.println("--dev=package1,package2");
+                    UI.UI.dispose();
+                    System.exit(1);
+                    return;
+                }
+            }
+            System.err.println("Unrecognized argument: " + arg);
+            UI.UI.dispose();
+            System.exit(1);
+            return;
+        }
+
+        if (!doNotUpdate.isEmpty()) {
+            doNotUpdate.optimize();
+            System.out.println("Updates will be skipped for: " + doNotUpdate);
+        }
+
         try {
             server = new ServerSocket();
             server.bind(new InetSocketAddress("127.0.0.1", PORT));
@@ -550,9 +589,11 @@ public class FLCore {
                                                                 System.out.print(arg.contains(" ") ? " \"" + arg + '"' : ' ' + arg);
                                                             System.out.println();*/
 
-                                                            proc = s.process = new ProcessBuilder(
+                                                            final ProcessBuilder b = new ProcessBuilder(
                                                                     args.toArray(new String[0])
-                                                            ).directory(s.rp.workDir).start();
+                                                            ).directory(s.rp.workDir);
+                                                            b.environment().putAll(s.rp.env);
+                                                            proc = s.process = b.start();
                                                         } catch (final Exception ex) {
                                                             for (final LaunchListener ll : s.l)
                                                                 ll.cancel();
@@ -562,6 +603,7 @@ public class FLCore {
                                                         s.rp.beginArgs.clear();
                                                         s.rp.args.clear();
                                                         s.rp.endArgs.clear();
+                                                        s.rp.env.clear();
 
                                                         synchronized (s.rp.l) {
                                                             s.rp.r = true;
@@ -1934,7 +1976,7 @@ public class FLCore {
                     final String id = m.getID();
                     final ArrayList<InstalledMeta> cml = new ArrayList<>();
                     for (final InstalledMeta meta : mel)
-                        if (id.equals(meta.market))
+                        if (id.equals(meta.market) && !doNotUpdate.contains(meta.getID()))
                             cml.add(meta);
                     if (cml.isEmpty())
                         m.checkForUpdates();
