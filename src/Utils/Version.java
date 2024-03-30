@@ -23,10 +23,13 @@ public class Version {
                         try {
                             if (Integer.parseInt(l1[i]) > Integer.parseInt(l2[i]))
                                 continue m;
+                            return !m;
                         } catch (final Exception ex) {
                             ex.printStackTrace();
                             continue m;
                         }
+                if (m)
+                    return l2.length < l1.length;
                 return l2.length >= l1.length;
             }
 
