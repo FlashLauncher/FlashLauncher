@@ -1839,8 +1839,11 @@ public class FLCore {
                             r.dependencies.put(d, "*");
                         } else {
                             final String id = d.substring(0, ii), ver = d.substring(ii + 1);
-                            if (id.equals(FlashLauncher.ID) && FlashLauncher.VERSION.isCompatibility(ver))
-                                continue;
+                            if (id.equals(FlashLauncher.ID))
+                                if (FlashLauncher.VERSION.isCompatibility(ver))
+                                    continue;
+                                else
+                                    System.out.println("Skipped " + id + " because launcher version is " + FlashLauncher.VERSION + ", but requirement is " + ver);
                             r.dependencies.put(id, ver);
                         }
                     }
