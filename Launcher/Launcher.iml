@@ -7,5 +7,10 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="module" module-name="i4Utils" scope="PROVIDED" />
+    <orderEntry type="module" module-name="FLCore" scope="PROVIDED" />
+    <orderEntry type="module" module-name="i4Framework" scope="PROVIDED" />
+    <orderEntry type="module" module-name="i4Framework.swing" scope="PROVIDED" />
+    <orderEntry type="module" module-name="Loader" scope="PROVIDED" />
   </component>
 </module>

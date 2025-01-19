@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="FLCore:jar">
+    <output-path>$PROJECT_DIR$/Loader/res</output-path>
+    <root id="archive" name="FLCore.jar">
+      <element id="module-output" name="FLCore" />
+    </root>
+  </artifact>
+</component>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/FLCore/FLCore.iml" filepath="$PROJECT_DIR$/FLCore/FLCore.iml" />
+      <module fileurl="file://$PROJECT_DIR$/FlashLauncher.iml" filepath="$PROJECT_DIR$/FlashLauncher.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Launcher/Launcher.iml" filepath="$PROJECT_DIR$/Launcher/Launcher.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Loader/Loader.iml" filepath="$PROJECT_DIR$/Loader/Loader.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../i4Language/i4Framework/i4Framework.iml" filepath="$PROJECT_DIR$/../i4Language/i4Framework/i4Framework.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../i4Language/i4Framework.lwjgl3/i4Framework.lwjgl3.iml" filepath="$PROJECT_DIR$/../i4Language/i4Framework.lwjgl3/i4Framework.lwjgl3.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../i4Language/i4Framework.swing/i4Framework.swing.iml" filepath="$PROJECT_DIR$/../i4Language/i4Framework.swing/i4Framework.swing.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../i4Language/i4Utils/i4Utils.iml" filepath="$PROJECT_DIR$/../i4Language/i4Utils/i4Utils.iml" />
+    </modules>
+  </component>
+</project>

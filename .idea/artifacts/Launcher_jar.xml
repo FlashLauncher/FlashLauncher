@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="Launcher:jar">
+    <output-path>$PROJECT_DIR$/Loader/res</output-path>
+    <root id="archive" name="FlashLauncher.jar">
+      <element id="module-output" name="Launcher" />
+    </root>
+  </artifact>
+</component>
