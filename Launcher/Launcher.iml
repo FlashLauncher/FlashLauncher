@@ -3,14 +3,14 @@
   <component name="NewModuleRootManager" inherit-compiler-output="true">
     <exclude-output />
     <content url="file://$MODULE_DIR$">
+      <sourceFolder url="file://$MODULE_DIR$/assets" type="java-resource" />
       <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="module" module-name="i4Utils" scope="PROVIDED" />
-    <orderEntry type="module" module-name="FLCore" scope="PROVIDED" />
-    <orderEntry type="module" module-name="i4Framework" scope="PROVIDED" />
-    <orderEntry type="module" module-name="i4Framework.swing" scope="PROVIDED" />
-    <orderEntry type="module" module-name="Loader" scope="PROVIDED" />
+    <orderEntry type="module" module-name="i4Utils" />
+    <orderEntry type="module" module-name="i4Framework" />
+    <orderEntry type="module" module-name="i4Framework.desktop" />
+    <orderEntry type="module" module-name="i4Framework.swing" />
   </component>
 </module>
