@@ -1,3 +1,0 @@
-Manifest-Version: 1.0
-Main-Class: illa4257.flashlauncher.Loader
-

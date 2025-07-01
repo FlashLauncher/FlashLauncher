@@ -4,12 +4,10 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
-import java.util.zip.ZipEntry;
 
 public class Loader {
     public static class ResourceClassLoader extends ClassLoader {
@@ -56,8 +54,15 @@ public class Loader {
 
         @Override
         public InputStream getResourceAsStream(final String name) {
-            final InputStream is = internalOpenStream(name);
-            return is == null ? super.getResourceAsStream(name) : is;
+            InputStream is = internalOpenStream(name);
+            if (is != null)
+                return is;
+            for (final ResourceClassLoader cl : resourceClassLoaders) {
+                is = cl.internalOpenStream(name);
+                if (is != null)
+                    return is;
+            }
+            return super.getResourceAsStream(name);
         }
 
         protected Class<?> internalLoadClass(final String name) {
