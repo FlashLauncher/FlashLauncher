@@ -17,7 +17,7 @@ CubeLoader {
 .play-menu-bar,
 .loader-panel,
 .menu-bar {
-    background-color: #eee9;
+    background-color: #1119;
     border-radius: 8px;
 }
 
@@ -27,7 +27,7 @@ CubeLoader {
 }
 
 .menu-item:selected {
-    background-color: #fff7;
+    background-color: #0007;
 }
 
 .play-menu-bar {

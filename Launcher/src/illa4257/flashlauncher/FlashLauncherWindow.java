@@ -1,6 +1,7 @@
 package illa4257.flashlauncher;
 
 import illa4257.flashlauncher.components.CubeLoader;
+import illa4257.flashlauncher.events.OnAdd;
 import illa4257.i4Framework.base.FrameworkWindow;
 import illa4257.i4Framework.base.components.*;
 import illa4257.i4Framework.base.events.components.ActionEvent;
@@ -9,12 +10,12 @@ import illa4257.i4Framework.base.points.Point;
 import illa4257.i4Framework.base.points.PointAttach;
 import illa4257.i4Utils.Arch;
 import illa4257.i4Utils.JavaInfo;
-import illa4257.i4Utils.QueueObserver;
 import illa4257.i4Utils.logger.i4Logger;
 
 import java.io.File;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -82,6 +83,7 @@ public class FlashLauncherWindow extends Window {
         loaderLabel.setY(128);
         loaderPanel.add(loaderLabel);
 
+        setTitle("FlashLauncher");
         setSize(720, 480);
         center();
         setVisible(true);
@@ -94,15 +96,6 @@ public class FlashLauncherWindow extends Window {
                     repaint();
                 });
                 invokeLater(this::initUI);
-            } catch (final Exception ex) {
-                L.log(ex);
-            }
-        }).start();
-
-        new Thread(() -> {
-            try {
-                Thread.sleep(1000);
-                FlashLauncher.portableJavaList.add(JavaInfo.check(new File(System.getProperty("java.home") + (Arch.JVM.IS_WINDOWS ? "/bin/java.exe" : "/bin/java"))));
             } catch (final Exception ex) {
                 L.log(ex);
             }
@@ -205,6 +198,12 @@ public class FlashLauncherWindow extends Window {
             tabs.setEndX(c.width);
             tabs.setEndY(c.height);
             tabs.addTab(t);
+            tabs.addTab(new TabPane.Tab("Local Javas", observedQueue(FlashLauncher.localJavaList, ji -> {
+                final Button j = new Button(ji.distribution.displayName + " " + ji.majorVersion);
+                j.setWidth(128);
+                j.setHeight(128);
+                return j;
+            }), false));
             tabs.selectTab(t);
             c.add(tabs);
         });
@@ -212,32 +211,12 @@ public class FlashLauncherWindow extends Window {
         open("javaList");
     }
 
-    private static <T> Container observedQueue(final QueueObserver.ObservedQueue<T> queue, final Function<T, Component> elementConstructor) {
+    public <T> Container observedQueue(final QueueTrigger<T> queue, final Function<T, Component> elementConstructor) {
         return new Panel() {
-            private final QueueObserver<T> o = new QueueObserver<T>() {
-                private final ConcurrentHashMap<T, Component> components = new ConcurrentHashMap<>();
-
-                @Override
-                public void onInit(Queue<T> queue) {
-                    for (final T e : queue) {
-                        final Component c = elementConstructor.apply(e);
-                        components.put(e, c);
-                        add(c);
-                    }
-                }
-
-                @Override
-                public void onAdd(T element) {
-                    final Component c = elementConstructor.apply(element);
-                    components.put(element, c);
-                    add(c);
-                }
-
-                @Override
-                public void onRemove(T element) {
-                    remove(components.remove(element));
-                }
-            };
+            public void onAdd(final OnAdd<T> e) {
+                if (e.queue == queue)
+                    add(elementConstructor.apply(e.element));
+            }
 
             @Override
             public boolean add(Component component) {
@@ -252,13 +231,15 @@ public class FlashLauncherWindow extends Window {
             @Override
             public void onConstruct() {
                 super.onConstruct();
-                queue.addObserver(o);
+                for (final T e : queue)
+                    add(elementConstructor.apply(e));
+                getWindow().addEventListener(OnAdd.class, this::onAdd);
             }
 
             @Override
             public void onDestruct() {
                 super.onDestruct();
-                queue.removeObserver(o);
+                getWindow().removeEventListener(this::onAdd);
             }
         };
     }
