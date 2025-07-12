@@ -5,17 +5,14 @@ import illa4257.flashlauncher.events.OnAdd;
 import illa4257.i4Framework.base.FrameworkWindow;
 import illa4257.i4Framework.base.components.*;
 import illa4257.i4Framework.base.events.components.ActionEvent;
+import illa4257.i4Framework.base.math.HorizontalAlign;
 import illa4257.i4Framework.base.points.PPointAdd;
 import illa4257.i4Framework.base.points.Point;
 import illa4257.i4Framework.base.points.PointAttach;
-import illa4257.i4Utils.Arch;
-import illa4257.i4Utils.JavaInfo;
+import illa4257.i4Framework.base.styling.StyleSetting;
 import illa4257.i4Utils.logger.i4Logger;
 
-import java.io.File;
-import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -79,6 +76,7 @@ public class FlashLauncherWindow extends Window {
         loaderPanel.add(loader);
 
         final Label loaderLabel = new Label("Loading ...");
+        loaderLabel.styles.put("text-align", new StyleSetting("center"));
         loaderLabel.setSize(128, 64);
         loaderLabel.setY(128);
         loaderPanel.add(loaderLabel);
@@ -88,9 +86,9 @@ public class FlashLauncherWindow extends Window {
         center();
         setVisible(true);
 
-        new Thread(() -> {
+        FlashLauncher.threadPoolShort.submit(() -> {
             try {
-                Thread.sleep(10);
+                FlashLauncher.loader.join();
                 invokeLater(() -> {
                     remove(loaderPanel);
                     repaint();
@@ -99,7 +97,7 @@ public class FlashLauncherWindow extends Window {
             } catch (final Exception ex) {
                 L.log(ex);
             }
-        }).start();
+        });
     }
 
     public void open(final String menuItem) {
@@ -204,6 +202,8 @@ public class FlashLauncherWindow extends Window {
                 j.setHeight(128);
                 return j;
             }), false));
+            final Panel add = new Panel();
+            tabs.addTab(new TabPane.Tab("+", add, false));
             tabs.selectTab(t);
             c.add(tabs);
         });
