@@ -12,6 +12,11 @@ public final class TaskGroup extends Task {
         maxProgress.set(this.tasks.size());
     }
 
+    public TaskGroup(final ConcurrentLinkedQueue<Task> tasks) {
+        this.tasks = tasks;
+        maxProgress.set(tasks.size());
+    }
+
     @Override
     protected void run() throws Throwable {
         while (true) {

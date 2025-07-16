@@ -11,6 +11,7 @@ import illa4257.i4Utils.io.IO;
 import illa4257.i4Utils.io.MultiSocket;
 import illa4257.i4Utils.io.MultiSocketFactory;
 import illa4257.i4Utils.io.MultiSocketServer;
+import illa4257.i4Utils.lang.LangMgr;
 import illa4257.i4Utils.lists.ArrNotifier;
 import illa4257.i4Utils.logger.*;
 
@@ -42,12 +43,14 @@ public class FlashLauncher {
 
     protected static volatile TaskGroup loader;
 
+    public static final LangMgr lang = new LangMgr();
+
     private static void init(final MultiSocketServer server) throws Exception {
         framework.addThemeListener(FlashLauncher::onThemeUpdate);
         onThemeUpdate(framework.getTheme(), framework.getBaseTheme());
 
-        Cache.images.putIfAbsent("background2", framework.getImage("assets:///illa4257/flash-launcher/images/backgrounds/background2.png"));
-        Cache.images.putIfAbsent("background1", framework.getImage("assets:///illa4257/flash-launcher/images/backgrounds/background1.jpg"));
+        Cache.images.putIfAbsent("background2", framework.getImage("assets:///illa4257/flashlauncher/images/backgrounds/background2.png"));
+        Cache.images.putIfAbsent("background1", framework.getImage("assets:///illa4257/flashlauncher/images/backgrounds/background1.jpg"));
 
         L.registerHandler(new LogHandler() {
             @Override
@@ -91,14 +94,31 @@ public class FlashLauncher {
             }
         }.start();
 
-        runTaskGroup(loader = new TaskGroup(
-                new Task() {
-                    @Override
-                    protected void run() throws Exception {
-                        portableJavaList.add(JavaInfo.check(new File(System.getProperty("java.home") + (Arch.JVM.IS_WINDOWS ? "/bin/java.exe" : "/bin/java"))));
-                    }
-                }
-        ));
+        final ConcurrentLinkedQueue<Task> loaderTasks = new ConcurrentLinkedQueue<>();
+
+        try {
+            final File cfg = new File(framework.getLocalAppDataDir(), "config.json");
+            if (cfg.exists()) {
+                System.out.println("Parse " + cfg);
+            }
+        } catch (final Exception ex) {
+            L.log(ex);
+        }
+
+        loaderTasks.offer(new Task() {
+            @Override
+            protected void run() throws Exception {
+                portableJavaList.add(JavaInfo.check(new File(System.getProperty("java.home") + (Arch.JVM.IS_WINDOWS ? "/bin/java.exe" : "/bin/java"))));
+            }
+        });
+        loaderTasks.offer(new Task() {
+            @Override
+            protected void run() {
+                lang.put("play", "Play");
+            }
+        });
+
+        runTaskGroup(loader = new TaskGroup(loaderTasks));
 
         new FlashLauncherWindow();
 
@@ -108,7 +128,7 @@ public class FlashLauncher {
 
     public static void onThemeUpdate(final String theme, final BaseTheme baseTheme) {
         framework.stylesheet.clear();
-        try (final InputStreamReader r = new InputStreamReader(framework.openResource("assets:///illa4257/flash-launcher/styles/" + baseTheme.name().toLowerCase() + ".css"))) {
+        try (final InputStreamReader r = new InputStreamReader(framework.openResource("assets:///illa4257/flashlauncher/styles/" + baseTheme.name().toLowerCase() + ".css"))) {
             CSSParser.parse(framework.stylesheet, r);
         } catch (final Exception ex) {
             L.log(ex);
@@ -139,7 +159,7 @@ public class FlashLauncher {
             f.close();
             return;
         }
-        framework = SwingFramework.INSTANCE;
+        framework = new SwingFramework("FlashLauncher");
         init(serv);
     }
 

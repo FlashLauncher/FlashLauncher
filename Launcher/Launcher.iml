@@ -8,6 +8,7 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="google.code.gson" level="application" />
     <orderEntry type="module" module-name="i4Utils" />
     <orderEntry type="module" module-name="i4Framework" />
     <orderEntry type="module" module-name="i4Framework.desktop" />

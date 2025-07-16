@@ -5,11 +5,11 @@ import illa4257.flashlauncher.events.OnAdd;
 import illa4257.i4Framework.base.FrameworkWindow;
 import illa4257.i4Framework.base.components.*;
 import illa4257.i4Framework.base.events.components.ActionEvent;
-import illa4257.i4Framework.base.math.HorizontalAlign;
 import illa4257.i4Framework.base.points.PPointAdd;
 import illa4257.i4Framework.base.points.Point;
 import illa4257.i4Framework.base.points.PointAttach;
 import illa4257.i4Framework.base.styling.StyleSetting;
+import illa4257.i4Utils.lang.LangMgr;
 import illa4257.i4Utils.logger.i4Logger;
 
 import java.util.concurrent.ConcurrentHashMap;
@@ -20,14 +20,14 @@ public class FlashLauncherWindow extends Window {
     public static final i4Logger L = FlashLauncher.L;
     private static final ConcurrentHashMap<String, Button> topMenu = new ConcurrentHashMap<>();
 
+    private static final LangMgr lang = FlashLauncher.lang;
+
     public final FrameworkWindow frameworkWindow;
 
     public final Panel menuBar = new Panel();
 
     private Button currentItem = null;
     private Point lastTopPoint = null;
-
-    public final Button play = new Button("P"), javaList = new Button("J");
 
     Container container = null;
 
@@ -169,7 +169,7 @@ public class FlashLauncherWindow extends Window {
             final float o = 8;
             final Point eY = new PointAttach(-o, p.height);
 
-            final Button play = new Button("play");
+            final Button play = new Button(lang.of("play"));
             play.setLocation(o, o);
             play.setWidth(96);
             play.setEndY(eY);
@@ -208,7 +208,7 @@ public class FlashLauncherWindow extends Window {
             c.add(tabs);
         });
 
-        open("javaList");
+        open("play");
     }
 
     public <T> Container observedQueue(final QueueTrigger<T> queue, final Function<T, Component> elementConstructor) {
