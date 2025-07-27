@@ -1,5 +1,7 @@
 package illa4257.flashlauncher;
 
+import illa4257.flashlauncher.accounts.Account;
+import illa4257.flashlauncher.instances.Instance;
 import illa4257.i4Framework.base.Framework;
 import illa4257.i4Framework.base.events.components.StyleUpdateEvent;
 import illa4257.i4Framework.base.styling.BaseTheme;
@@ -37,6 +39,8 @@ public class FlashLauncher {
     public static Framework framework;
     static final QueueTrigger<JavaInfo> portableJavaList = new QueueTrigger<>(), localJavaList = new QueueTrigger<>();
 
+    static final QueueTrigger<Account> accounts = new QueueTrigger<>();
+    static final QueueTrigger<Instance> instances = new QueueTrigger<>();
 
     protected static final LinkedBlockingQueue<Task> tasks = new LinkedBlockingQueue<>();
     private static final int threadNumber = 2;

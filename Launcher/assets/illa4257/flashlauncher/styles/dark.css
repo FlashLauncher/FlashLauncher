@@ -6,8 +6,15 @@ TabPane {
     --tabs-background-color: transparent;
 }
 
-.tab-element {
-    border-radius: 8px;
+Panel {
+    border-radius: 8dp;
+}
+
+TextField,
+Button {
+    background-color: #ccc1;
+    border-color:     #ccc2;
+    border-width: 1dp;
 }
 
 CubeLoader {
@@ -18,7 +25,6 @@ CubeLoader {
 .loader-panel,
 .menu-bar {
     background-color: #1119;
-    border-radius: 8px;
 }
 
 .menu-item {

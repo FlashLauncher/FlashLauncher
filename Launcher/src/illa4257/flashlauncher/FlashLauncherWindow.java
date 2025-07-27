@@ -6,8 +6,12 @@ import illa4257.i4Framework.base.FrameworkWindow;
 import illa4257.i4Framework.base.components.*;
 import illa4257.i4Framework.base.events.components.ActionEvent;
 import illa4257.i4Framework.base.points.PPointAdd;
+import illa4257.i4Framework.base.points.PPointSubtract;
 import illa4257.i4Framework.base.points.Point;
 import illa4257.i4Framework.base.points.PointAttach;
+import illa4257.i4Framework.base.points.numbers.NumberPointConstant;
+import illa4257.i4Framework.base.points.numbers.NumberPointMultiplier;
+import illa4257.i4Framework.base.points.ops.PPointMultiplier;
 import illa4257.i4Framework.base.styling.StyleSetting;
 import illa4257.i4Utils.lang.LangMgr;
 import illa4257.i4Utils.logger.i4Logger;
@@ -15,6 +19,8 @@ import illa4257.i4Utils.logger.i4Logger;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 import java.util.function.Function;
+
+import static illa4257.i4Framework.base.math.Unit.DP;
 
 public class FlashLauncherWindow extends Window {
     public static final i4Logger L = FlashLauncher.L;
@@ -25,6 +31,9 @@ public class FlashLauncherWindow extends Window {
     public final FrameworkWindow frameworkWindow;
 
     public final Panel menuBar = new Panel();
+
+    public final Point
+            dp8 = new NumberPointMultiplier(8, densityMultiplier);
 
     private Button currentItem = null;
     private Point lastTopPoint = null;
@@ -91,9 +100,10 @@ public class FlashLauncherWindow extends Window {
                 FlashLauncher.loader.join();
                 invokeLater(() -> {
                     remove(loaderPanel);
+                    densityMultiplier.set(new NumberPointConstant(2));
+                    initUI();
                     repaint();
                 });
-                invokeLater(this::initUI);
             } catch (final Exception ex) {
                 L.log(ex);
             }
@@ -159,21 +169,48 @@ public class FlashLauncherWindow extends Window {
         elementEndX = new PointAttach(-elementMargin, menuBar.width);
 
         newTopElement("play", "Play", c -> {
+            final Point
+                    dp8 = new NumberPointMultiplier(8, densityMultiplier),
+                    dp56 = new NumberPointMultiplier(56, densityMultiplier);
+
             final Panel p = new Panel();
             p.classes.add("play-menu-bar");
-            p.setStartY(new PointAttach(-64, p.endY));
+            p.setStartY(new PPointSubtract(p.endY, dp56));
             p.setEndX(c.width);
             p.setEndY(c.height);
             c.add(p);
 
-            final float o = 8;
-            final Point eY = new PointAttach(-o, p.height);
+            final Point eY = new PPointSubtract(p.height, dp8);
+
+            final TextField account = new TextField();
+            account.hint = "Account";
+            account.setStartX(dp8);
+            account.setStartY(dp8);
+            account.setWidth(144, DP);
+            account.setEndY(eY);
+            p.add(account);
+
+            final TextField profile = new TextField();
+            profile.hint = "Profile";
+            profile.setStartX(new PPointAdd(account.endX, dp8));
+            profile.setStartY(account.startY);
+            profile.setWidth(account.width);
+            profile.setEndY(eY);
+            p.add(profile);
 
             final Button play = new Button(lang.of("play"));
-            play.setLocation(o, o);
-            play.setWidth(96);
+            play.setStartX(new PPointAdd(profile.endX, dp8));
+            play.setStartY(account.startY);
+            play.setWidth(account.width);
             play.setEndY(eY);
             p.add(play);
+
+            final Button home = new Button(lang.of("home"));
+            home.setStartX(new PPointAdd(play.endX, dp8));
+            home.setStartY(account.startY);
+            home.setWidth(account.width);
+            home.setEndY(eY);
+            p.add(home);
 
             final TabPane.Tab tab = new TabPane.Tab("Logs", new Panel(), false);
             final TabPane tabs = new TabPane();
