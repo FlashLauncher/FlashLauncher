@@ -13,8 +13,12 @@ Panel {
 TextField,
 Button {
     background-color: #ccc1;
-    border-color:     #ccc2;
-    border-width: 1dp;
+    border-color:     #ccc3;
+    border-width: 2dp;
+}
+
+Button:hover {
+    background-color: #ccc2;
 }
 
 CubeLoader {
@@ -24,7 +28,7 @@ CubeLoader {
 .play-menu-bar,
 .loader-panel,
 .menu-bar {
-    background-color: #1119;
+    background-color: #111c;
 }
 
 .menu-item {
