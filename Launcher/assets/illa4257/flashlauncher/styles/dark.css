@@ -29,11 +29,13 @@ CubeLoader {
 .loader-panel,
 .menu-bar {
     background-color: #111c;
+    border-radius: 14dp;
 }
 
 .menu-item {
     background-color: transparent;
     border-width: 0px;
+    border-radius: 11dp;
 }
 
 .menu-item:selected {
