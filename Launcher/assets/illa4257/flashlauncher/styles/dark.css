@@ -14,7 +14,7 @@ TextField,
 Button {
     background-color: #ccc1;
     border-color:     #ccc3;
-    border-width: 2dp;
+    border-width: 1dp;
 }
 
 Button:hover {

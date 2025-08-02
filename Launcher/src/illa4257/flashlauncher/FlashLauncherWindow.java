@@ -9,9 +9,7 @@ import illa4257.i4Framework.base.points.PPointAdd;
 import illa4257.i4Framework.base.points.PPointSubtract;
 import illa4257.i4Framework.base.points.Point;
 import illa4257.i4Framework.base.points.PointAttach;
-import illa4257.i4Framework.base.points.numbers.NumberPointConstant;
 import illa4257.i4Framework.base.points.numbers.NumberPointMultiplier;
-import illa4257.i4Framework.base.points.ops.PPointMultiplier;
 import illa4257.i4Framework.base.styling.StyleSetting;
 import illa4257.i4Utils.lang.LangMgr;
 import illa4257.i4Utils.logger.i4Logger;
@@ -100,7 +98,6 @@ public class FlashLauncherWindow extends Window {
                 FlashLauncher.loader.join();
                 invokeLater(() -> {
                     remove(loaderPanel);
-                    densityMultiplier.set(new NumberPointConstant(2));
                     initUI();
                     repaint();
                 });
